@@ -1,0 +1,18 @@
+.container {
+    margin: 50px 70px;
+}
+
+.row {
+    height: 600px;
+}
+
+#lijevo button {
+    width: 100%;
+    margin-bottom: 15px;
+    font-size: large;
+    padding: 30px 5px;
+}
+
+#desno {
+    border: 1px solid black;
+}
