@@ -1,1 +1,20 @@
-<p>dizajner-lekcija works!</p>
+<h1>Moje lekcije</h1>
+<button id="dodaj_lekciju" class="btn btn-primary" (click)="dodajLekciju('nl')">Dodaj lekciju</button>
+<br/>
+<label>Odaberite temu:</label><br/>
+<select class="form-select" aria-label="Default select example" [(ngModel)]="selectedTema" (change)="onTemaSelected($event)">
+    <option disabled value="0">Odaberite</option>
+    <option *ngFor="let tema of teme$ | async" [value]="tema.id">{{tema.tema}}</option>
+</select>
+<div *ngIf="podteme">
+  <label>Odaberite podtemu:</label><br/>
+  <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedPodtema" (change)="onPodtemaSelected($event)">
+    <option selected disabled value="0">Odaberite</option>
+    <option *ngFor="let podtema of podteme" [value]="podtema.id">{{podtema.naziv}}</option>
+  </select>
+</div>
+<div *ngIf="zadatci">
+  <div class="list-group">
+    <a *ngFor="let zadatak of zadatci" href="#" class="list-group-item list-group-item-action">{{zadatak.tekst_zadatka}}</a>
+  </div>
+</div>

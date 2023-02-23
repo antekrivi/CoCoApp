@@ -7,6 +7,8 @@ import { DizajnerPocetnoComponent } from './dizajner-pocetno/dizajner-pocetno.co
 import { IzbornikComponent } from './izbornik/izbornik.component';
 import { OkvirComponent } from './okvir/okvir.component';
 import { DizajnerLekcijaComponent } from './dizajner-lekcija/dizajner-lekcija.component';
+import { FormsModule } from '@angular/forms';
+import { NovaLekcijaComponent } from './nova-lekcija/nova-lekcija.component';
 
 @NgModule({
   declarations: [
@@ -14,11 +16,13 @@ import { DizajnerLekcijaComponent } from './dizajner-lekcija/dizajner-lekcija.co
     DizajnerPocetnoComponent,
     IzbornikComponent,
     OkvirComponent,
-    DizajnerLekcijaComponent
+    DizajnerLekcijaComponent,
+    NovaLekcijaComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
