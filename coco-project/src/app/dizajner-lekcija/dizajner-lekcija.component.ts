@@ -1,30 +1,16 @@
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
-import { initializeApp } from "firebase/app";
-import { getFirestore, getDocs, query, collection, where } from "firebase/firestore";
+import { getDocs, query, collection, where } from "firebase/firestore";
 import { DizajnerPocetnoComponent } from '../dizajner-pocetno/dizajner-pocetno.component';
+import { FirebaseService } from '../services/firebase-service.service';
 
-//konekcija s bazom
-const firebaseConfig = {
-  apiKey: "AIzaSyDcFmO6DWuv5I1JAG3Xbf5ShqOpeiIk9ZE",
-  authDomain: "coco-29838.firebaseapp.com",
-  databaseURL: "https://coco-29838-default-rtdb.firebaseio.com",
-  projectId: "coco-29838",
-  storageBucket: "coco-29838.appspot.com",
-  messagingSenderId: "286635283337",
-  appId: "1:286635283337:web:6fb0743d4779e4744f8758",
-  measurementId: "G-F8BNDEKQZR"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
+//funkcija za čitanje više dokumenata
 async function queryForDocuments(new_query) {
   const querySnapshot = await getDocs(new_query);
   let rezultat = [];
   const allDocs = querySnapshot.forEach((snap) => {
     rezultat.push(snap.data()); 
-  })
-  return (rezultat);
+  });
+  return rezultat;
 }
 
 @Component({
@@ -34,7 +20,12 @@ async function queryForDocuments(new_query) {
 })
 
 export class DizajnerLekcijaComponent {
-  teme$ = queryForDocuments(collection(db, '/lekcija')).then(res => res);
+  constructor(private firebaseSevice: FirebaseService, private dizajner: DizajnerPocetnoComponent) { }
+  db = this.firebaseSevice.getDb();
+  showZadatci = false;
+
+
+  teme$ = queryForDocuments(collection(this.db, '/lekcija')).then(res => res);
   selectedTema: string = "0";
   selectedPodtema: string = "0";
   podteme;
@@ -42,8 +33,6 @@ export class DizajnerLekcijaComponent {
   zadatci;
 
   //nova lekcija
-  constructor(private dizajner: DizajnerPocetnoComponent) { }
-
   dodajLekciju(content: string) {
     this.dizajner.changeContent(content);
   }
@@ -52,17 +41,20 @@ export class DizajnerLekcijaComponent {
   onTemaSelected(selected: Event) {
     const selectElement = selected.target as HTMLSelectElement;
     this.selectedTema = selectElement.value;
+    this.zadatci = null;
+    this.selectedPodtema = "0";
+    this.showZadatci = false;
     this.getPodtemaByTema(this.selectedTema);
   }
 
   //dohvaćanje podtema za odabranu temu
   async getPodtemaByTema(id_teme: string) {
-    const q = query(collection(db, 'lekcija'), where('id', '==', Number(id_teme)));
+    const q = query(collection(this.db, 'lekcija'), where('id', '==', Number(id_teme)));
     const querySnapshot = await getDocs(q);
     
     for (const doc of querySnapshot.docs) {
       this.putanja = `/lekcija/${doc.id}/Podtema`;
-      const podteme = await queryForDocuments(collection(db, this.putanja));
+      const podteme = await queryForDocuments(collection(this.db, this.putanja));
       this.podteme = podteme;
     }
   }
@@ -76,12 +68,13 @@ export class DizajnerLekcijaComponent {
 
   //dohvaćanje zadataka za odabranu temu i podtemu
   async getZadataciByPodtema(id_podteme: string) {
-    const q = query(collection(db, `${this.putanja}`), where('id', '==', Number(id_podteme)));
+    const q = query(collection(this.db, `${this.putanja}`), where('id', '==', Number(id_podteme)));
     const querySnapshot = await getDocs(q);
-
+    
     for (const doc of querySnapshot.docs) {
-      const zadatci = await queryForDocuments(collection(db, `${this.putanja}/${doc.id}/Zadatak`));
+      const zadatci = await queryForDocuments(collection(this.db, `${this.putanja}/${doc.id}/Zadatak`));
       this.zadatci = zadatci;
+      this.showZadatci = true;
     }
   }
 

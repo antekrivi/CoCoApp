@@ -1,0 +1,45 @@
+h1 {
+    margin-top: 10px;
+    font-size: 30px;
+    font-family: initial;
+}
+
+label {
+    margin-top: 10px;
+    margin-bottom: 1px;
+}
+
+.zadatci input {
+    display: inline;
+    width: 90%;
+}
+
+.makni {
+    margin-left: 5px;
+}
+
+.zad_i_odg {
+    margin-bottom: 30px;
+}
+
+.float-end {
+    margin-bottom: 20px;
+}
+
+.odgovori {
+    margin-bottom: 40px;
+    margin-left: 20px;
+}
+
+.odgovori input {
+    width: 80%;
+    display: inline;
+}
+
+.odgovor {
+    margin-top: 50px;
+}
+
+.zad_i_odg button:not(.makni), .odgovori button:not(.makni) {
+    margin-top: 10px;
+}

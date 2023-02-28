@@ -13,7 +13,7 @@
     <option *ngFor="let podtema of podteme" [value]="podtema.id">{{podtema.naziv}}</option>
   </select>
 </div>
-<div *ngIf="zadatci">
+<div *ngIf="showZadatci">
   <div class="list-group">
     <a *ngFor="let zadatak of zadatci" href="#" class="list-group-item list-group-item-action">{{zadatak.tekst_zadatka}}</a>
   </div>

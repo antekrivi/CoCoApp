@@ -1,1 +1,91 @@
-<p>nova-lekcija works!</p>
+<!--<button (click)="dodajLekciju()">Dodaj grad</button>-->
+<h1>Nova lekcija</h1>
+
+<form [formGroup]="lekcijaForma" (ngSubmit)="save()">
+    <label class="form-label" for="tema">Tema</label>
+    <input class="form-control" id="tema" type="text" formControlName="tema" [class.is-invalid]="lekcijaForma.get('tema').invalid && (lekcijaForma.get('tema').dirty || lekcijaForma.get('tema').touched)">
+    <div *ngIf="lekcijaForma.get('tema').hasError('required') && lekcijaForma.get('tema').touched" class="invalid-feedback">
+      Tema je obavezna
+    </div>
+  
+    <label class="form-label" for="podtema">Podtema</label>
+    <input class="form-control" id="podtema" type="text" formControlName="podtema" [class.is-invalid]="lekcijaForma.get('podtema').invalid && (lekcijaForma.get('podtema').dirty || lekcijaForma.get('podtema').touched)">  
+    <div *ngIf="lekcijaForma.get('podtema').invalid && (lekcijaForma.get('podtema').dirty || lekcijaForma.get('podtema').touched)" class="invalid-feedback">
+      Podtema je obavezna
+    </div>
+
+    <div formArrayName="zadatci" class="zad_i_odg">
+      <div *ngFor="let zadatak of zadatci.controls; let i = index;">
+        <label class="form-label" for="z{{i}}">Tekst zadatka {{i + 1}}</label>
+        <div class="zadatci">
+          <input class="form-control" id="z{{i}}" type="text" [formControlName]="i" [class.is-invalid]="zadatci.at(i).invalid && (zadatci.at(i).dirty || zadatci.at(i).touched)">
+          <button class="btn btn-light makni" type="button" *ngIf="i > 1" (click)="removeZadatak(i)">
+            <i class="fa fa-minus-circle"></i>
+          </button>
+          <div *ngIf="zadatci.at(i).invalid && (zadatci.at(i).dirty || zadatci.at(i).touched)" class="invalid-feedback">
+            Tekst zadatka je obavezan
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" type="button" (click)="addZadatak()" [disabled]="zadatci.length >= maxZadataka">Dodaj zadatak</button>
+    </div>
+    
+    <div class="odgovori" formArrayName="odgovori">
+      <div *ngFor="let odg of odgovori.controls; let i = index;" class="odgovor">
+        <label class="form-label" for="z{{i}}o0">Odgovori za zadatak {{i + 1}}</label>
+        <div formArrayName="{{i}}">
+          <div *ngFor="let odg of getOdgovori(i).controls; let j = index;">
+            <div>
+              <input class="form-control" id="z{{i}}o{{j}}" type="text" [formControlName]="j" [class.is-invalid]="getOdgovori(i).at(j).invalid && (getOdgovori(i).at(j).dirty || getOdgovori(i).at(j).touched)">
+              <button class="btn btn-light makni" type="button" *ngIf="j > 0" (click)="removeOdgovor(i, j)">
+                <i class="fa fa-minus-circle"></i>
+              </button>
+              <div *ngIf="getOdgovori(i).at(j).invalid && (getOdgovori(i).at(j).dirty || getOdgovori(i).at(j).touched)" class="invalid-feedback">
+                Odgovor je obavezan
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" type="button" (click)="addOdgovor(i)">Dodaj odgovor</button>
+      </div>
+    </div>
+
+    <!--OVO JE KOD SA SELECTOM DA ODGOVOR MOŽE BITI I UPLOAD SLIKE
+    
+    <label class="form-label" for="odgovor-tip">Tip odgovora</label>
+    <select class="form-control" id="odgovor-tip" formControlName="odgovorTip">
+      <option value="tekst" selected>Tekst</option>
+      <option value="slika">Slika</option>
+    </select>
+
+    <div class="odgovori" formArrayName="odgovori">
+      <div *ngFor="let odg of odgovori.controls; let i = index;">
+        <label class="form-label" for="z{{i}}o0">Odgovori za zadatak {{i + 1}}</label>
+        <div formArrayName="{{i}}">
+          <div *ngFor="let odg of getOdgovori(i).controls; let j = index;">
+            <div *ngIf="lekcijaForma.get('odgovorTip').value === 'tekst'">
+              <input class="form-control" id="z{{i}}o{{j}}" type="text" [formControlName]="j" [class.is-invalid]="getOdgovori(i).at(j).invalid && (getOdgovori(i).at(j).dirty || getOdgovori(i).at(j).touched)">
+              <div *ngIf="getOdgovori(i).at(j).invalid && (getOdgovori(i).at(j).dirty || getOdgovori(i).at(j).touched)" class="invalid-feedback">
+                Odgovor je obavezan
+              </div>
+            </div>
+            <div *ngIf="lekcijaForma.get('odgovorTip').value === 'slika'">
+              <input type="file" accept="image/*" >
+              <div *ngIf="getOdgovori(i).at(j).invalid && (getOdgovori(i).at(j).dirty || getOdgovori(i).at(j).touched)" class="invalid-feedback">
+                Odgovor je obavezan
+              </div>
+            </div>
+            <button class="btn btn-primary makni" type="button" *ngIf="j > 0" (click)="removeOdgovor(i, j)">
+              <i class="fa fa-minus-circle"></i>
+            </button>
+            <div *ngIf="getOdgovori(i).at(j).invalid && (getOdgovori(i).at(j).dirty || getOdgovori(i).at(j).touched)" class="invalid-feedback">
+              Odgovor je obavezan
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary float-end" type="button" (click)="addOdgovor(i)">Dodaj odgovor</button>
+      </div>
+    </div>-->
+
+    <button class="btn btn-primary float-end" type="submit">Spremi</button>
+</form>
