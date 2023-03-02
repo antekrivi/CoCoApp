@@ -1,14 +1,16 @@
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { getDocs, query, collection, where } from "firebase/firestore";
 import { DizajnerPocetnoComponent } from '../dizajner-pocetno/dizajner-pocetno.component';
 import { FirebaseService } from '../services/firebase-service.service';
+import { RadnjaService } from '../services/radnja.service'
 
 //funkcija za čitanje više dokumenata
 async function queryForDocuments(new_query) {
   const querySnapshot = await getDocs(new_query);
   let rezultat = [];
   const allDocs = querySnapshot.forEach((snap) => {
-    rezultat.push(snap.data()); 
+    let noviObjekt = Object.assign({}, snap.data(), { unique_id: snap.id });
+    rezultat.push(noviObjekt); 
   });
   return rezultat;
 }
@@ -20,7 +22,7 @@ async function queryForDocuments(new_query) {
 })
 
 export class DizajnerLekcijaComponent {
-  constructor(private firebaseSevice: FirebaseService, private dizajner: DizajnerPocetnoComponent) { }
+  constructor(private firebaseSevice: FirebaseService, private dizajner: DizajnerPocetnoComponent, private radnjaService: RadnjaService) { }
   db = this.firebaseSevice.getDb();
   showZadatci = false;
 
@@ -35,47 +37,53 @@ export class DizajnerLekcijaComponent {
   //nova lekcija
   dodajLekciju(content: string) {
     this.dizajner.changeContent(content);
+    this.radnjaService.radnja = 'lekcija';
   }
 
   //odabir teme
-  onTemaSelected(selected: Event) {
-    const selectElement = selected.target as HTMLSelectElement;
-    this.selectedTema = selectElement.value;
+  onTemaSelected() {
     this.zadatci = null;
     this.selectedPodtema = "0";
     this.showZadatci = false;
-    this.getPodtemaByTema(this.selectedTema);
+    this.getPodtemaByTema();
   }
 
   //dohvaćanje podtema za odabranu temu
-  async getPodtemaByTema(id_teme: string) {
-    const q = query(collection(this.db, 'lekcija'), where('id', '==', Number(id_teme)));
-    const querySnapshot = await getDocs(q);
-    
-    for (const doc of querySnapshot.docs) {
-      this.putanja = `/lekcija/${doc.id}/Podtema`;
+  async getPodtemaByTema() {
+      this.putanja = `/lekcija/${this.selectedTema}/Podtema`;
       const podteme = await queryForDocuments(collection(this.db, this.putanja));
       this.podteme = podteme;
-    }
   }
 
   //odabir podteme
-  onPodtemaSelected(selected: Event) {
-    const selectElement = selected.target as HTMLSelectElement;
-    this.selectedPodtema = selectElement.value;
-    this.getZadataciByPodtema(this.selectedPodtema);
+  onPodtemaSelected() {
+    this.getZadataciByPodtema();
   }
 
   //dohvaćanje zadataka za odabranu temu i podtemu
-  async getZadataciByPodtema(id_podteme: string) {
-    const q = query(collection(this.db, `${this.putanja}`), where('id', '==', Number(id_podteme)));
-    const querySnapshot = await getDocs(q);
-    
-    for (const doc of querySnapshot.docs) {
-      const zadatci = await queryForDocuments(collection(this.db, `${this.putanja}/${doc.id}/Zadatak`));
+  async getZadataciByPodtema() {
+      const zadatci = await queryForDocuments(collection(this.db, `/lekcija/${this.selectedTema}/Podtema/${this.selectedPodtema}/Zadatak`));
       this.zadatci = zadatci;
       this.showZadatci = true;
-    }
+  }
+
+  dodajPodtemu(content: string) {
+    this.dizajner.changeContent(content);
+    this.radnjaService.radnja = 'podtema';
+    this.radnjaService.odabranaTema['id'] = this.selectedTema;
+    const option = document.querySelector(`option[value="${this.selectedTema}"]`);
+    this.radnjaService.odabranaTema['tema'] = option.textContent;
+  }
+
+  urediLekciju(content: string) {
+    this.dizajner.changeContent(content);
+    this.radnjaService.radnja = 'uredi';
+    this.radnjaService.odabranaTema['id'] = this.selectedTema;
+    const optionTema = document.querySelector(`option[value="${this.selectedTema}"]`);
+    this.radnjaService.odabranaTema['tema'] = optionTema.textContent;
+    this.radnjaService.odabranaPodtema['id'] = this.selectedPodtema;
+    const optionPodtema = document.querySelector(`option[value="${this.selectedPodtema}"]`);
+    this.radnjaService.odabranaPodtema['naziv'] = optionPodtema.textContent;
   }
 
   //pop up prozor za zadatke - trebala bi implementirati i komponentu TaskDialogComponent i na liknove dodati (click)="openTask(task)"

@@ -1,19 +1,27 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FirebaseService } from '../services/firebase-service.service';
-import { collection, addDoc, writeBatch, doc, getDocs } from "firebase/firestore";
+import { collection, addDoc, writeBatch, doc, getDocs, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
+import { DizajnerPocetnoComponent } from '../dizajner-pocetno/dizajner-pocetno.component';
+import { RadnjaService } from '../services/radnja.service'
 
-
-async function nadiNajveci(new_query, componentInstance) {
+async function queryForDocuments(new_query) {
   const querySnapshot = await getDocs(new_query);
-  let maxIdLekcije = 0;
-  querySnapshot.forEach((snap) => {
-    console.log("u funkciji trenutni id: " + snap.data()['id'] + "maxId: " + maxIdLekcije)
-    if(snap.data()['id'] > maxIdLekcije){
-      maxIdLekcije = snap.data()['id'];
-    } 
+  let rezultat = [];
+  const allDocs = querySnapshot.forEach((snap) => {
+    let noviObjekt = Object.assign({}, snap.data(), { unique_id: snap.id });
+    rezultat.push(noviObjekt); 
   });
-  return maxIdLekcije;
+  return rezultat;
+}
+
+function formirajFormArray(popisZadataka: string[]): FormArray {
+  const formArray = new FormArray([]);
+  for (const zadatak of popisZadataka) {
+    formArray.push(new FormControl(zadatak, Validators.required));
+  }
+  console.log(formArray);
+  return formArray;
 }
 
 @Component({
@@ -22,9 +30,65 @@ async function nadiNajveci(new_query, componentInstance) {
   styleUrls: ['./nova-lekcija.component.css']
 })
 export class NovaLekcijaComponent {
-  constructor(private firebaseSevice: FirebaseService) { }
+  constructor(private firebaseSevice: FirebaseService, private dizajner: DizajnerPocetnoComponent, private radnjaService: RadnjaService) { }
   db = this.firebaseSevice.getDb();
+  @ViewChild('naslov', {static: true}) naslovElement: ElementRef;
+  @ViewChild('gumb', {static: true}) gumbElement: ElementRef;
 
+  ngOnInit(): void {
+    //ako dodajemo podtemu unutar postojeće teme
+    if(this.radnjaService.radnja === 'podtema') {
+      this.lekcijaForma.get('tema').setValue(this.radnjaService.odabranaTema['tema']);
+      this.lekcijaForma.get('tema').disable();
+      this.naslovElement.nativeElement.innerText = 'Nova podtema';
+      this.gumbElement.nativeElement.innerText = 'Dodaj podtemu';
+    }
+    
+    //ako uređujemo postojuću lekciju
+    else if (this.radnjaService.radnja === 'uredi'){
+      this.naslovElement.nativeElement.innerText = 'Uredi lekciju';
+      this.gumbElement.nativeElement.innerText = 'Spremi promjene';
+      //dodavanje teme i podteme u FormGroup
+      this.lekcijaForma.get('tema').setValue(this.radnjaService.odabranaTema['tema']);
+      this.lekcijaForma.get('podtema').setValue(this.radnjaService.odabranaPodtema['naziv']);
+
+      //dohavaćanje zadataka i odgovora
+      this.getPopisZadatakaOdgovora();
+    }
+  }
+  
+  async getPopisZadatakaOdgovora() {
+    let popisZadataka = [];
+    let popisOdgovora = [];
+    let zadatci = await queryForDocuments(collection(this.db, `/lekcija/${this.radnjaService.odabranaTema['id']}/Podtema/${this.radnjaService.odabranaPodtema['id']}/Zadatak`));
+    
+    for (const zadatak of zadatci) {
+      popisZadataka.push(zadatak.tekst_zadatka);
+      let odgovori = await queryForDocuments(collection(this.db, `/lekcija/${this.radnjaService.odabranaTema['id']}/Podtema/${this.radnjaService.odabranaPodtema['id']}/Zadatak/${zadatak.unique_id}/Odgovor`));
+      
+      let odgovori2 = [];
+      odgovori.forEach(odgovor => {
+        odgovori2.push(odgovor.tekst_odgovora);
+      });
+      popisOdgovora.push(odgovori2);
+    }
+
+    //dodavanje zadataka u FormGroup
+    const formArray = this.lekcijaForma.get('zadatci') as FormArray;
+    formArray.clear();
+    popisZadataka.forEach(zadatak => formArray.push(new FormControl(zadatak, Validators.required)));
+
+    //dodavanje odgovora u FormGroup
+    const formArray2 = this.lekcijaForma.get('odgovori') as FormArray;
+    formArray2.clear();     
+    popisOdgovora.forEach(odgovori => {
+      const odgovoriFormArray = new FormArray([]);
+      odgovori.forEach(odgovor => odgovoriFormArray.push(new FormControl(odgovor, Validators.required)));
+      formArray2.push(odgovoriFormArray);
+    });
+  }  
+
+  //može biti najviše 4 vrste zadatka jer se tablet dijeli na max. 4 učenika
   maxZadataka = 4;
 
   lekcijaForma = new FormGroup({
@@ -34,7 +98,7 @@ export class NovaLekcijaComponent {
       new FormControl('', Validators.required),
       new FormControl('', Validators.required)
     ]),
-    odgovorTip: new FormControl('tekst', Validators.required),
+    //odgovorTip: new FormControl('tekst', Validators.required), --- OVO JE KAD ĆU IMPLEMENTIRATI I OPTION SELECT DA ODGOVOR MOŽE BITI SLIKA
     odgovori: new FormArray([
       new FormArray([
         new FormControl('', Validators.required)
@@ -79,89 +143,111 @@ export class NovaLekcijaComponent {
   }
 
   //funkcija za dodavanje u bazu
-  /*async dodajLekciju(values: {
-    tema: string;
-    podtema: string;
-    zadatci: string[];
-    odgovori: string[][];
-  }) {
+  async dodajLekciju(values: any) {
+    //provjerava se prvo jel se dodaje lekcija ili podtema u postojeću lekciju
+    let podtemaRef;
+    if(this.radnjaService.radnja === 'lekcija'){
+      const lekcijaRef = await addDoc(collection(this.db, "lekcija"), {
+        tema: values.tema
+      });
+      
+      podtemaRef = await addDoc(collection(lekcijaRef, "Podtema"), {
+        naziv: values.podtema
+      });
+    }
+    else if (this.radnjaService.radnja === 'podtema'){
+      podtemaRef = await addDoc(collection(this.db, `lekcija/${this.radnjaService.odabranaTema['id']}/Podtema`), {
+        naziv: values.podtema
+      });
+    }    
     
-    
-    const lekcijaRef = await addDoc(collection(this.db, "lekcija"), {
-      id: 2,
-      tema: "operatori"
-    });
-    
-    const podtemeRef = await addDoc(collection(lekcijaRef, "Podtema"), {
-      id: 2,
-      id_lekcije: 2,
-      naziv: "veće i manje"
-    });
-    
-    const noviZadatci = [
-      { id: 3, id_podteme: 2, tekst_zadatka: "Odaberi zadatke u koje možeš upisati znak <." },
-      { id: 4, id_podteme: 2, tekst_zadatka: "Odaberi zadatke u koje možeš upisati znak >." }
-    ];
+    this.dodajZadatkeOdgovore(values, podtemaRef);
+  } 
+  
+  async dodajZadatkeOdgovore (values: any, podtemaRef: any){
+    const zadatciObjekti = values.zadatci.map(zadatak => ({ tekst_zadatka: zadatak }));
+    const odgovoriObjekti = values.odgovori.map(red => red.map(odgovor => ({ tekst_odgovora: odgovor })));
+    console.log(zadatciObjekti);
+    console.log(odgovoriObjekti);
 
     const batch = writeBatch(this.db);
 
-    noviZadatci.forEach(zadatak => {
-      const noviZadatakRef = doc(collection(podtemeRef, 'Zadatak'));
+    zadatciObjekti.forEach((zadatak, index) => {
+      const noviZadatakRef = doc(collection(podtemaRef, "Zadatak"));
       batch.set(noviZadatakRef, zadatak);
+    
+      const odgovori = odgovoriObjekti[index];
+      odgovori.forEach(odgovor => {
+        const noviOdgovorRef = doc(collection(noviZadatakRef, "Odgovor"));
+        batch.set(noviOdgovorRef, odgovor);
+      });
     });
 
     await batch.commit();
+  }
+  
+  async updateLekcija(values: any) {
+    //update teme
+    const temaRef = doc(this.db, "lekcija", this.radnjaService.odabranaTema['id']);
+    const docSnap = await getDoc(temaRef);
+    const temaData = docSnap.data();
+    temaData['tema'] = values.tema;
+    await updateDoc(temaRef, temaData);
 
-    console.log("Document written with ID: ", lekcijaRef.id);
-  }*/
+    //update podteme
+    const podtemaRef = doc(temaRef, "Podtema", this.radnjaService.odabranaPodtema['id']);
+    const docSnap2 = await getDoc(podtemaRef);
+    const podtemaData = docSnap2.data();
+    podtemaData['naziv'] = values.podtema;
+    await updateDoc(podtemaRef, podtemaData);
 
+    //update zadataka i odgovora
+    //prvo obriši trenutne
+    const zadaciRef = collection(podtemaRef, "Zadatak");
+    const snapshot = await getDocs(zadaciRef);
+
+    snapshot.forEach(async (doc) => {
+      const odgovorRef = collection(doc.ref, "Odgovor");
+      const odgovorSnapshot = await getDocs(odgovorRef);
+    
+      odgovorSnapshot.forEach((odgovorDoc) => {
+        deleteDoc(odgovorDoc.ref);
+      });
+    
+      deleteDoc(doc.ref);
+    });
+
+    //dodaj nove zadatke i odgovore
+    this.dodajZadatkeOdgovore(values, podtemaRef);
+
+    console.log("Dokument je uspješno ažuriran.");
+  }
 
   save() {
     if (this.lekcijaForma.invalid) {
-      console.log('Molimo ispunite sva obavezna polja.');
       this.lekcijaForma.markAllAsTouched();
       return;
     }
     else {
       const values = this.lekcijaForma.value;
-      console.log(values);
 
-      //dodavanje u bazu
-      let max = nadiNajveci(collection(this.db, '/lekcija'), this).then(res => {
-        console.log(res);
-      });
+      //dodavanje u bazu i povratak na moje lekcije
+      //provjerava se uređuje li se postojeća lekcija
+      if(this.radnjaService.radnja === 'uredi'){
+        const updatedData = {
+          tema: values.tema,
+          podtema: values.podtema,
+          zadatci: values.zadatci,
+          odgovori: values.odgovori
+        };
+        this.updateLekcija(values);
+      }
+      //izvršava se ako se dodaje nova lekcija ili podtema
+      else{
+        this.dodajLekciju(values);
+      }
+      alert("Uspješno ste spremili u bazu!");
+      this.dizajner.changeContent('dl');
     }
   }
-
-  /*  constructor(private firebaseSevice: FirebaseService) { }
-  db = this.firebaseSevice.getDb();
-
-  async dodajLekciju() {
-    const lekcijaRef = await addDoc(collection(this.db, "lekcija"), {
-      id: 2,
-      tema: "operatori"
-    });
-    
-    const podtemeRef = await addDoc(collection(lekcijaRef, "Podtema"), {
-      id: 2,
-      id_lekcije: 2,
-      naziv: "veće i manje"
-    });
-    
-    const noviZadatci = [
-      { id: 3, id_podteme: 2, tekst_zadatka: "Odaberi zadatke u koje možeš upisati znak <." },
-      { id: 4, id_podteme: 2, tekst_zadatka: "Odaberi zadatke u koje možeš upisati znak >." }
-    ];
-
-    const batch = writeBatch(this.db);
-
-    noviZadatci.forEach(zadatak => {
-      const noviZadatakRef = doc(collection(podtemeRef, 'Zadatak'));
-      batch.set(noviZadatakRef, zadatak);
-    });
-
-    await batch.commit();
-
-    console.log("Document written with ID: ", lekcijaRef.id);
-  }*/
 }
