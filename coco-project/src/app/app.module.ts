@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -7,7 +8,7 @@ import { DizajnerPocetnoComponent } from './dizajner-pocetno/dizajner-pocetno.co
 import { IzbornikComponent } from './izbornik/izbornik.component';
 import { OkvirComponent } from './okvir/okvir.component';
 import { DizajnerLekcijaComponent } from './dizajner-lekcija/dizajner-lekcija.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { NovaLekcijaComponent } from './nova-lekcija/nova-lekcija.component';
 
 @NgModule({
