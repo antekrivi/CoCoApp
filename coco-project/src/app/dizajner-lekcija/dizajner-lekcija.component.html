@@ -2,19 +2,21 @@
 <button id="dodaj_lekciju" class="btn btn-primary" (click)="dodajLekciju('nl')">Dodaj lekciju</button>
 <br/>
 <label>Odaberite temu:</label><br/>
-<select class="form-select" aria-label="Default select example" [(ngModel)]="selectedTema" (change)="onTemaSelected($event)">
+<select class="form-select" aria-label="Default select example" [(ngModel)]="selectedTema" (change)="onTemaSelected()">
     <option disabled value="0">Odaberite</option>
-    <option *ngFor="let tema of teme$ | async" [value]="tema.id">{{tema.tema}}</option>
+    <option *ngFor="let tema of teme$ | async" [value]="tema.unique_id">{{tema.tema}}</option>
 </select>
 <div *ngIf="podteme">
   <label>Odaberite podtemu:</label><br/>
-  <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedPodtema" (change)="onPodtemaSelected($event)">
+  <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedPodtema" (change)="onPodtemaSelected()">
     <option selected disabled value="0">Odaberite</option>
-    <option *ngFor="let podtema of podteme" [value]="podtema.id">{{podtema.naziv}}</option>
+    <option *ngFor="let podtema of podteme" [value]="podtema.unique_id">{{podtema.naziv}}</option>
   </select>
 </div>
+<button id="dodaj_podtemu" *ngIf="selectedTema !== '0'" class="btn btn-primary float-end" (click)="dodajPodtemu('nl')">Dodaj podtemu</button>
 <div *ngIf="showZadatci">
   <div class="list-group">
     <a *ngFor="let zadatak of zadatci" href="#" class="list-group-item list-group-item-action">{{zadatak.tekst_zadatka}}</a>
   </div>
 </div>
+<button id="uredi_lekciju" *ngIf="selectedTema !== '0' && selectedPodtema !== '0'" class="btn btn-primary" (click)="urediLekciju('nl')">Uredi lekciju</button>
