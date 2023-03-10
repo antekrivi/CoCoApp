@@ -1,0 +1,15 @@
+<div id="kviz">
+    <h2>{{data.zadatak.tekst_zadatka}}</h2>
+    <form (ngSubmit)="provjeriOdgovore()">
+      <div *ngFor="let odgovor of sviOdgovori" class="form-check">
+        <input class="form-check-input" type="checkbox" [(ngModel)]="odgovor.oznacen" name="odgovori" value="{{odgovor.ime}}">
+        <label class="form-check-label" for="flexCheckDefault">
+            {{odgovor.ime}}
+        </label>
+      </div>
+      <button type="submit" class="btn btn-primary">Provjeri</button>
+    </form>
+    <div *ngIf="rezultat">
+      <p id="rez">{{rezultat}}</p>
+    </div>
+</div>

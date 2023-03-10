@@ -9,6 +9,9 @@ import { OkvirComponent } from './okvir/okvir.component';
 import { DizajnerLekcijaComponent } from './dizajner-lekcija/dizajner-lekcija.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NovaLekcijaComponent } from './nova-lekcija/nova-lekcija.component';
+import { ZadatakComponent } from './zadatak/zadatak.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -17,13 +20,16 @@ import { NovaLekcijaComponent } from './nova-lekcija/nova-lekcija.component';
     IzbornikComponent,
     OkvirComponent,
     DizajnerLekcijaComponent,
-    NovaLekcijaComponent
+    NovaLekcijaComponent,
+    ZadatakComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    BrowserAnimationsModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent]

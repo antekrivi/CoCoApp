@@ -166,8 +166,6 @@ export class NovaLekcijaComponent {
   async dodajZadatkeOdgovore (values: any, podtemaRef: any){
     const zadatciObjekti = values.zadatci.map(zadatak => ({ tekst_zadatka: zadatak }));
     const odgovoriObjekti = values.odgovori.map(red => red.map(odgovor => ({ tekst_odgovora: odgovor })));
-    console.log(zadatciObjekti);
-    console.log(odgovoriObjekti);
 
     const batch = writeBatch(this.db);
 
@@ -218,8 +216,6 @@ export class NovaLekcijaComponent {
 
     //dodaj nove zadatke i odgovore
     this.dodajZadatkeOdgovore(values, podtemaRef);
- 
-    console.log("Dokument je uspješno ažuriran.");
   }
 
 

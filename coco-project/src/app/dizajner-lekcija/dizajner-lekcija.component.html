@@ -6,7 +6,8 @@
     <option disabled value="0">Odaberite</option>
     <option *ngFor="let tema of teme$ | async" [value]="tema.unique_id">{{tema.tema}}</option>
 </select>
-<div *ngIf="podteme">
+<button id="obrisi_temu" *ngIf="selectedTema !== '0'" class="btn btn-primary float-end" (click)="obrisiTemu()">Obriši temu</button>
+<div *ngIf="podteme" id="podtema">
   <label>Odaberite podtemu:</label><br/>
   <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedPodtema" (change)="onPodtemaSelected()">
     <option selected disabled value="0">Odaberite</option>
@@ -14,9 +15,10 @@
   </select>
 </div>
 <button id="dodaj_podtemu" *ngIf="selectedTema !== '0'" class="btn btn-primary float-end" (click)="dodajPodtemu('nl')">Dodaj podtemu</button>
+<button id="obrisi_podtemu" *ngIf="selectedPodtema !== '0'" class="btn btn-primary float-end" (click)="obrisiPodtemu()">Obriši podtemu</button>
 <div *ngIf="showZadatci">
   <div class="list-group">
-    <a *ngFor="let zadatak of zadatci" href="#" class="list-group-item list-group-item-action">{{zadatak.tekst_zadatka}}</a>
+    <a *ngFor="let zadatak of zadatci" href="javascript:void(0);" class="list-group-item list-group-item-action" (click)="openDialog(zadatak)">{{zadatak.tekst_zadatka}}</a>
   </div>
 </div>
 <button id="uredi_lekciju" *ngIf="selectedTema !== '0' && selectedPodtema !== '0'" class="btn btn-primary" (click)="urediLekciju('nl')">Uredi lekciju</button>

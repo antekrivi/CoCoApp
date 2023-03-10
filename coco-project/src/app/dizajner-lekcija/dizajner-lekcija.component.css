@@ -18,8 +18,16 @@ label {
     margin-top: 15px;
 }
 
-#dodaj_podtemu {
+#dodaj_podtemu, #obrisi_podtemu, #obrisi_temu {
     margin-top: 10px;
+}
+
+#obrisi_podtemu {
+    margin-right: 5px;
+}
+
+#podtema {
+    margin-top: 30px;
 }
 
 #uredi_lekciju {

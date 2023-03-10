@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
-import { getDocs, query, collection, where } from "firebase/firestore";
+import { getDocs, query, collection, where, doc, deleteDoc } from "firebase/firestore";
 import { DizajnerPocetnoComponent } from '../dizajner-pocetno/dizajner-pocetno.component';
 import { FirebaseService } from '../services/firebase-service.service';
 import { RadnjaService } from '../services/radnja.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ZadatakComponent } from '../zadatak/zadatak.component';
 
 //funkcija za čitanje više dokumenata
 async function queryForDocuments(new_query) {
@@ -22,7 +24,7 @@ async function queryForDocuments(new_query) {
 })
 
 export class DizajnerLekcijaComponent {
-  constructor(private firebaseSevice: FirebaseService, private dizajner: DizajnerPocetnoComponent, private radnjaService: RadnjaService) { }
+  constructor(private firebaseSevice: FirebaseService, private dizajner: DizajnerPocetnoComponent, private radnjaService: RadnjaService, private dialog: MatDialog) { }
   db = this.firebaseSevice.getDb();
   showZadatci = false;
 
@@ -75,6 +77,69 @@ export class DizajnerLekcijaComponent {
     this.radnjaService.odabranaTema['tema'] = option.textContent;
   }
 
+  async obrisiPodtemuIZadatke(podtemaRef: any) {
+    const zadaciRef = collection(podtemaRef, "Zadatak");
+    const snapshot = await getDocs(zadaciRef);
+
+    snapshot.forEach(async (doc) => {
+      const odgovorRef = collection(doc.ref, "Odgovor");
+      const odgovorSnapshot = await getDocs(odgovorRef);
+      
+      odgovorSnapshot.forEach((odgovorDoc) => {
+        deleteDoc(odgovorDoc.ref);
+      });
+      
+      deleteDoc(doc.ref);
+    });
+
+    deleteDoc(podtemaRef);
+  }
+
+  async reset(tema: boolean) {
+    this.zadatci = null;
+    this.selectedPodtema = "0";
+    this.showZadatci = false;
+
+    if (tema){
+      this.teme$ = queryForDocuments(collection(this.db, '/lekcija')).then(res => res);
+      this.selectedTema = "0";
+      this.podteme = null;
+    }
+    else {
+      this.getPodtemaByTema();
+    }
+  }
+  
+  obrisiPodtemu() {
+    const optionPodtema = document.querySelector(`option[value="${this.selectedPodtema}"]`);
+    const potvrda = window.confirm('Jeste li sigurni da želite obrisati podtemu "' + optionPodtema.textContent + '"?');
+    if (potvrda) {
+      const temaRef = doc(this.db, "lekcija", this.selectedTema);
+      const podtemaRef = doc(temaRef, "Podtema", this.selectedPodtema);
+      this.obrisiPodtemuIZadatke(podtemaRef); 
+      this.reset(false);     
+    } 
+  }
+
+  async obrisiTemu() {
+    const optionTema = document.querySelector(`option[value="${this.selectedTema}"]`);
+    const potvrda = window.confirm('Jeste li sigurni da želite obrisati temu "' + optionTema.textContent + '" i sve njezine podteme?');
+    if (potvrda) {
+      const temaRef = doc(this.db, "lekcija", this.selectedTema);
+      
+      const podtemeRef = collection(temaRef, "Podtema");
+      const snapshot = await getDocs(podtemeRef);
+
+      snapshot.forEach(async (doc) => {
+        this.obrisiPodtemuIZadatke(doc);   
+      });
+      
+      deleteDoc(temaRef);
+
+      this.reset(true);
+    } 
+  }
+
   urediLekciju(content: string) {
     this.dizajner.changeContent(content);
     this.radnjaService.radnja = 'uredi';
@@ -86,25 +151,15 @@ export class DizajnerLekcijaComponent {
     this.radnjaService.odabranaPodtema['naziv'] = optionPodtema.textContent;
   }
 
-  //pop up prozor za zadatke - trebala bi implementirati i komponentu TaskDialogComponent i na liknove dodati (click)="openTask(task)"
-  /*tasks: any[];
-
-  constructor(public dialog: MatDialog) {
-    this.tasks = [
-      { title: 'Zadatak 1', description: 'Opis zadatka 1' },
-      { title: 'Zadatak 2', description: 'Opis zadatka 2' },
-      { title: 'Zadatak 3', description: 'Opis zadatka 3' },
-    ];
+  //pop up prozor za zadatke
+  openDialog(zadatak): void {
+    const dialogRef = this.dialog.open(ZadatakComponent, {
+      width: '600px',
+      data: {
+        zadatak: zadatak,
+        podtema: this.selectedPodtema,
+        tema: this.selectedTema
+      }
+    });
   }
-
-  openTask(task: any) {
-    const dialogRef = this.dialog.open(TaskDialogComponent, {
-      width: '500px',
-      data: task
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log(`The dialog was closed. Result: ${result}`);
-    });
-  }*/
 }
