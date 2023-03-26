@@ -13,5 +13,9 @@ export class RadnjaService {
     id: '',
     naziv: ''
   }
+  odabranaAktivnost: Object = {
+    id: '',
+    naziv: ''
+  }
   constructor() { }
 }

@@ -12,6 +12,12 @@ import { NovaLekcijaComponent } from './nova-lekcija/nova-lekcija.component';
 import { ZadatakComponent } from './zadatak/zadatak.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
+import { DizajnerAktivnostiComponent } from './dizajner-aktivnosti/dizajner-aktivnosti.component';
+import { AngularFireModule } from "@angular/fire/compat";
+import { AngularFireAuthModule } from "@angular/fire/compat/auth";
+import { AngularFirestoreModule } from "@angular/fire/compat/firestore";
+import { firebaseConfig } from "./firebase-config";
+import { AktivnostEditComponent } from './aktivnost-edit/aktivnost-edit.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +27,9 @@ import { MatDialogModule } from '@angular/material/dialog';
     OkvirComponent,
     DizajnerLekcijaComponent,
     NovaLekcijaComponent,
-    ZadatakComponent
+    ZadatakComponent,
+    DizajnerAktivnostiComponent,
+    AktivnostEditComponent,
   ],
   imports: [
     BrowserModule,
@@ -29,7 +37,10 @@ import { MatDialogModule } from '@angular/material/dialog';
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
-    MatDialogModule
+    MatDialogModule,
+    AngularFireModule.initializeApp(firebaseConfig),
+    AngularFireAuthModule,
+    AngularFirestoreModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
