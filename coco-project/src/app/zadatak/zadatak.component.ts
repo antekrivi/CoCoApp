@@ -2,14 +2,15 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FirebaseService } from '../services/firebase-service.service';
 import { getDocs, query, collection, where, doc, deleteDoc } from "firebase/firestore";
+import { getStorage, getDownloadURL, ref } from 'firebase/storage';
 
 async function queryForDocuments(new_query) {
   const querySnapshot = await getDocs(new_query);
   let rezultat = [];
-  const allDocs = querySnapshot.forEach((snap) => {
+  for (const snap of querySnapshot.docs) {
     let noviObjekt = Object.assign({}, snap.data(), { unique_id: snap.id });
-    rezultat.push(noviObjekt); 
-  });
+    rezultat.push(noviObjekt);
+  }
   return rezultat;
 }
 
@@ -23,7 +24,6 @@ export class ZadatakComponent {
     this.getOdgovori();
   }
 
-
   db = this.firebaseSevice.getDb();
 
   putanja;
@@ -31,8 +31,10 @@ export class ZadatakComponent {
   tocniOdgovori = [];
   sviOdgovori = [];
   rezultat: string;
+  sviOdgovoriUcitani = false;
 
   async getOdgovori() {
+    this.sviOdgovoriUcitani = false;
     //prvo dolazimo do svih zadataka iz podteme
     this.putanja = `/lekcija/${this.data.tema}/Podtema/${this.data.podtema}/Zadatak`;
     const zadatci = await queryForDocuments(collection(this.db, this.putanja));
@@ -45,19 +47,40 @@ export class ZadatakComponent {
 
   //dodatna funkcija kako bi se prvo pričekali svi odgovori i tek bi se onda prikazali 
   async waitUntilDataLoaded() {
-    await Promise.all(this.zadatci.map(async zadatak => {
+    for (const zadatak of this.zadatci) {
       let odgovori = await queryForDocuments(collection(this.db, this.putanja + `/${zadatak.unique_id}/Odgovor`));
-      odgovori.forEach(odgovor => {
-        this.sviOdgovori.push({ime: odgovor.tekst_odgovora, oznacen: false});
-        if (zadatak.unique_id === this.data.zadatak.unique_id){
-          this.tocniOdgovori.push(odgovor.tekst_odgovora);
+      for (const odgovor of odgovori) {
+        //ako su odgovori tekstualni
+        if(odgovor.tekst_odgovora){
+          this.sviOdgovori.push({ime: odgovor.tekst_odgovora, oznacen: false});
+          if (zadatak.unique_id === this.data.zadatak.unique_id){
+            this.tocniOdgovori.push(odgovor.tekst_odgovora);
+          }
         }
-      });
-    }));
+        //ako su odgovori slike
+        else if (odgovor.slika){
+          const storage = getStorage();
+          const slikaRef = odgovor.slika;
+          const url = await getDownloadURL(ref(storage, slikaRef));
+          this.sviOdgovori.push({ url: url, oznacen: false });
+          if (zadatak.unique_id === this.data.zadatak.unique_id){
+            this.tocniOdgovori.push(url);
+          }
+        }
+      }
+    }
+    this.sviOdgovoriUcitani = true;
   }
 
   provjeriOdgovore() {
-    const oznaceniOdgovori = this.sviOdgovori.filter(odgovor => odgovor.oznacen).map(odgovor => odgovor.ime);
+    const oznaceniOdgovori = this.sviOdgovori.filter(odgovor => odgovor.oznacen).map(odgovor => {
+      if (odgovor.ime){
+        return odgovor.ime;
+      }
+      else if (odgovor.url) {
+        return odgovor.url;
+      }
+    });
     const ispravniOdgovori = oznaceniOdgovori.every(odgovor => this.tocniOdgovori.includes(odgovor)) && (oznaceniOdgovori.length == this.tocniOdgovori.length);
     this.rezultat = ispravniOdgovori ? "Točno!" : "Netočno!";
   }

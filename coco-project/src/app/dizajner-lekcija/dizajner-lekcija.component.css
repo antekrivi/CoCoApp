@@ -4,6 +4,10 @@ h1 {
     font-family: initial;
 }
 
+label {
+    font-weight: 500;
+}
+
 #dodaj_lekciju {
     position: absolute;
     top: 10px;

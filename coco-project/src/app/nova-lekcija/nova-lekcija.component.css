@@ -5,6 +5,10 @@ h1 {
 }
 
 label {
+    font-weight: 500;
+}
+
+label:not(.input-group-text) {
     margin-top: 10px;
     margin-bottom: 1px;
 }
@@ -19,7 +23,7 @@ label {
 }
 
 .zad_i_odg {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .float-end {
@@ -31,9 +35,13 @@ label {
     margin-left: 20px;
 }
 
-.odgovori input {
+.odgovori input{
     width: 80%;
     display: inline;
+}
+
+.input-group {
+    width: 80%;
 }
 
 .odgovor {
@@ -42,4 +50,33 @@ label {
 
 .zad_i_odg button:not(.makni), .odgovori button:not(.makni) {
     margin-top: 10px;
+}
+
+input[readonly] {
+    color: gray;
+    cursor: default;
+}
+
+.slika {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 5px;
+    margin-right: 0.5em;
+    margin-bottom: 0.5em;
+    height: 7em;
+    float: left;
+    position: relative;
+}
+
+.slika i {
+    display: block;
+    text-align: center;
+    position: absolute;
+    bottom: 0.5em;
+    width: 100%;
+    cursor: pointer;
+}
+
+#inputi {
+    clear: left;
+    margin-top: 5px;
 }

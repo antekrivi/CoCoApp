@@ -18,6 +18,7 @@ import { AngularFirestoreModule } from "@angular/fire/compat/firestore";
 import { firebaseConfig } from "./firebase-config";
 import { ActivityDesignerComponent } from './activity-designer/activity-designer.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,

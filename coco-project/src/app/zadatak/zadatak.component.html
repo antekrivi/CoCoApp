@@ -1,15 +1,22 @@
-<div id="kviz">
+<mat-dialog-content id="kviz">
+  <div *ngIf="!sviOdgovoriUcitani">
+    <div class="loader"></div>
+    <div id="centar">Učitavanje zadatka...</div>
+  </div>
+  <div *ngIf="sviOdgovoriUcitani">
     <h2>{{data.zadatak.tekst_zadatka}}</h2>
     <form (ngSubmit)="provjeriOdgovore()">
       <div *ngFor="let odgovor of sviOdgovori" class="form-check">
-        <input class="form-check-input" type="checkbox" [(ngModel)]="odgovor.oznacen" name="odgovori" value="{{odgovor.ime}}">
-        <label class="form-check-label" for="flexCheckDefault">
+        <input class="form-check-input" type="checkbox" [(ngModel)]="odgovor.oznacen" name="odgovori" [id]="odgovor.ime ? odgovor.ime : odgovor.url">
+        <label *ngIf="odgovor.ime" class="form-check-label" for="flexCheckDefault" for="{{odgovor.ime}}">
             {{odgovor.ime}}
         </label>
+        <label class="slika" for="{{odgovor.url}}"><img *ngIf="odgovor.url" [src]="odgovor.url"/></label>
       </div>
       <button type="submit" class="btn btn-primary">Provjeri</button>
     </form>
     <div *ngIf="rezultat">
       <p id="rez">{{rezultat}}</p>
     </div>
-</div>
+  </div>
+</mat-dialog-content>

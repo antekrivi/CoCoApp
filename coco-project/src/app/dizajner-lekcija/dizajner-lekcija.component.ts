@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { getDocs, query, collection, where, doc, deleteDoc } from "firebase/firestore";
+import { getDocs, query, collection, where, doc, deleteDoc, getDoc } from "firebase/firestore";
 import { DizajnerPocetnoComponent } from '../dizajner-pocetno/dizajner-pocetno.component';
 import { FirebaseService } from '../services/firebase-service.service';
 import { RadnjaService } from '../services/radnja.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ZadatakComponent } from '../zadatak/zadatak.component';
+import { getStorage, ref, deleteObject } from "firebase/storage";
 
 //funkcija za čitanje više dokumenata
 async function queryForDocuments(new_query) {
@@ -29,9 +30,13 @@ export class DizajnerLekcijaComponent {
   showZadatci = false;
 
 
-  teme$ = queryForDocuments(collection(this.db, '/lekcija')).then(res => res);
+  teme$ = queryForDocuments(collection(this.db, '/lekcija')).then(res => res.sort((a, b) => a.tema.localeCompare(b.tema)));
+
   selectedTema: string = "0";
   selectedPodtema: string = "0";
+  selectedPredmet: string;
+  selectedRazred: number;
+  selectedTip: string;
   podteme;
   putanja: string;
   zadatci;
@@ -43,7 +48,14 @@ export class DizajnerLekcijaComponent {
   }
 
   //odabir teme
-  onTemaSelected() {
+  async onTemaSelected() {
+    const docRef = doc(this.db, "lekcija", this.selectedTema);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      this.selectedPredmet = docSnap.data()['predmet'];
+    }
+    
     this.zadatci = null;
     this.selectedPodtema = "0";
     this.showZadatci = false;
@@ -54,11 +66,19 @@ export class DizajnerLekcijaComponent {
   async getPodtemaByTema() {
     this.putanja = `/lekcija/${this.selectedTema}/Podtema`;
     const podteme = await queryForDocuments(collection(this.db, this.putanja));
-    this.podteme = podteme;
+    this.podteme = podteme.sort((a, b) => a.naziv.localeCompare(b.naziv));
   }
 
   //odabir podteme
-  onPodtemaSelected() {
+  async onPodtemaSelected() {
+    const docRef = doc(this.db, 'lekcija', this.selectedTema, 'Podtema', this.selectedPodtema);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      this.selectedRazred = docSnap.data()['razred'];
+      this.selectedTip = docSnap.data()['odgovorTip'];
+    }
+
     this.getZadataciByPodtema();
   }
 
@@ -75,6 +95,7 @@ export class DizajnerLekcijaComponent {
     this.radnjaService.odabranaTema['id'] = this.selectedTema;
     const option = document.querySelector(`option[value="${this.selectedTema}"]`);
     this.radnjaService.odabranaTema['tema'] = option.textContent;
+    this.radnjaService.odabranaTema['predmet'] = this.selectedPredmet;
   }
 
   async obrisiPodtemuIZadatke(podtemaRef: any) {
@@ -84,6 +105,22 @@ export class DizajnerLekcijaComponent {
     snapshot.forEach(async (doc) => {
       const odgovorRef = collection(doc.ref, "Odgovor");
       const odgovorSnapshot = await getDocs(odgovorRef);
+
+      //potrebno za brisanje slika
+      let odg = await queryForDocuments(odgovorRef);
+
+      //brisanje slika
+      for (const o of odg) {
+        if (o.slika){
+          const storage = getStorage();
+          const slikaRef = ref(storage, o.slika);
+          deleteObject(slikaRef).then(() => {
+            // File deleted successfully
+          }).catch((error) => {
+            // Uh-oh, an error occurred!
+          });
+        }
+      }
       
       odgovorSnapshot.forEach((odgovorDoc) => {
         deleteDoc(odgovorDoc.ref);
@@ -110,14 +147,14 @@ export class DizajnerLekcijaComponent {
     }
   }
   
-  obrisiPodtemu() {
+  async obrisiPodtemu() {
     const optionPodtema = document.querySelector(`option[value="${this.selectedPodtema}"]`);
     const potvrda = window.confirm('Jeste li sigurni da želite obrisati podtemu "' + optionPodtema.textContent + '"?');
     if (potvrda) {
       const temaRef = doc(this.db, "lekcija", this.selectedTema);
       const podtemaRef = doc(temaRef, "Podtema", this.selectedPodtema);
       this.obrisiPodtemuIZadatke(podtemaRef); 
-      this.reset(false);     
+      this.reset(false);
     } 
   }
 
@@ -131,7 +168,7 @@ export class DizajnerLekcijaComponent {
       const snapshot = await getDocs(podtemeRef);
 
       snapshot.forEach(async (doc) => {
-        this.obrisiPodtemuIZadatke(doc);   
+        this.obrisiPodtemuIZadatke(doc.ref);   
       });
       
       deleteDoc(temaRef);
@@ -141,14 +178,17 @@ export class DizajnerLekcijaComponent {
   }
 
   urediLekciju(content: string) {
-    this.dizajner.changeContent(content);
     this.radnjaService.radnja = 'uredi';
     this.radnjaService.odabranaTema['id'] = this.selectedTema;
     const optionTema = document.querySelector(`option[value="${this.selectedTema}"]`);
     this.radnjaService.odabranaTema['tema'] = optionTema.textContent;
+    this.radnjaService.odabranaTema['predmet'] = this.selectedPredmet;
     this.radnjaService.odabranaPodtema['id'] = this.selectedPodtema;
     const optionPodtema = document.querySelector(`option[value="${this.selectedPodtema}"]`);
     this.radnjaService.odabranaPodtema['naziv'] = optionPodtema.textContent;
+    this.radnjaService.odabranaPodtema['razred'] = this.selectedRazred;
+    this.radnjaService.odgovorTip = this.selectedTip;
+    this.dizajner.changeContent(content);
   }
 
   //pop up prozor za zadatke

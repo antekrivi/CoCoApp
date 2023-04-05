@@ -7,14 +7,17 @@ export class RadnjaService {
   radnja: string = '';
   odabranaTema: Object = {
     id: '',
-    tema: ''
+    tema: '',
+    predmet: ''
   };
   odabranaPodtema: Object = {
     id: '',
-    naziv: ''
-  }
+    naziv: '',
+    razred: 0
   odabranaActivity: Object = {
     id: '',
+  };
+  odgovorTip: string = '';
     naziv: ''
   }
   constructor() { }
