@@ -13,11 +13,11 @@ import { ZadatakComponent } from './zadatak/zadatak.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
 import { AngularFireModule } from "@angular/fire/compat";
+import { MatIconModule } from '@angular/material/icon';
 import { AngularFireAuthModule } from "@angular/fire/compat/auth";
 import { AngularFirestoreModule } from "@angular/fire/compat/firestore";
 import { firebaseConfig } from "./firebase-config";
 import { ActivityDesignerComponent } from './activity-designer/activity-designer.component';
-
 
 @NgModule({
   declarations: [
@@ -38,6 +38,7 @@ import { ActivityDesignerComponent } from './activity-designer/activity-designer
     BrowserAnimationsModule,
     MatDialogModule,
     AngularFireModule.initializeApp(firebaseConfig),
+    MatIconModule
     AngularFireAuthModule,
     AngularFirestoreModule,
   ],

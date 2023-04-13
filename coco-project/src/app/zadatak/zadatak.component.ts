@@ -1,17 +1,18 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FirebaseService } from '../services/firebase-service.service';
-import { getDocs, query, collection, where, doc, deleteDoc } from "firebase/firestore";
+import { getDocs, collection } from "firebase/firestore";
 import { getStorage, getDownloadURL, ref } from 'firebase/storage';
+import { MatDialogRef } from '@angular/material/dialog';
 
 async function queryForDocuments(new_query) {
   const querySnapshot = await getDocs(new_query);
-  let rezultat = [];
+  let result = [];
   for (const snap of querySnapshot.docs) {
-    let noviObjekt = Object.assign({}, snap.data(), { unique_id: snap.id });
-    rezultat.push(noviObjekt);
+    let newObject = Object.assign({}, snap.data(), { unique_id: snap.id });
+    result.push(newObject);
   }
-  return rezultat;
+  return result;
 }
 
 @Component({
@@ -20,68 +21,72 @@ async function queryForDocuments(new_query) {
   styleUrls: ['./zadatak.component.css']
 })
 export class ZadatakComponent {
-  constructor(private firebaseSevice: FirebaseService, @Inject(MAT_DIALOG_DATA) public data: any) { 
-    this.getOdgovori();
+  constructor(private firebaseSevice: FirebaseService, @Inject(MAT_DIALOG_DATA) public data: any, private dialogRef: MatDialogRef<ZadatakComponent>) { 
+    this.getAnswers();
   }
 
   db = this.firebaseSevice.getDb();
 
-  putanja;
-  zadatci;
-  tocniOdgovori = [];
-  sviOdgovori = [];
-  rezultat: string;
-  sviOdgovoriUcitani = false;
+  path;
+  tasks;
+  correctAnswers = [];
+  allAnswers = [];
+  result: string;
+  allAnswersLoaded = false;
 
-  async getOdgovori() {
-    this.sviOdgovoriUcitani = false;
+  async getAnswers() {
+    this.allAnswersLoaded = false;
     //prvo dolazimo do svih zadataka iz podteme
-    this.putanja = `/lekcija/${this.data.tema}/Podtema/${this.data.podtema}/Zadatak`;
-    const zadatci = await queryForDocuments(collection(this.db, this.putanja));
-    this.zadatci = zadatci;
+    this.path = `/lection/${this.data.theme}/subtheme/${this.data.subtheme}/task`;
+    const tasks = await queryForDocuments(collection(this.db, this.path));
+    this.tasks = tasks;
 
     await this.waitUntilDataLoaded();
 
-    this.sviOdgovori.sort(() => Math.random() - 0.5);
+    this.allAnswers.sort(() => Math.random() - 0.5);
   }
 
   //dodatna funkcija kako bi se prvo pričekali svi odgovori i tek bi se onda prikazali 
   async waitUntilDataLoaded() {
-    for (const zadatak of this.zadatci) {
-      let odgovori = await queryForDocuments(collection(this.db, this.putanja + `/${zadatak.unique_id}/Odgovor`));
-      for (const odgovor of odgovori) {
+    for (const task of this.tasks) {
+      let answers = await queryForDocuments(collection(this.db, this.path + `/${task.unique_id}/answer`));
+      for (const answer of answers) {
         //ako su odgovori tekstualni
-        if(odgovor.tekst_odgovora){
-          this.sviOdgovori.push({ime: odgovor.tekst_odgovora, oznacen: false});
-          if (zadatak.unique_id === this.data.zadatak.unique_id){
-            this.tocniOdgovori.push(odgovor.tekst_odgovora);
+        if(answer.text){
+          this.allAnswers.push({name: answer.text, marked: false});
+          if (task.unique_id === this.data.task.unique_id){
+            this.correctAnswers.push(answer.text);
           }
         }
         //ako su odgovori slike
-        else if (odgovor.slika){
+        else if (answer.image){
           const storage = getStorage();
-          const slikaRef = odgovor.slika;
+          const slikaRef = answer.image;
           const url = await getDownloadURL(ref(storage, slikaRef));
-          this.sviOdgovori.push({ url: url, oznacen: false });
-          if (zadatak.unique_id === this.data.zadatak.unique_id){
-            this.tocniOdgovori.push(url);
+          this.allAnswers.push({ url: url, marked: false });
+          if (task.unique_id === this.data.task.unique_id){
+            this.correctAnswers.push(url);
           }
         }
       }
     }
-    this.sviOdgovoriUcitani = true;
+    this.allAnswersLoaded = true;
   }
 
-  provjeriOdgovore() {
-    const oznaceniOdgovori = this.sviOdgovori.filter(odgovor => odgovor.oznacen).map(odgovor => {
-      if (odgovor.ime){
-        return odgovor.ime;
+  chechkAnswers() {
+    const markedAnswers = this.allAnswers.filter(answer => answer.marked).map(answer => {
+      if (answer.name){
+        return answer.name;
       }
-      else if (odgovor.url) {
-        return odgovor.url;
+      else if (answer.url) {
+        return answer.url;
       }
     });
-    const ispravniOdgovori = oznaceniOdgovori.every(odgovor => this.tocniOdgovori.includes(odgovor)) && (oznaceniOdgovori.length == this.tocniOdgovori.length);
-    this.rezultat = ispravniOdgovori ? "Točno!" : "Netočno!";
+    const correctAnswers = markedAnswers.every(answer => this.correctAnswers.includes(answer)) && (markedAnswers.length == this.correctAnswers.length);
+    this.result = correctAnswers ? "Točno!" : "Netočno!";
+  }
+
+  closeDialog(): void {
+    this.dialogRef.close();
   }
 }

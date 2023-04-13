@@ -4,20 +4,20 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class RadnjaService {
-  radnja: string = '';
-  odabranaTema: Object = {
+  action: string = '';
+  selectedTheme: Object = {
     id: '',
-    tema: '',
-    predmet: ''
+    theme: '',
+    subject: ''
   };
-  odabranaPodtema: Object = {
+  selectedSubtheme: Object = {
     id: '',
-    naziv: '',
-    razred: 0
+    title: '',
+    class: 0
   odabranaActivity: Object = {
     id: '',
   };
-  odgovorTip: string = '';
+  type: string = '';
     naziv: ''
   }
   constructor() { }

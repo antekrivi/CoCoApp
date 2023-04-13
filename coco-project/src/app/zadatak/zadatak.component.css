@@ -1,26 +1,51 @@
+#quiz {
+    margin-left: 20px;
+    overflow: auto;
+    color: black;
+}
+
+::-webkit-scrollbar {
+    background-color: #f2f2f2;
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #0d6efd;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #0b5ed7;
+}
+
 h2 {
     font-size: 25px;
     font-family: initial;
+    margin: 1em 0;
 }
 
-#kviz {
-    margin: 20px;
-    overflow: auto;
+mat-icon {
+    position: absolute;
+    right: 0.5em;
+    top: 0.5em;
+    font-size: 2em;
+    height: auto;
+    width: auto;
+    cursor: pointer;
 }
 
 button {
-    margin: 10px 0;
+    margin: 1.5em 0 1em;
 }
 
-#rez {
-    margin-top: 5px;
+#res {
+    margin: 0 0 0.5em;
 }
 
 img {
     width: 100%;
 }
 
-.slika {
+.image {
     width: 20%;
 }
 
@@ -39,6 +64,6 @@ img {
     100% { transform: rotate(360deg); }
 }
 
-#centar {
+#center {
     text-align: center;
 }

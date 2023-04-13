@@ -4,37 +4,35 @@ h1 {
     font-family: initial;
 }
 
-label {
-    font-weight: 500;
+.container {
+    max-width: 100%;
 }
 
-#dodaj_lekciju {
+label:not(.form-check-label) {
+    font-weight: 500;
+    margin-top: 15px;
+}
+
+#addLection {
     position: absolute;
     top: 10px;
     right: 10px;
 }
 
 .list-group {
-    margin-top: 60px;
+    margin-top: 3em;
+    margin-bottom: 5em;
 }
 
-label {
-    margin-top: 15px;
-}
-
-#dodaj_podtemu, #obrisi_podtemu, #obrisi_temu {
+#addSubtheme, #deleteSubtheme, #deleteTheme {
     margin-top: 10px;
 }
 
-#obrisi_podtemu {
+#deleteSubtheme {
     margin-right: 5px;
 }
 
-#podtema {
-    margin-top: 30px;
-}
-
-#uredi_lekciju {
+#editLection {
     position: absolute;
     bottom: 10px;
     right: 10px;

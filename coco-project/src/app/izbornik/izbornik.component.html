@@ -1,4 +1,4 @@
 <ul class="list-group">
-    <li (click)="showContent('dl')" class="list-group-item">Dizajner lekcija</li>
-    <li (click)="showContent('da')" class="list-group-item">Dizajner activities</li>
+    <li (click)="showContent('dl')" class="list-group-item" [ngStyle]="{'cursor': this.actionService.action === 'edit' ? 'default' : 'pointer', 'color': this.actionService.action === 'edit' ? 'rgba(0, 0, 0, 0.125)' : 'black'}">Dizajner lekcija</li>
+    <li (click)="showContent('da')" class="list-group-item" [ngStyle]="{'cursor': this.actionService.action === 'edit' ? 'default' : 'pointer', 'color': this.actionService.action === 'edit' ? 'rgba(0, 0, 0, 0.125)' : 'black'}">Dizajner aktivnosti</li>
 </ul>

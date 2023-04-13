@@ -13,16 +13,16 @@ label:not(.input-group-text) {
     margin-bottom: 1px;
 }
 
-.zadatci input {
+.tasks input {
     display: inline;
     width: 90%;
 }
 
-.makni {
+.remove {
     margin-left: 5px;
 }
 
-.zad_i_odg {
+.taskAndAnswers {
     margin-bottom: 20px;
 }
 
@@ -30,12 +30,12 @@ label:not(.input-group-text) {
     margin-bottom: 20px;
 }
 
-.odgovori {
+.answers {
     margin-bottom: 40px;
     margin-left: 20px;
 }
 
-.odgovori input{
+.answers input{
     width: 80%;
     display: inline;
 }
@@ -44,11 +44,11 @@ label:not(.input-group-text) {
     width: 80%;
 }
 
-.odgovor {
+.answer {
     margin-top: 50px;
 }
 
-.zad_i_odg button:not(.makni), .odgovori button:not(.makni) {
+.taskAndAnswers button:not(.remove), .answers button:not(.remove) {
     margin-top: 10px;
 }
 
@@ -57,7 +57,7 @@ input[readonly] {
     cursor: default;
 }
 
-.slika {
+.image {
     border: 1px solid rgba(0, 0, 0, 0.125);
     border-radius: 5px;
     margin-right: 0.5em;
@@ -67,7 +67,7 @@ input[readonly] {
     position: relative;
 }
 
-.slika i {
+.image i {
     display: block;
     text-align: center;
     position: absolute;
@@ -76,7 +76,7 @@ input[readonly] {
     cursor: pointer;
 }
 
-#inputi {
+#inputs {
     clear: left;
     margin-top: 5px;
 }

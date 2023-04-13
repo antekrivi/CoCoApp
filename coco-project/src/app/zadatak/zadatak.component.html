@@ -1,22 +1,23 @@
-<mat-dialog-content id="kviz">
-  <div *ngIf="!sviOdgovoriUcitani">
+<mat-dialog-content id="quiz">
+  <div *ngIf="!allAnswersLoaded">
     <div class="loader"></div>
-    <div id="centar">Učitavanje zadatka...</div>
+    <div id="center">Učitavanje zadatka...</div>
   </div>
-  <div *ngIf="sviOdgovoriUcitani">
-    <h2>{{data.zadatak.tekst_zadatka}}</h2>
-    <form (ngSubmit)="provjeriOdgovore()">
-      <div *ngFor="let odgovor of sviOdgovori" class="form-check">
-        <input class="form-check-input" type="checkbox" [(ngModel)]="odgovor.oznacen" name="odgovori" [id]="odgovor.ime ? odgovor.ime : odgovor.url">
-        <label *ngIf="odgovor.ime" class="form-check-label" for="flexCheckDefault" for="{{odgovor.ime}}">
-            {{odgovor.ime}}
+  <div *ngIf="allAnswersLoaded">
+    <mat-icon class="close-icon" (click)="closeDialog()">close</mat-icon>
+    <h2>{{data.task.textTask}}</h2>
+    <form (ngSubmit)="chechkAnswers()">
+      <div *ngFor="let answer of allAnswers" class="form-check">
+        <input class="form-check-input" type="checkbox" [(ngModel)]="answer.marked" name="answers" [id]="answer.name ? answer.name : answer.url">
+        <label *ngIf="answer.name" class="form-check-label" for="flexCheckDefault" for="{{answer.name}}">
+            {{answer.name}}
         </label>
-        <label class="slika" for="{{odgovor.url}}"><img *ngIf="odgovor.url" [src]="odgovor.url"/></label>
+        <label class="image" for="{{answer.url}}"><img *ngIf="answer.url" [src]="answer.url"/></label>
       </div>
       <button type="submit" class="btn btn-primary">Provjeri</button>
     </form>
-    <div *ngIf="rezultat">
-      <p id="rez">{{rezultat}}</p>
+    <div *ngIf="result">
+      <p id="res">{{result}}</p>
     </div>
   </div>
 </mat-dialog-content>

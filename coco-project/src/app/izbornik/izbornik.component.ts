@@ -1,5 +1,6 @@
 import { Component, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
+import { RadnjaService } from '../services/radnja.service';
 
 @Component({
   selector: 'app-izbornik',
@@ -9,7 +10,14 @@ import { EventEmitter } from '@angular/core';
 export class IzbornikComponent {
   @Output() contentChanged = new EventEmitter<string>();
 
+  constructor(public actionService: RadnjaService) { }
+
   showContent(content: string){
-    this.contentChanged.emit(content);
+    if (this.actionService.action === "edit") {
+     
+    }
+    else {
+      this.contentChanged.emit(content);
+    }
   }
 }

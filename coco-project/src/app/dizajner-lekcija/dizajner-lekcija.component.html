@@ -1,24 +1,84 @@
 <h1>Moje lekcije</h1>
-<button id="dodaj_lekciju" class="btn btn-primary" (click)="dodajLekciju('nl')">Dodaj lekciju</button>
+<button id="addLection" class="btn btn-primary" (click)="addLection('nl')">Dodaj lekciju</button>
 <br/>
-<label>Odaberite temu:</label><br/>
-<select class="form-select" aria-label="Default select example" [(ngModel)]="selectedTema" (change)="onTemaSelected()">
-    <option disabled value="0">Odaberite</option>
-    <option *ngFor="let tema of teme$ | async" [value]="tema.unique_id">{{tema.tema}}</option>
-</select>
-<button id="obrisi_temu" *ngIf="selectedTema !== '0'" class="btn btn-primary float-end" (click)="obrisiTemu()">Obriši temu</button>
-<div *ngIf="podteme" id="podtema">
-  <label>Odaberite podtemu:</label><br/>
-  <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedPodtema" (change)="onPodtemaSelected()">
-    <option selected disabled value="0">Odaberite</option>
-    <option *ngFor="let podtema of podteme" [value]="podtema.unique_id">{{podtema.naziv}}</option>
-  </select>
-</div>
-<button id="dodaj_podtemu" *ngIf="selectedTema !== '0'" class="btn btn-primary float-end" (click)="dodajPodtemu('nl')">Dodaj podtemu</button>
-<button id="obrisi_podtemu" *ngIf="selectedPodtema !== '0'" class="btn btn-primary float-end" (click)="obrisiPodtemu()">Obriši podtemu</button>
-<div *ngIf="showZadatci">
-  <div class="list-group">
-    <a *ngFor="let zadatak of zadatci" href="javascript:void(0);" class="list-group-item list-group-item-action" (click)="openDialog(zadatak)">{{zadatak.tekst_zadatka}}</a>
+<div class="container">
+  <div class="row">
+    <div class="col-9">
+      <label>Odaberite temu:</label><br/>
+      <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedTheme" (change)="onThemeSelected()">
+          <option disabled value="0">Odaberite</option>
+          <option *ngFor="let theme of themes$ | async" [value]="theme.unique_id">{{theme.theme}}</option>
+      </select>
+      <button id="deleteTheme" *ngIf="selectedTheme !== '0'" class="btn btn-primary float-end" (click)="deleteTheme()">Obriši temu</button>
+    </div>
+    <div class="col-3">
+      <label>Filtriraj po predmetu:</label>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="HJ" id="HJ" (change)="onSubjectFilterChange($event)">
+        <label class="form-check-label" for="HJ">
+          Hrvatski jezik
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="MAT" id="MAT" (change)="onSubjectFilterChange($event)">
+        <label class="form-check-label" for="MAT">
+          Matematika
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="PiD" id="PiD" (change)="onSubjectFilterChange($event)">
+        <label class="form-check-label" for="PiD">
+          Priroda i društvo
+        </label>
+      </div>
+    </div>
   </div>
 </div>
-<button id="uredi_lekciju" *ngIf="selectedTema !== '0' && selectedPodtema !== '0'" class="btn btn-primary" (click)="urediLekciju('nl')">Uredi lekciju</button>
+<div *ngIf="subthemes && subthemes.length > 0"  class="container">
+  <div class="row">
+    <div class="col-9">
+      <div id="subtheme">
+        <label>Odaberite podtemu:</label><br/>
+        <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedSubtheme" (change)="onPodtemaSelected()">
+          <option selected disabled value="0">Odaberite</option>
+          <option *ngFor="let subtheme of subthemes" [value]="subtheme.unique_id">{{subtheme.title}}</option>
+        </select>
+      </div>
+      <button id="addSubtheme" *ngIf="selectedTheme !== '0'" class="btn btn-primary float-end" (click)="addSubtheme('nl')">Dodaj podtemu</button>
+      <button id="deleteSubtheme" *ngIf="selectedSubtheme !== '0'" class="btn btn-primary float-end" (click)="deleteSubtheme()">Obriši podtemu</button>
+    </div>
+    <div class="col-3">
+      <label>Filtriraj po razredu:</label>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="1" id="1" (change)="onClassFilterChange($event)">
+        <label class="form-check-label" for="1">
+          1.
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="2" id="2" (change)="onClassFilterChange($event)">
+        <label class="form-check-label" for="2">
+          2.
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="3" id="3" (change)="onClassFilterChange($event)">
+        <label class="form-check-label" for="3">
+          3.
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="4" id="4" (change)="onClassFilterChange($event)">
+        <label class="form-check-label" for="4">
+          4.
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="showTasks">
+  <div class="list-group">
+    <a *ngFor="let task of tasks" href="javascript:void(0);" class="list-group-item list-group-item-action" (click)="openDialog(task)">{{task.textTask}}</a>
+  </div>
+</div>
+<button id="editLection" *ngIf="selectedTheme !== '0' && selectedSubtheme !== '0'" class="btn btn-primary" (click)="editLection('nl')">Uredi lekciju</button>

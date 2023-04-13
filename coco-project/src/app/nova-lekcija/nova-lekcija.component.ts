@@ -1,25 +1,26 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FirebaseService } from '../services/firebase-service.service';
-import { collection, addDoc, writeBatch, doc, getDocs, getDoc, updateDoc, deleteDoc, collectionGroup, query, where } from "firebase/firestore";
-import { FormGroup, FormArray, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { collection, addDoc, writeBatch, doc, getDocs, getDoc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
+import { FormGroup, FormArray, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { DizajnerPocetnoComponent } from '../dizajner-pocetno/dizajner-pocetno.component';
 import { RadnjaService } from '../services/radnja.service';
 import { getStorage, ref, uploadBytes, deleteObject, getDownloadURL } from "firebase/storage";
+import Swal from 'sweetalert2';
 
 async function queryForDocuments(new_query){
   const querySnapshot = await getDocs(new_query);
-  let rezultat = [];
+  let result = [];
   const allDocs = querySnapshot.forEach((snap) => {
-    let noviObjekt = Object.assign({}, snap.data(), { unique_id: snap.id });
-    rezultat.push(noviObjekt); 
+    let newObject = Object.assign({}, snap.data(), { unique_id: snap.id });
+    result.push(newObject); 
   });
-  return rezultat;
+  return result;
 }
 
-function formirajFormArray(popisZadataka: string[]): FormArray {
+function formFormArray(taskList: string[]): FormArray {
   const formArray = new FormArray([]);
-  for (const zadatak of popisZadataka) {
-    formArray.push(new FormControl(zadatak, Validators.required));
+  for (const task of taskList) {
+    formArray.push(new FormControl(task, Validators.required));
   }
   return formArray;
 }
@@ -29,129 +30,27 @@ function formirajFormArray(popisZadataka: string[]): FormArray {
   templateUrl: './nova-lekcija.component.html',
   styleUrls: ['./nova-lekcija.component.css']
 })
+
 export class NovaLekcijaComponent {
-  constructor(private firebaseService: FirebaseService, private dizajner: DizajnerPocetnoComponent, private radnjaService: RadnjaService) { }
+  constructor(private firebaseService: FirebaseService, private designer: DizajnerPocetnoComponent, private actionService: RadnjaService) { }
   db = this.firebaseService.getDb();
-  popisSlika = [];
-  @ViewChild('naslov', {static: true}) naslovElement: ElementRef;
-  @ViewChild('gumb', {static: true}) gumbElement: ElementRef;
+  listImages = [];
+  @ViewChild('title', {static: true}) titleElement: ElementRef;
+  @ViewChild('button', {static: true}) buttonElement: ElementRef;
 
   isDisabled = false;
+  edit = false;
+  themes = [];
+  subthemes = [];
 
-  ngOnInit(): void {
-    //ako dodajemo podtemu unutar postojeće teme
-    if(this.radnjaService.radnja === 'podtema') {
-      this.isDisabled = true;
-      this.lekcijaForma.get('tema').setValue(this.radnjaService.odabranaTema['tema']);
-      document.querySelector("#tema").setAttribute("readonly", "true");
-      this.lekcijaForma.get('predmet').setValue(this.radnjaService.odabranaTema['predmet']);
-      setTimeout(() => {
-        document.querySelector(".predmet").setAttribute("readonly", "true");
-      }, 200);
-      this.naslovElement.nativeElement.innerText = 'Nova podtema';
-      this.gumbElement.nativeElement.innerText = 'Dodaj podtemu';
-    }
-    
-    //ako uređujemo postojuću lekciju
-    else if (this.radnjaService.radnja === 'uredi'){
-      this.naslovElement.nativeElement.innerText = 'Uredi lekciju';
-      this.gumbElement.nativeElement.innerText = 'Spremi promjene';
-      //dodavanje teme i podteme u FormGroup
-      this.lekcijaForma.get('tema').setValue(this.radnjaService.odabranaTema['tema']);
-      this.lekcijaForma.get('predmet').setValue(this.radnjaService.odabranaTema['predmet']);
-      this.lekcijaForma.get('podtema').setValue(this.radnjaService.odabranaPodtema['naziv']);
-      this.lekcijaForma.get('razred').setValue(this.radnjaService.odabranaPodtema['razred']);
-      this.lekcijaForma.get('odgovorTip').setValue(this.radnjaService.odgovorTip);
-
-      //dohavaćanje zadataka i odgovora
-      this.getPopisZadatakaOdgovora();
-    }
-  }
+  previousValue = "text";
   
-  async getPopisZadatakaOdgovora() {
-    document.body.style.cursor = 'wait';
-
-    let popisZadataka = [];
-    let popisOdgovora = [];
-    let zadatci = await queryForDocuments(collection(this.db, `/lekcija/${this.radnjaService.odabranaTema['id']}/Podtema/${this.radnjaService.odabranaPodtema['id']}/Zadatak`));
-    
-    //dohvaćanje zadataka i odgovora
-    for (const zadatak of zadatci) {
-      popisZadataka.push(zadatak.tekst_zadatka);
-      let odgovori = await queryForDocuments(collection(this.db, `/lekcija/${this.radnjaService.odabranaTema['id']}/Podtema/${this.radnjaService.odabranaPodtema['id']}/Zadatak/${zadatak.unique_id}/Odgovor`));
-      
-      let odgovori2 = [];
-      //ako je tip odgovora tekst
-      if (this.radnjaService.odgovorTip === "tekst") {
-        odgovori.forEach(odgovor => {
-          odgovori2.push(odgovor.tekst_odgovora);
-        });
-      }
-      else if (this.radnjaService.odgovorTip === "slika") {
-        odgovori.forEach(odgovor => {
-          odgovori2.push(odgovor.slika);
-        });
-      }
-      popisOdgovora.push(odgovori2);
-    }
- 
-    //dodavanje zadataka u FormGroup
-    const formArray = this.lekcijaForma.get('zadatci') as FormArray;
-    formArray.clear();
-    popisZadataka.forEach(zadatak => formArray.push(new FormControl(zadatak, Validators.required)));
-
-    //dodavanje odgovora u FormGroup
-    const formArray2 = this.lekcijaForma.get('odgovori') as FormArray;
-    formArray2.clear(); 
-    //ako je tip odgovora tekst 
-    if (this.radnjaService.odgovorTip === "tekst") {
-      popisOdgovora.forEach(odgovori => {
-        const odgovoriFormArray = new FormArray([]);
-        odgovori.forEach(odgovor => odgovoriFormArray.push(new FormControl(odgovor, {
-          validators: Validators.required,
-          updateOn: 'change'
-        })));
-        formArray2.push(odgovoriFormArray);
-      });
-    }
-    //ako je tip odgovora slika
-    else if (this.radnjaService.odgovorTip === "slika") {
-      this.popisSlika = await this.waitUntilDataLoaded(popisOdgovora);
-      popisOdgovora.forEach(odgovori => {
-        const odgovoriFormArray = new FormArray([]);
-        formArray2.push(odgovoriFormArray);
-      });
-    }
-
-    document.body.style.cursor = 'default';
-  }  
-
-  async waitUntilDataLoaded(popisOdgovora) {
-    let popisSlika = [];
-  
-    // koristimo Promise.all() za čekanje dok se sve slike ne učitaju
-    await Promise.all(popisOdgovora.map(async (odgovori, index) => {
-      const slike = [];
-      for (const odgovor of odgovori) {
-        const storage = getStorage();
-        const url = await getDownloadURL(ref(storage, odgovor));
-        slike.push(url);
-      }
-      popisSlika[index] = slike;
-    }));
-    
-    return popisSlika;
-  }
-
-  //može biti najviše 4 vrste zadatka jer se tablet dijeli na max. 4 učenika
-  maxZadataka = 4;
-
-  lekcijaForma = new FormGroup({
-    tema: new FormControl('', [Validators.required]),
-    predmet: new FormControl('0', [Validators.required, this.nonZero]),
-    podtema: new FormControl('', Validators.required),
-    razred: new FormControl(0, [Validators.required, this.nonZero]),
-    zadatci: new FormArray([
+  lectionForm = new FormGroup({
+    theme: new FormControl('', [Validators.required, this.existThemes.bind(this)]),
+    subject: new FormControl('0', [Validators.required, this.nonZero]),
+    subtheme: new FormControl('', [Validators.required, this.existSubthemes.bind(this)]),
+    class: new FormControl(0, [Validators.required, this.nonZero]),
+    tasks: new FormArray([
       new FormControl('', {
         validators: Validators.required,
         updateOn: 'change'
@@ -161,8 +60,8 @@ export class NovaLekcijaComponent {
         updateOn: 'change'
       })
     ]),
-    odgovorTip: new FormControl('tekst', Validators.required),
-    odgovori: new FormArray([
+    type: new FormControl('text', Validators.required),
+    answers: new FormArray([
       new FormArray([
         new FormControl('', {
           validators: Validators.required,
@@ -176,29 +75,84 @@ export class NovaLekcijaComponent {
         })
       ])
     ])
-  }, { validators: [this.duplicateZadatakValidator, this.duplicateOdgovoriValidator] }); 
+  }, { validators: [this.duplicateTaskValidator, this.duplicateAnswerValidator.bind(this)] }); 
+  
+  //može biti najviše 4 vrste zadatka jer se tablet dijeli na max. 4 učenika
+  maxTasks = 4;
 
-  //custom validator za provjeru da tema već ne postoji - NE RADI KAKO TREBA!!!!!!!!
-  nonExist(control: AbstractControl) {
-    //let res = await queryForDocuments(collection(db, '/lekcija')); - DODATI async nonExist(db:any, control: AbstractControl) i u pozivu funkcije this.nonExist.bind(this, this.db)
+  async ngOnInit(): Promise<void> {    
+    await this.getThemesSubthemes();
 
-    //let teme = res.map(lekcija => lekcija.tema);
-    //console.log(teme);
-    //DODATI I NEŠTO DA SE TO NE PROVJERAVA AKO JE UPDATE
-    if(this.radnjaService.radnja === 'uredi'){
-      return null;
-    } else {
-      let teme = ['Prehrana', 't', 'Pisanje riječi', 'Operatori'];
+    //ako dodajemo podtemu unutar postojeće teme
+    if(this.actionService.action === 'subtheme') {
+      this.isDisabled = true;
+      this.lectionForm.get('theme').setValue(this.actionService.selectedTheme['theme']);
+      document.querySelector("#theme").setAttribute("readonly", "true");
+      this.lectionForm.get('subject').setValue(this.actionService.selectedTheme['subject']);
+      setTimeout(() => {
+        document.querySelector(".subject").setAttribute("readonly", "true");
+      }, 200);
+      this.titleElement.nativeElement.innerText = 'Nova podtema';
+      this.buttonElement.nativeElement.innerText = 'Dodaj podtemu';
+    }
+    
+    //ako uređujemo postojuću lekciju
+    else if (this.actionService.action === 'edit'){
+      this.edit = true;
+      this.titleElement.nativeElement.innerText = 'Uredi lekciju';
+      this.buttonElement.nativeElement.innerText = 'Spremi promjene';
+      //dodavanje teme i podteme u FormGroup
+      this.lectionForm.get('theme').setValue(this.actionService.selectedTheme['theme']);
+      this.lectionForm.get('subject').setValue(this.actionService.selectedTheme['subject']);
+      this.lectionForm.get('subtheme').setValue(this.actionService.selectedSubtheme['title']);
+      this.lectionForm.get('class').setValue(this.actionService.selectedSubtheme['class']);
+      this.lectionForm.get('type').setValue(this.actionService.type);
 
-      if (teme.includes(control.value)) {
-        return {
-          nonExist: true
-        };
-      } else {
-        return null;
-      }
+      //dohavaćanje zadataka i odgovora
+      this.getListTasksAnswers();
+
+      this.previousValue = this.actionService.type;
     }
   }
+
+  async getThemesSubthemes() {
+    //dohavaćnje svih trenutnih tema i podtema
+    this.themes = await queryForDocuments(collection(this.db, '/lection'));
+   
+    const subPromises = this.themes.map(async (doc) => {
+        const sub = await queryForDocuments(collection(this.db, `/lection/${doc.unique_id}/subtheme`));
+        sub.forEach(s => this.subthemes.push(s.title));
+    });
+    await Promise.all(subPromises);
+
+    this.themes = this.themes.map(theme => theme.theme);
+
+    this.lectionForm.controls['theme'].updateValueAndValidity();
+  }
+
+  //custom validator za provjeru da tema već ne postoji
+  existThemes(control: AbstractControl) {
+    if(!this.isDisabled && !this.edit) {
+      if (this.themes.includes(control.value)) {
+        return {
+          existThemes: true
+        };
+      }
+    }
+    return null;
+  }
+
+  //custom validator za provjeru da podtema već ne postoji
+  existSubthemes(control: AbstractControl) {
+    if (!this.edit) {
+      if (this.subthemes.includes(control.value)) {
+        return {
+          existSubthemes: true
+        };
+      }
+    }
+    return null;
+}
 
   //custom validator za provjeru da su odabrani predmet i razred
   nonZero(control: FormControl) {
@@ -211,20 +165,20 @@ export class NovaLekcijaComponent {
   }
 
   //custom validator da ne postoje dva ista zadatka
-  duplicateZadatakValidator(form: FormGroup) {
-    const zadatci = form.get('zadatci') as FormArray;
-    const zadaci = zadatci.controls.map(zadatak => zadatak.value);
+  duplicateTaskValidator(form: FormGroup) {
+    const tasks = form.get('tasks') as FormArray;
+    const tasks2 = tasks.controls.map(task => task.value);
 
-    const duplicates = zadaci.filter((zadatak, index) => zadaci.indexOf(zadatak) !== index);
+    const duplicates = tasks2.filter((task, index) => tasks2.indexOf(task) !== index);
     
-    zadatci.controls.forEach((zadatak, index) => {
-      if (zadatak.value === '') {
-        // Ako je kontrola prazna, postavite grešku da je obavezna
-        zadatak.setErrors({ required: true });
+    tasks.controls.forEach(task => {
+      if (task.value === '') {
+        // Ako je kontrola prazna, postaviti grešku da je obavezna
+        task.setErrors({ required: true });
       } else {
-        const duplicate = duplicates.includes(zadatak.value);
+        const duplicate = duplicates.includes(task.value);
         const errors = duplicate ? { duplicate: true } : null;
-        zadatak.setErrors(errors);
+        task.setErrors(errors);
       }
     });
     
@@ -233,202 +187,321 @@ export class NovaLekcijaComponent {
 
   //custom validator da ne postoje dva ista odgovora
   //DODATI DA SE PROVJERAVA I DA NE POSTOJE VEĆ ISTE SLIKE U BAZI!!!!!!!!!!!
-  duplicateOdgovoriValidator(form: FormGroup){
-    const odgovori = form.get('odgovori') as FormArray;
+  duplicateAnswerValidator(form: FormGroup, control: AbstractControl){
+    const answers = form.get('answers') as FormArray;
+    const type = form.get('type').value;
     const values = [];
 
-    odgovori.controls.forEach((odgovorGroup: FormArray) => {
-      odgovorGroup.controls.forEach((control: FormControl) => {
+    answers.controls.forEach((answerGroup: FormArray) => {
+      answerGroup.controls.forEach((control: FormControl) => {
         values.push(control.value);
       });
     });
 
     const duplicates = values.filter((value, index, array) => array.indexOf(value) !== index);
 
-    odgovori.controls.forEach((odgovorGroup: FormArray) => {
-      odgovorGroup.controls.forEach((control: FormControl) => {
+    answers.controls.forEach((answerGroup: FormArray) => {
+      answerGroup.controls.forEach((control: FormControl) => {
         if (control.value === '') {
-          // Ako je kontrola prazna, postavite grešku da je obavezna
+          // Ako je kontrola prazna, postaviti grešku da je obavezna
           control.setErrors({ required: true });
-        } else {
+        }
+        else {
           const duplicate = duplicates.includes(control.value);
           const errors = duplicate ? { duplicate: true } : null;
           control.setErrors(errors);
         }
+
+        if (type === "image") {
+            const slika = control.value.split('\\').pop();
+
+            const found = this.listImages.some(sublist => {
+              return sublist.some(str => {
+                return str.includes(slika);
+              });
+            });
+
+            if (found) {
+              control.setErrors({ existImage: true });
+            }
+          }
       });
     });
 
     return null;
   }
+  
+  async getListTasksAnswers() {
+    document.body.style.cursor = 'wait';
+    
+    let listTasks = [];
+    let listAnswers = [];
+    let tasks = await queryForDocuments(collection(this.db, `/lection/${this.actionService.selectedTheme['id']}/subtheme/${this.actionService.selectedSubtheme['id']}/task`));
+    
+    //dohvaćanje zadataka i odgovora
+    for (const task of tasks) {
+      listTasks.push(task.textTask);
+      let answers = await queryForDocuments(collection(this.db, `/lection/${this.actionService.selectedTheme['id']}/subtheme/${this.actionService.selectedSubtheme['id']}/task/${task.unique_id}/answer`));
+      
+      let answers2 = [];
+      //ako je tip odgovora tekst
+      if (this.actionService.type === "text") {
+        answers.forEach(answer => {
+          answers2.push(answer.text);
+        });
+      }
+      else if (this.actionService.type === "image") {
+        answers.forEach(answer => {
+          answers2.push(answer.image);
+        });
+      }
+      listAnswers.push(answers2);
+    }
+ 
+    //dodavanje zadataka u FormGroup
+    const formArray = this.lectionForm.get('tasks') as FormArray;
+    formArray.clear();
+    listTasks.forEach(task => formArray.push(new FormControl(task, Validators.required)));
 
-  get zadatci(): FormArray {
-    return this.lekcijaForma.get('zadatci') as FormArray;
+    //dodavanje odgovora u FormGroup
+    const formArray2 = this.lectionForm.get('answers') as FormArray;
+    formArray2.clear(); 
+    //ako je tip odgovora tekst 
+    if (this.actionService.type === "text") {
+      listAnswers.forEach(answers => {
+        const answersFormArray = new FormArray([]);
+        answers.forEach(answer => answersFormArray.push(new FormControl(answer, {
+          validators: Validators.required,
+          updateOn: 'change'
+        })));
+        formArray2.push(answersFormArray);
+      });
+    }
+    //ako je tip odgovora slika
+    else if (this.actionService.type === "image") {
+      this.listImages = await this.waitUntilDataLoaded(listAnswers);
+      listAnswers.forEach(answers => {
+        const answersFormArray = new FormArray([]);
+        formArray2.push(answersFormArray);
+      });
+    }
+
+    document.body.style.cursor = 'default';
+  }  
+
+  async waitUntilDataLoaded(listAnswers) {
+    let listImages = [];
+  
+    // koristimo Promise.all() za čekanje dok se sve slike ne učitaju
+    await Promise.all(listAnswers.map(async (answers, index) => {
+      const images = [];
+      for (const answer of answers) {
+        const storage = getStorage();
+        const url = await getDownloadURL(ref(storage, answer));
+        images.push(url);
+      }
+      listImages[index] = images;
+    }));
+    
+    return listImages;
   }
 
-  get odgovori(): FormArray {
-    return this.lekcijaForma.get('odgovori') as FormArray;
+  get tasks(): FormArray {
+    return this.lectionForm.get('tasks') as FormArray;
   }
 
-  getOdgovori(index: number): FormArray {
-    return (this.lekcijaForma.get('odgovori') as FormArray).at(index) as FormArray;
+  get answers(): FormArray {
+    return this.lectionForm.get('answers') as FormArray;
   }
 
-  addZadatak() {
-    this.zadatci.push(new FormControl('', {
+  getAnswers(index: number): FormArray {
+    return (this.lectionForm.get('answers') as FormArray).at(index) as FormArray;
+  }
+
+  addTask() {
+    this.tasks.push(new FormControl('', {
       validators: Validators.required,
       updateOn: 'change'
     }));
-    const odgovoriZaNoviZadatak = new FormArray([
+    const answersForNewTask = new FormArray([
       new FormControl('', {
         validators: Validators.required,
         updateOn: 'change'
       })
     ]);
-    this.odgovori.push(odgovoriZaNoviZadatak);
+    this.answers.push(answersForNewTask);
   }
 
-  async removeZadatak(i: number) {
-    //provjera ako se radi o lekciji koja se uređuje, ima odgovore tipa slika i želi se obrisati zadatak koji je ranije postojao
-    if(this.radnjaService.radnja === "uredi" && this.radnjaService.odgovorTip === "slika" && this.popisSlika[i]){
-      console.log("tu sam");
-      const podtemaRef = doc(this.db, `lekcija/${this.radnjaService.odabranaTema['id']}/Podtema/${this.radnjaService.odabranaPodtema['id']}`);
-      const zadaciRef = collection(podtemaRef, "Zadatak");
-      const q = query(zadaciRef, where("tekst_zadatka", "==", this.zadatci.controls[i].value));
+  async removeTask(i: number) {
+    Swal.fire({
+      title: 'Jeste li sigurni da želite obrisati zadatak i njemu pripadne odgovore?',
+      text: "Ne možete vratiti ovaj korak!",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Da, obriši!',
+      cancelButtonText: 'Ne, ne želim obrisati!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        //provjera ako se radi o lekciji koja se uređuje, ima odgovore tipa slika i želi se obrisati zadatak koji je ranije postojao
+        if(this.actionService.action === "edit" && this.actionService.type === "image" && this.listImages[i]){
+          const subthemeRef = doc(this.db, `lection/${this.actionService.selectedTheme['id']}/subtheme/${this.actionService.selectedSubtheme['id']}`);
+          const tasksRef = collection(subthemeRef, "task");
+          const q = query(tasksRef, where("textTask", "==", this.tasks.controls[i].value));
 
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(async (doc) => {
-        const odgovorRef = collection(doc.ref, "Odgovor");
-        const odgovorSnapshot = await getDocs(odgovorRef);
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (doc) => {
+            const answerRef = collection(doc.ref, "answer");
+            const answerSnapshot = await getDocs(answerRef);
 
-        //potrebno za brisanje slika
-        let odg = await queryForDocuments(odgovorRef);
+            await this.deleteImagesStorage(answerRef);
 
-        //brisanje slika
-        for (const o of odg) {
-          if (o.slika){
-            const storage = getStorage();
-            const slikaRef = ref(storage, o.slika);
-            deleteObject(slikaRef);
-          }
+            answerSnapshot.forEach((answerDoc) => {
+              deleteDoc(answerDoc.ref);
+            });
+            
+            deleteDoc(doc.ref);
+          });
+
+          this.listImages.splice(i, 1);
         }
-
-        odgovorSnapshot.forEach((odgovorDoc) => {
-          deleteDoc(odgovorDoc.ref);
-        });
         
-        deleteDoc(doc.ref);
-      });
+        this.tasks.removeAt(i);
+        this.answers.removeAt(i);
+      }});
+  }
+
+  async deleteImagesStorage(answerRef) {
+    //potrebno za brisanje slika
+    let ans = await queryForDocuments(answerRef);
+
+    //brisanje slika
+    for (const a of ans) {
+      if (a.image){
+        const storage = getStorage();
+        const imageRef = ref(storage, a.image);
+        deleteObject(imageRef);
+      }
     }
-    
-    this.zadatci.removeAt(i);
-    this.odgovori.removeAt(i);
   }
   
-  addOdgovor(index: number) {
-    this.getOdgovori(index).push(new FormControl('', {
+  addAnswer(index: number) {
+    this.getAnswers(index).push(new FormControl('', {
       validators: Validators.required,
       updateOn: 'change'
     }));
   }
 
-  removeOdgovor(i: number, j: number) {
-    this.getOdgovori(i).removeAt(j);
+  removeAnswer(i: number, j: number) {
+    this.getAnswers(i).removeAt(j);
   }
 
-  async removeImage(slikaUrl: string) {
+  async removeImage(imageUrl: string) {
     document.body.style.cursor = "wait";
     
-    const potvrda = confirm('Jeste li sigurni da želite obrisati sliku?');
+    Swal.fire({
+      title: 'Jeste li sigurni da želite obrisati sliku?',
+      text: "Ne možete vratiti ovaj korak!",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Da, obriši!',
+      cancelButtonText: 'Ne, ne želim obrisati!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const storage = getStorage();
+        const imageRef = ref(storage, imageUrl);
+        const path = imageRef['_location'].path;
 
-    if(potvrda){
-      const storage = getStorage();
-      const slikaRef = ref(storage, slikaUrl);
-      const path = slikaRef['_location'].path;
+        //dohvaćanje dokumenta gdje se nalazi slika i brisanje tog dokumenta
+        let tasks = await queryForDocuments(collection(this.db, `/lection/${this.actionService.selectedTheme['id']}/subtheme/${this.actionService.selectedSubtheme['id']}/task`));
 
-      //dohvaćanje dokumenta gdje se nalazi slika i brisanje tog dokumenta
-      let zadatci = await queryForDocuments(collection(this.db, `/lekcija/${this.radnjaService.odabranaTema['id']}/Podtema/${this.radnjaService.odabranaPodtema['id']}/Zadatak`));
-
-      for (const zadatak of zadatci) {
-        let odgovori = await queryForDocuments(collection(this.db, `/lekcija/${this.radnjaService.odabranaTema['id']}/Podtema/${this.radnjaService.odabranaPodtema['id']}/Zadatak/${zadatak.unique_id}/Odgovor`));
-        
-        for (const odgovor of odgovori){
-          if(odgovor.slika.includes(path)){
-            const docRef = doc(this.db, `/lekcija/${this.radnjaService.odabranaTema['id']}/Podtema/${this.radnjaService.odabranaPodtema['id']}/Zadatak/${zadatak.unique_id}/Odgovor/${odgovor.unique_id}`);
-            await deleteDoc(docRef);
+        for (const task of tasks) {
+          let answers = await queryForDocuments(collection(this.db, `/lection/${this.actionService.selectedTheme['id']}/subtheme/${this.actionService.selectedSubtheme['id']}/task/${task.unique_id}/answer`));
+          
+          for (const answer of answers){
+            if(answer.image.includes(path)){
+              const docRef = doc(this.db, `/lection/${this.actionService.selectedTheme['id']}/subtheme/${this.actionService.selectedSubtheme['id']}/task/${task.unique_id}/answer/${answer.unique_id}`);
+              await deleteDoc(docRef);
+            }
           }
         }
-      }
 
-      //brisanje slike iz storage-a i micanje slike iz popisaSlika
-      deleteObject(slikaRef).then(() => {
-        // File deleted successfully
-        this.popisSlika = this.popisSlika.map((slike, i) => {
-          if (slike.length == 1){
-            return slike.map(polje => {
-              if (polje === slikaUrl) {
-                //dodavanje praznog inputa jer mora biti barem jedan odgovor
-                const odgovoriFormArray = this.lekcijaForma.get('odgovori') as FormArray;
-                const drugiNiz = odgovoriFormArray.at(i) as FormArray;
-                drugiNiz.push(new FormControl('', {
-                  validators: Validators.required,
-                  updateOn: 'change'
-                }));
+        //brisanje slike iz storage-a i micanje slike iz popisaSlika
+        deleteObject(imageRef).then(() => {
+          // File deleted successfully
+          this.listImages = this.listImages.map((images, i) => {
+            if (images.length == 1){
+              return images.map(field => {
+                if (field === imageUrl) {
+                  //dodavanje praznog inputa jer mora biti barem jedan odgovor
+                  const answersFormArray = this.lectionForm.get('answers') as FormArray;
+                  const secondArray = answersFormArray.at(i) as FormArray;
+                  secondArray.push(new FormControl('', {
+                    validators: Validators.required,
+                    updateOn: 'change'
+                  }));
 
-                return "";
-              } else {
-                return polje;
-              }
-            });
-          }
-          else {
-            return slike.filter(polje => {
-              if (polje !== slikaUrl) {
-                return polje;
-              }
-            });
-          }
+                  return "";
+                } else {
+                  return field;
+                }
+              });
+            }
+            else {
+              return images.filter(field => {
+                if (field !== imageUrl) {
+                  return field;
+                }
+              });
+            }
+          });
+        }).catch((error) => {
         });
-      }).catch((error) => {
-        console.log("greška");
-      });
-    }
-    
+        Swal.fire(
+          'Obrisano!',
+          'Slika je obrisana.',
+          'success'
+        )
+      }
+    })
     document.body.style.cursor = "default";
   }
   
   //funkcija za dodavanje u bazu
-  async dodajLekciju(values: any) {
+  async addLection(values: any) {
     //provjerava se prvo jel se dodaje lekcija ili podtema u postojeću lekciju
-    let podtemaRef;
-    if(this.radnjaService.radnja === 'lekcija'){
-      const lekcijaRef = await addDoc(collection(this.db, "lekcija"), {
-        tema: values.tema,
-        predmet: values.predmet
+    let subthemeRef;
+    if(this.actionService.action === 'lection'){
+      const lekcijaRef = await addDoc(collection(this.db, "lection"), {
+        theme: values.theme,
+        subject: values.subject
       });
       
-      podtemaRef = await addDoc(collection(lekcijaRef, "Podtema"), {
-        naziv: values.podtema,
-        razred: Number(values.razred),
-        odgovorTip: values.odgovorTip
+      subthemeRef = await addDoc(collection(lekcijaRef, "subtheme"), {
+        title: values.subtheme,
+        class: Number(values.class),
+        type: values.type
       });
     }
-    else if (this.radnjaService.radnja === 'podtema'){
-      podtemaRef = await addDoc(collection(this.db, `lekcija/${this.radnjaService.odabranaTema['id']}/Podtema`), {
-        naziv: values.podtema,
-        razred: Number(values.razred),
-        odgovorTip: values.odgovorTip
+    else if (this.actionService.action === 'subtheme'){
+      subthemeRef = await addDoc(collection(this.db, `lection/${this.actionService.selectedTheme['id']}/subtheme`), {
+        title: values.subtheme,
+        class: Number(values.class),
+        type: values.type
       });
     }    
-    this.dodajZadatkeOdgovore(values, podtemaRef);
+    this.addTasksAnswers(values, subthemeRef);
   } 
   
-  async dodajZadatkeOdgovore (values: any, podtemaRef: any){
-    const zadatciObjekti = values.zadatci.map(zadatak => ({ tekst_zadatka: zadatak }));
-    let odgovoriObjekti;
+  async addTasksAnswers (values: any, subthemeRef: any){
+    const tasksObjects = values.tasks.map(task => ({ textTask: task }));
+    let answersObjects;
     
     //provjerava se radi li se o slikama - ako da prvo se sve slike stavljaju u cloud storage
-    if(values.odgovorTip === "slika"){
-      console.log("dodajem slike");
+    if(values.type === "image"){
       const storage = getStorage();
       const files = await Array.from(document.querySelectorAll("input[type='file']")).map(doc => doc['files']);
       await files.forEach(file => {
@@ -438,107 +511,102 @@ export class NovaLekcijaComponent {
           .replace(/ž/g, 'zj')
           .replace(/š/g, 'sj')
           .replace(/đ/g, 'dj');
-        const storageRef = ref(storage, `${values.tema}/${values.podtema}/${name}`);
+        const storageRef = ref(storage, `${values.theme}/${values.subtheme}/${name}`);
 
         uploadBytes(storageRef, file[0]).then((snapshot) => {
         });
       })
-      odgovoriObjekti = values.odgovori.map(red => red.map(odgovor => ({ slika: ref(storage, `${values.tema}/${values.podtema}/${odgovor}`).toString() }))); 
+      answersObjects = values.answers.map(row => row.map(answer => ({ image: ref(storage, `${values.theme}/${values.subtheme}/${answer}`).toString() }))); 
     }
     else {
-      odgovoriObjekti = values.odgovori.map(red => red.map(odgovor => ({ tekst_odgovora: odgovor })));
+      answersObjects = values.answers.map(row => row.map(answer => ({ text: answer })));
     }    
     const batch = writeBatch(this.db);
 
-    zadatciObjekti.forEach((zadatak, index) => {
-      console.log("dodajem zadatke i odgovore");
-      const noviZadatakRef = doc(collection(podtemaRef, "Zadatak"));
-      batch.set(noviZadatakRef, zadatak);
+    tasksObjects.forEach((task, index) => {
+      const newTaskRef = doc(collection(subthemeRef, "task"));
+      batch.set(newTaskRef, task);
     
-      const odgovori = odgovoriObjekti[index];
-      odgovori.forEach(odgovor => {
-        const noviOdgovorRef = doc(collection(noviZadatakRef, "Odgovor"));
-        batch.set(noviOdgovorRef, odgovor);
+      const answers = answersObjects[index];
+      answers.forEach(answer => {
+        const newAnswerRef = doc(collection(newTaskRef, "answer"));
+        batch.set(newAnswerRef, answer);
       });
     });
  
     await batch.commit();
   }
  
-  async updateLekcija(values: any) {
+  async updateLection(values: any) {
     //update teme
-    const temaRef = doc(this.db, "lekcija", this.radnjaService.odabranaTema['id']);
-    const docSnap = await getDoc(temaRef);
-    const temaData = docSnap.data();
-    temaData['tema'] = values.tema;
-    temaData['predmet'] = values.predmet;
-    await updateDoc(temaRef, temaData);
+    const themeRef = doc(this.db, "lection", this.actionService.selectedTheme['id']);
+    const docSnap = await getDoc(themeRef);
+    const themeData = docSnap.data();
+    themeData['theme'] = values.theme;
+    themeData['subject'] = values.subject;
+    await updateDoc(themeRef, themeData);
 
     //update podteme
-    const podtemaRef = doc(temaRef, "Podtema", this.radnjaService.odabranaPodtema['id']);
-    const docSnap2 = await getDoc(podtemaRef);
-    const podtemaData = docSnap2.data();
-    podtemaData['naziv'] = values.podtema;
-    podtemaData['razred'] = values.razred;
-    let promjena = '';
-    if (podtemaData['odgovorTip'] === "tekst" && values.odgovorTip === "slika"){
-      promjena = "dodaj slike";
+    const subthemeRef = doc(themeRef, "subtheme", this.actionService.selectedSubtheme['id']);
+    const docSnap2 = await getDoc(subthemeRef);
+    const subthemeData = docSnap2.data();
+    subthemeData['title'] = values.subtheme;
+    subthemeData['class'] = values.class;
+    let change = '';
+    if (subthemeData['type'] === "text" && values.type === "image"){
+      change = "add images";
     }
-    else if (podtemaData['odgovorTip'] === "slika" && values.odgovorTip === "tekst") {
-      promjena = "obriši slike";
+    else if (subthemeData['type'] === "image" && values.type === "text") {
+      change = "delete images";
     }
-    podtemaData['odgovorTip'] = values.odgovorTip;
-    await updateDoc(podtemaRef, podtemaData);
-    console.log(promjena, values.odgovorTip);
+    subthemeData['type'] = values.type;
+    await updateDoc(subthemeRef, subthemeData);
 
     //update zadataka i odgovora
-    if ((promjena === '' && values.odgovorTip === "tekst" ) || (promjena === "dodaj slike" && values.odgovorTip === "slika" )){
+    if ((change === '' && values.type === "text" ) || (change === "add images" && values.type === "image" )){
       //prvo obriši trenutne zadatke i odgovore
-      const zadaciRef = collection(podtemaRef, "Zadatak");
-      const snapshot = await getDocs(zadaciRef);
+      const tasksRef = collection(subthemeRef, "task");
+      const snapshot = await getDocs(tasksRef);
 
       snapshot.forEach(async (doc) => {
-        const odgovorRef = collection(doc.ref, "Odgovor");
-        const odgovorSnapshot = await getDocs(odgovorRef);
+        const answerRef = collection(doc.ref, "answer");
+        const answerSnapshot = await getDocs(answerRef);
       
-        odgovorSnapshot.forEach((odgovorDoc) => {
-          deleteDoc(odgovorDoc.ref);
+        answerSnapshot.forEach((answerDoc) => {
+          deleteDoc(answerDoc.ref);
         });
       
         deleteDoc(doc.ref);
       });
 
-      console.log("obrisano staro");
       //dodaj nove zadatke i odgovore
-      this.dodajZadatkeOdgovore(values, podtemaRef);
+      this.addTasksAnswers(values, subthemeRef);
     }
-    else if (promjena === '' && values.odgovorTip === "slika"){
-      console.log("isti tip - slika");
-      const zadaciRef = collection(podtemaRef, "Zadatak");
-      const snapshot = await getDocs(zadaciRef);
+    else if (change === '' && values.type === "image"){
+      const tasksRef = collection(subthemeRef, "task");
+      const snapshot = await getDocs(tasksRef);
 
-      if (snapshot.size <= values.odgovori.length){
-        console.log("ista veličina");
+      if (snapshot.size <= values.answers.length){
         let i = 0;
         for (i; i < snapshot.docs.length; i++) {
             //update teksta zadataka
             const doc = snapshot.docs[i];
-            const zadatakData = doc.data();
-            zadatakData['tekst_zadatka'] = values.zadatci[i];
-            await updateDoc(doc.ref, zadatakData);
+            const taskData = doc.data();
+            taskData['text'] = values.tasks[i];
+            await updateDoc(doc.ref, taskData);
                
             //dodavanje novih slika ako postoje
-            if (values.odgovori[i].length > 0) {
-              const odgovorRef = collection(doc.ref, "Odgovor");
-              const odgovorSnapshot = await getDocs(odgovorRef);
+            if (values.answers[i].length > 0) {
+              const answerRef = collection(doc.ref, "answer");
+              const answerSnapshot = await getDocs(answerRef);
                  
-              let ime;
+              let name;
 
               //dodavanje u storage
               const storage = getStorage();
-              const files = await Array.from(document.querySelectorAll(`input[type='file'][id^='z${i}']`)).map(doc => doc['files']);
+              const files = await Array.from(document.querySelectorAll(`input[type='file'][id^='t${i}']`)).map(doc => doc['files']);
               const uploadPromises = files.map(file => {
-                ime = file[0].name
+                name = file[0].name
                   .replace(/č/g, 'cj')
                   .replace(/ć/g, 'tj')
                   .replace(/ž/g, 'zj')
@@ -546,21 +614,21 @@ export class NovaLekcijaComponent {
                   .replace(/đ/g, 'dj');
                 
                 let i = 0;
-                let postoji = false;
+                let exist = false;
                 do {
-                  if (postoji && i != 0) {
-                    ime = ime.substring(0, ime.lastIndexOf(".")) + i + ime.substring(ime.lastIndexOf("."));
+                  if (exist && i != 0) {
+                    name = name.substring(0, name.lastIndexOf(".")) + i + name.substring(name.lastIndexOf("."));
                   }
                   else {
                     i++;
                   }
-                  postoji = this.popisSlika.some(slikaGrupa => {
-                    return slikaGrupa.some(slika => {
-                      return slika.includes(ime)});
+                  exist = this.listImages.some(imageGroup => {
+                    return imageGroup.some(image => {
+                      return image.includes(name)});
                   });
-                } while (postoji)
+                } while (exist)
 
-                const storageRef = ref(storage, `${values.tema}/${values.podtema}/${ime}`);
+                const storageRef = ref(storage, `${values.theme}/${values.subtheme}/${name}`);
               
                 return uploadBytes(storageRef, file[0]);
               });
@@ -568,177 +636,148 @@ export class NovaLekcijaComponent {
               await Promise.all(uploadPromises);
 
               //dodavanje u bazu
-              let odgovoriObjekti = values.odgovori[i].map(odgovor => ({ slika: ref(storage, `${values.tema}/${values.podtema}/${ime}`).toString() })); 
+              let answersObjects = values.answers[i].map(answer => ({ image: ref(storage, `${values.theme}/${values.subtheme}/${name}`).toString() })); 
 
-              odgovoriObjekti.forEach(odgovor => {
-                const docRef = addDoc(collection(doc.ref, "Odgovor"), odgovor);
+              answersObjects.forEach(answer => {
+                const docRef = addDoc(collection(doc.ref, "answer"), answer);
               });
             }
           }
-          if (snapshot.size < values.odgovori.length) {
-            console.log("imamo više odgovora - treba ih dodati");
-
+          if (snapshot.size < values.answers.length) {
             let newValues = {...values};
 
-            newValues['odgovori'] = values['odgovori'].slice(i);
-            newValues['zadatci'] = values['zadatci'].slice(i);
+            newValues['answers'] = values['answers'].slice(i);
+            newValues['tasks'] = values['tasks'].slice(i);
 
-            this.dodajZadatkeOdgovore (newValues, doc(temaRef, "Podtema", this.radnjaService.odabranaPodtema['id']));
+            this.addTasksAnswers (newValues, doc(themeRef, "subtheme", this.actionService.selectedSubtheme['id']));
           }
       }
     }
-    else if (promjena === "obriši slike") {
-      const zadaciRef = collection(podtemaRef, "Zadatak");
-      const snapshot = await getDocs(zadaciRef);
+    else if (change === "delete images") {
+      const tasksRef = collection(subthemeRef, "task");
+      const snapshot = await getDocs(tasksRef);
 
       snapshot.forEach(async (doc) => {
-        const odgovorRef = collection(doc.ref, "Odgovor");
-        const odgovorSnapshot = await getDocs(odgovorRef);
+        const answerRef = collection(doc.ref, "answer");
+        const answerSnapshot = await getDocs(answerRef);
 
-        //potrebno za brisanje slika
-        let odg = await queryForDocuments(odgovorRef);
-
-        //brisanje slika
-        for (const o of odg) {
-          if (o.slika){
-            const storage = getStorage();
-            const slikaRef = ref(storage, o.slika);
-            deleteObject(slikaRef).then(() => {
-              console.log("obrisana slika");
-            }).catch((error) => {
-              console.log("nije obrisano");
-            });
-          }
-        }
+        await this.deleteImagesStorage(answerRef);
         
-        odgovorSnapshot.forEach((odgovorDoc) => {
-          deleteDoc(odgovorDoc.ref);
+        answerSnapshot.forEach((answerDoc) => {
+          deleteDoc(answerDoc.ref);
         });
         
         deleteDoc(doc.ref);
       });
 
       //dodaj zadatke i odgovore
-      this.dodajZadatkeOdgovore(values, podtemaRef);
+      this.addTasksAnswers(values, subthemeRef);
     }
   }
-
-  //pobriši odgovore i dodaj prazne ovisno o broju zadataka
-  prethodnaVrijednost = "tekst";
-  async resetOdgovori() {
-    //ako se dodaje nova lekcija ili podtema
-    if (this.radnjaService.radnja !== "uredi"){
-      let puno = false;
-      const odgovori = this.lekcijaForma.get('odgovori').value;
-      odgovori.forEach(odgovor => {
-        odgovor.forEach(o => {
-          if (o != ''){
-            puno = true;
+  
+  async isFullAndConfirm() {
+    let full = false;
+      const answers = this.lectionForm.get('answers').value;
+      //provjera ima li nešto u odgovorima
+      answers.forEach(answer => {
+        answer.forEach(a => {
+          if (a != ''){
+            full = true;
           }
         })
       });
-      let potvrda = true;
-      if (puno || this.popisSlika.length > 0){
-        potvrda = confirm('Jeste li sigurni da želite promijeniti tip odgovora i obrisati sve prethodno unesene odgovore?');
+      let confirm = false;
+      if (full || this.listImages.length > 0){
+        const result = await Swal.fire({
+          title: 'Jeste li sigurni da želite promijeniti tip odgovora i obrisati sve prethodno unesene odgovore?',
+          text: "Ne možete vratiti ovaj korak!",
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Da, želim!',
+          cancelButtonText: 'Ne, ne želim!'
+        });
+        
+        
+        if (result.isConfirmed) {
+          confirm = true;
+        }
       }
       else {
-        potvrda = true;
+        confirm = true;
       }
 
-      if (potvrda) {
-        this.prethodnaVrijednost = this.lekcijaForma.get('odgovorTip').value;
-        const trenutniBrojOdgovora = this.lekcijaForma.get('zadatci').value.length;
-        const noviOdgovori = new FormArray([]);
-        for (let i = 0; i < trenutniBrojOdgovora; i++) {
-          noviOdgovori.push(new FormArray([new FormControl('', Validators.required)]));
+      return confirm;
+  }
+  
+  async resetAnswers() {
+    let newValue = this.lectionForm.get('type').value;
+      
+    this.lectionForm.get('type').setValue(this.previousValue, {emitEvent: false});
+    
+    let confirm = await this.isFullAndConfirm();
+
+    //ako se dodaje nova lekcija ili podtema
+    if (this.actionService.action !== "edit"){
+      if (confirm) {
+        this.lectionForm.get('type').setValue(newValue, {emitEvent: false});
+        this.previousValue = this.lectionForm.get('type').value;
+        const currentNumberAnswers = this.lectionForm.get('tasks').value.length;
+        const newAnswers = new FormArray([]);
+        for (let i = 0; i < currentNumberAnswers; i++) {
+          newAnswers.push(new FormArray([new FormControl('', Validators.required)]));
         }
-        this.lekcijaForma.setControl('odgovori', noviOdgovori);
-      } else {
-        this.lekcijaForma.get('odgovorTip').setValue(this.prethodnaVrijednost);
+        this.lectionForm.setControl('answers', newAnswers);
       }
     }
     //ako se uređuje postojeća lekcija
     else {
-      //PROMIJENITI TAKO DA SE I OBRIŠU DOKUMENTI I SLIKE!!!!!!!!!!!!!!!!
-      let puno = false;
-      const odgovori = this.lekcijaForma.get('odgovori').value;
-      odgovori.forEach(odgovor => {
-        odgovor.forEach(o => {
-          if (o != ''){
-            puno = true;
-          }
-        })
-      });
-      let potvrda = true;
-      if (puno || this.popisSlika.length > 0){
-        potvrda = confirm('Jeste li sigurni da želite promijeniti tip odgovora i obrisati sve prethodno unesene odgovore?');
-      }
-      else {
-        potvrda = true;
-      }
+      if (confirm) {
+        this.lectionForm.get('type').setValue(newValue, {emitEvent: false});
+        let newAnswers = new FormArray([]);
+        this.lectionForm.setControl('answers', newAnswers);
 
-      if (potvrda) {
-        const podtemaRef = doc(this.db, `lekcija/${this.radnjaService.odabranaTema['id']}/Podtema/${this.radnjaService.odabranaPodtema['id']}`);
-        const zadaciRef = collection(podtemaRef, "Zadatak");
-        const snapshot = await getDocs(zadaciRef);
+        const subthemeRef = doc(this.db, `lection/${this.actionService.selectedTheme['id']}/subtheme/${this.actionService.selectedSubtheme['id']}`);
+        const tasksRef = collection(subthemeRef, "task");
+        const snapshot = await getDocs(tasksRef);
 
         snapshot.forEach(async (doc) => {
-          console.log(doc);
-          const odgovorRef = collection(doc.ref, "Odgovor");
-          const odgovorSnapshot = await getDocs(odgovorRef);
+          const answerRef = collection(doc.ref, "answer");
+          const answerSnapshot = await getDocs(answerRef);
 
-          if (this.popisSlika.length > 0) {
-            //potrebno za brisanje slika
-            let odg = await queryForDocuments(odgovorRef);
-
-            //brisanje slika
-            for (const o of odg) {
-              if (o.slika){
-                const storage = getStorage();
-                const slikaRef = ref(storage, o.slika);
-                deleteObject(slikaRef).then(() => {
-                  // File deleted successfully
-                  console.log("obrisana slika");
-                }).catch((error) => {
-                  // Uh-oh, an error occurred!
-                  console.log("error");
-                });
-              }
-            }
+          if (this.actionService.type === "image") {
+            await this.deleteImagesStorage(answerRef);
           }
 
-          odgovorSnapshot.forEach((odgovorDoc) => {
-            deleteDoc(odgovorDoc.ref);
+          answerSnapshot.forEach((answerDoc) => {
+            deleteDoc(answerDoc.ref);
           });
         });
 
-        this.popisSlika = [];
+        this.listImages = [];
         
-        this.prethodnaVrijednost = this.lekcijaForma.get('odgovorTip').value;
-        const trenutniBrojOdgovora = this.lekcijaForma.get('zadatci').value.length;
-        const noviOdgovori = new FormArray([]);
-        for (let i = 0; i < trenutniBrojOdgovora; i++) {
-          noviOdgovori.push(new FormArray([new FormControl('', Validators.required)]));
+        this.previousValue = this.lectionForm.get('type').value;
+        const currentNumberAnswers = this.lectionForm.get('tasks').value.length;
+        for (let i = 0; i < currentNumberAnswers; i++) {
+          newAnswers.push(new FormArray([new FormControl('', Validators.required)]));
         }
-        this.lekcijaForma.setControl('odgovori', noviOdgovori);
-      } else {
-        this.lekcijaForma.get('odgovorTip').setValue(this.prethodnaVrijednost);
+        this.lectionForm.setControl('answers', newAnswers);
       }
     }
-    
   }
 
   async save() {
-    if (this.lekcijaForma.invalid) {
-      this.lekcijaForma.markAllAsTouched();
+    if (this.lectionForm.invalid) {
+      this.lectionForm.markAllAsTouched();
       return;
     }
     else {
       document.body.style.cursor = 'wait';
-      const values = this.lekcijaForma.value;
-      if (values.odgovorTip === "slika") {
+      const values = this.lectionForm.value;
+      if (values.type === "image") {
         //mijenjanje da dobijem samo ime slike i zamijenim dijakritike radi lakše provjere kasnije
-        values.odgovori = values.odgovori.map(red => red.map(odgovor => odgovor
+        values.answers = values.answers.map(row => row.map(answer => answer
           .split('\\').pop()
           .replace(/č/g, 'cj')
           .replace(/ć/g, 'tj')
@@ -751,27 +790,32 @@ export class NovaLekcijaComponent {
       //dodavanje u bazu
       //dodavanje u bazu i povratak na moje lekcije
       //provjerava se uređuje li se postojeća lekcija
-      if(this.radnjaService.radnja === 'uredi'){
+      if(this.actionService.action === 'edit'){
         const updatedData = {
-          tema: values.tema,
-          podtema: values.podtema,
-          odgovorTip: values.odgovorTip,
-          predmet: values.predmet,
-          razred: values.razred,
-          zadatci: values.zadatci,
-          odgovori: values.odgovori
+          theme: values.theme,
+          subtheme: values.subtheme,
+          type: values.type,
+          subject: values.subject,
+          class: values.class,
+          tasks: values.tasks,
+          answers: values.answers
         };
-        await this.updateLekcija(values);
+        await this.updateLection(values);
       }
       //izvršava se ako se dodaje nova lekcija ili podtema
       else{
-        await this.dodajLekciju(values);
+        await this.addLection(values);
       }
       document.body.style.cursor = 'default';
       
-      alert("Uspješno ste spremili u bazu!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Uspješno ste spremili u bazu!',
+        showConfirmButton: true
+      });
       setTimeout(() => {
-        this.dizajner.changeContent('dl');
+        this.actionService.action = "";
+        this.designer.changeContent('dl');
       }, 1000);
     }
   }
