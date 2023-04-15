@@ -1,0 +1,214 @@
+<div class="container">
+  <div class="fields-container">
+    <div class="row">
+      <!-- Add [ngClass]="{'invalid-input': invalidFields['selectedTopic'], 'shake': shakeFields['selectedTopic']}" (change)="validateField('selectedTopic', selectedTopic)" to the topic select -->
+      <div class="dropdown-select">       
+         <label for="Tema"
+        >Tema:</label>
+        <select
+          id="lesson"
+          class="form-select"
+          aria-label="Default select example"
+          [(ngModel)]="selectedTopic"
+          (ngModelChange)="updateSubtopics()"
+          [ngClass]="{
+            'invalid-input': invalidFields['selectedTopic'],
+            shake: shakeFields['selectedTopic']
+          }"
+          (change)="validateField('selectedTopic', selectedTopic)"
+        >
+          <option *ngFor="let lesson of lessons$ | async" [value]="lesson.ID">
+            {{ lesson.theme }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Add [ngClass]="{'invalid-input': invalidFields['selectedSubtopic'], 'shake': shakeFields['selectedSubtopic']}" (change)="validateField('selectedSubtopic', selectedSubtopic)" to the subtopic select -->
+      <div class="dropdown-select">
+        <label for="Podtema"
+          >Podtema:</label>
+        <select
+          id="lesson"
+          class="form-select"
+          aria-label="Default select example"
+          [(ngModel)]="selectedSubtopic"
+          [ngClass]="{
+            'invalid-input': invalidFields['selectedSubtopic'],
+            shake: shakeFields['selectedSubtopic']
+          }"
+          (change)="validateField('selectedSubtopic', selectedSubtopic)"
+        >
+          <option
+            *ngFor="let subtopic of subtopics$ | async"
+            [value]="subtopic.ID"
+          >
+            {{ subtopic.title }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="number-input-container">
+        <label for="VrijemeRjesavanja"
+          >Vrijeme rješavanja:
+          <input
+            class="number-input"
+            type="number"
+            id="VrijemeRjesavanja"
+            name="VrijemeRjesavanja"
+            [(ngModel)]="times.solving"
+            [ngClass]="{
+              'invalid-input': invalidFields['solving'],
+              shake: shakeFields['solving']
+            }"
+            (change)="validateField('solving', times.solving)"
+        /></label>
+      </div>
+      <div class="number-input-container">
+        <label for="VrijemeDiskusije"
+          >Vrijeme diskusije:
+          <input
+            class="number-input"
+            type="number"
+            id="VrijemeDiskusije"
+            name="VrijemeDiskusije"
+            [(ngModel)]="times.discussion"
+            [ngClass]="{
+              'invalid-input': invalidFields['discussion'],
+              shake: shakeFields['discussion']
+            }"
+            (change)="validateField('discussion', times.discussion)"
+        /></label>
+      </div>
+      <div class="number-input-container">
+        <label for="VrijemeIspravljanja"
+          >Vrijeme ispravljanja:
+          <input
+            class="number-input"
+            type="number"
+            id="VrijemeIspravljanja"
+            name="VrijemeIspravljanja"
+            [(ngModel)]="times.correction"
+            [ngClass]="{
+              'invalid-input': invalidFields['correction'],
+              shake: shakeFields['correction']
+            }"
+            (change)="validateField('correction', times.correction)"
+        /></label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="number-input-container">
+        <label>
+          Broj tableta:
+          <input
+            class="number-input"
+            [(ngModel)]="numberOfTablets"
+            (ngModelChange)="updateGroupings()"
+            type="number"
+            min="1"
+            [ngClass]="{
+              'invalid-input': invalidFields['numberOfTablets'],
+              shake: shakeFields['numberOfTablets']
+            }"
+            (change)="validateField('numberOfTablets', numberOfTablets)"
+          />
+        </label>
+      </div>
+      <div class="number-input-container">
+        <label>
+          Broj učenika:
+          <input
+            class="number-input"
+            [(ngModel)]="numberOfChildren"
+            (ngModelChange)="updateGroupings()"
+            type="number"
+            min="2"
+            [ngClass]="{
+              'invalid-input': invalidFields['numberOfChildren'],
+              shake: shakeFields['numberOfChildren']
+            }"
+            (change)="validateField('numberOfChildren', numberOfChildren)"
+          />
+        </label>
+      </div>
+    </div>
+
+    <button
+  class="custom-button"
+  [ngClass]="{'success-message': outcome === 'success', 'error-message': outcome === 'error'}"
+  (click)="handleClick()"
+>
+  {{ buttonText }}
+  
+<span *ngIf="message" class="message">{{ message }}</span>
+</button>
+
+  </div>
+
+  <div class="group-container">
+    <div
+      *ngIf="
+        numberOfTablets !== null &&
+        numberOfChildren !== null &&
+        numberOfTablets * 2 > numberOfChildren
+      "
+    >
+      <p>Nedovoljno učenika za ovu količinu tableta.</p>
+    </div>
+    <div
+      *ngIf="
+        numberOfTablets !== null &&
+        numberOfChildren !== null &&
+        numberOfTablets * 4 < numberOfChildren
+      "
+    >
+      <p>Nedovoljno tableta za ovu količinu učenika.</p>
+    </div>
+    <div *ngIf="groupings.length > 0">
+      <h3>Grupiranja učenika po tabletima:</h3>
+      <form>
+        <div
+          *ngFor="let grouping of groupings; index as i"
+          class="grouping-container"
+          [ngClass]="{
+            'invalid-input': invalidFields['selectedGrouping'],
+            shake: shakeFields['selectedGrouping']
+          }"
+          [class.selected]="selectedGrouping === grouping.toString()"
+        >
+          <div *ngFor="let tabletChildren of grouping" class="tablet-screen">
+            <ng-container [ngSwitch]="tabletChildren">
+              <ng-container *ngSwitchCase="2">
+                <div class="child-screen half"></div>
+                <div class="child-screen half"></div>
+              </ng-container>
+              <ng-container *ngSwitchCase="3">
+                <div class="child-screen quarter top-left"></div>
+                <div class="child-screen quarter top-right"></div>
+                <div class="child-screen quarter bottom-left"></div>
+              </ng-container>
+              <ng-container *ngSwitchCase="4">
+                <div class="child-screen quarter top-left"></div>
+                <div class="child-screen quarter top-right"></div>
+                <div class="child-screen quarter bottom-left"></div>
+                <div class="child-screen quarter bottom-right"></div>
+              </ng-container>
+            </ng-container>
+          </div>
+          <input
+            type="radio"
+            [id]="'grouping-' + i"
+            [value]="grouping.toString()"
+            [(ngModel)]="selectedGrouping"
+            name="grouping"
+            (change)="validateField('selectedGrouping', selectedGrouping)"
+          />
+          <label [for]="'grouping-' + i" class="sr-only">{{
+            grouping.join(", ")
+          }}</label>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,316 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap");
+body {
+	margin: 0;
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-family: "Roboto", sans-serif;
+	font-weight: bold;
+	background-color: #291d89;
+}
+
+svg {
+	width: 100%;
+	height: 100vh;
+}
+
+.hidden {
+	visibility: hidden;
+}
+
+#base {
+	cursor: pointer;
+}
+
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.fields-container,
+.group-container {
+  box-sizing: border-box;
+  padding: 20px;
+  width: 100%;
+}
+
+@media (min-width: 1000px) {
+  .fields-container,
+  .group-container {
+    width: 50%;
+  }
+
+  .fields-container {
+    border-right: 1px solid #ccc;
+  }
+  .grouping-container{
+    min-width: 500px
+  }
+}
+
+@media (max-width: 1000px) {
+
+  .fields-container {
+    border-bottom: 1px solid #ccc;
+  }
+}
+
+.fields-container .row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.fields-container select,
+.fields-container input {
+  width: 100%;
+  margin-bottom: 10px;
+  font-size: 1.2em;
+  padding: 5px;
+}
+
+.fields-container label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 1.1em;
+}
+
+.row > div {
+  width: calc(50% - 10px);
+}
+
+.group-container {
+  text-align: center;
+}
+
+
+
+/* Add this to import the new font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
+
+/* Add this to apply the new font to the entire component */
+:host {
+  font-family: 'Poppins', sans-serif;
+}
+
+@keyframes success-animation {
+  0% {
+    background-color: #4caf50;
+  }
+  50% {
+    background-color: #45a049;
+  }
+  80% {
+    background-color: #4caf50;
+  }
+  100% {
+    background-color: #007bff;
+  }
+}
+
+@keyframes error-animation {
+  0% {
+    background-color: #f44336;
+  }
+  50% {
+    background-color: #e53935;
+  }
+  80% {
+    background-color: #f44336;
+  }
+  100% {
+    background-color: #007bff;
+  }
+}
+
+
+.shake {
+  animation: shake 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.invalid-input {
+  border-color: red !important;
+}
+.grouping-container.invalid-input {
+  box-shadow: 0 0 3px red;
+}
+
+.group-container .fields-container{
+  width: 50%;
+}
+@media only screen and (max-width: 600px)  {
+  
+.group-container .fields-container{
+  width: 100%;
+}
+
+}
+
+.row>.dropdown-select{
+  padding: 5px;
+}
+
+.custom-button {
+  background-color: #007bff;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+.custom-button:hover {
+  background-color: #50a4fd;
+}
+
+@keyframes success-animation {
+  0% {
+    background-color: #45a049;
+  }
+  50% {
+    background-color: #acdfaf;
+  }
+  100% {
+    background-color: #45a049;
+  }
+}
+
+@keyframes error-animation {
+  0% {
+    background-color: #a51a1a;
+  }
+  50% {
+    background-color: #ee9a9a;
+  }
+  100% {
+    background-color: #a51a1a;
+  }
+}
+
+.success-message {
+  animation: success-animation 4s linear;
+  transition: 4s;
+}
+
+.error-message {
+  animation: error-animation 4s linear;
+  transition: 4s;
+}
+
+
+
+
+.number-input{
+  height: 45px;
+  width: 100%;
+  outline: none;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  padding-left: 15px;
+  font-size: 16px;
+  border-bottom-width: 2px;
+  transition: all 0.3s ease;
+  -moz-appearance: textfield; /* Remove the default arrow buttons in Firefox */
+
+}
+
+.number-input::-webkit-outer-spin-button,
+.number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none; /* Remove the default arrow buttons in WebKit browsers */
+  margin: 0;
+}
+
+.number-input:focus {
+  outline: none;
+  border-color: #90caf9 ;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+/* The rest of the CSS remains the same */
+
+.number-input-container {
+    padding: 5px;
+}
+.grouping-container {
+    display: inline-flex;
+    flex-wrap: wrap;
+    margin: 15px;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    justify-content: center;
+
+  }
+  
+  .tablet-screen {
+    flex-basis: calc((100% - 30px )/ 3);
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 120px;
+    height: 120px;
+    background-color: #fff;
+    border: 2px solid #333;
+    border-radius: 8px;
+    margin: 5px;
+    position: relative;
+    padding: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .grouping-container.selected {
+    background-color: #90caf9;
+    transition: 0.5s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .child-screen {
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .half {
+    flex-basis: calc((100% - 10px )/ 2);
+    height: calc(100% - 10px);
+  }
+  
+  .quarter {
+    flex-basis: calc((100% - 10px )/ 2);
+    height: calc(50% - 10px);
+  }
+  
+  input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+    margin: 0;
+  }
+  
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  

@@ -1,5 +1,0 @@
-<button id="dodaj_lekciju" class="btn btn-primary" (click)="dodajAktivnost('ae')">Dodaj lekciju</button>
-<select class="form-select" aria-label="Default select example" [(ngModel)]="selectedAktivnost" (change)="onAktivnostSelected()">
-  <option *ngFor="let aktivnost of aktivnosti$ | async" [value]="aktivnost.ID">{{aktivnost.NazivLekcije}} {{aktivnost.NazivRazred}}</option>
-</select>
-

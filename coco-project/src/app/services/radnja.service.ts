@@ -13,7 +13,7 @@ export class RadnjaService {
     id: '',
     naziv: ''
   }
-  odabranaAktivnost: Object = {
+  odabranaActivity: Object = {
     id: '',
     naziv: ''
   }

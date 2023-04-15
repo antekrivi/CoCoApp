@@ -12,12 +12,11 @@ import { NovaLekcijaComponent } from './nova-lekcija/nova-lekcija.component';
 import { ZadatakComponent } from './zadatak/zadatak.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
-import { DizajnerAktivnostiComponent } from './dizajner-aktivnosti/dizajner-aktivnosti.component';
 import { AngularFireModule } from "@angular/fire/compat";
 import { AngularFireAuthModule } from "@angular/fire/compat/auth";
 import { AngularFirestoreModule } from "@angular/fire/compat/firestore";
 import { firebaseConfig } from "./firebase-config";
-import { AktivnostEditComponent } from './aktivnost-edit/aktivnost-edit.component';
+import { ActivityDesignerComponent } from './activity-designer/activity-designer.component';
 
 @NgModule({
   declarations: [
@@ -28,8 +27,7 @@ import { AktivnostEditComponent } from './aktivnost-edit/aktivnost-edit.componen
     DizajnerLekcijaComponent,
     NovaLekcijaComponent,
     ZadatakComponent,
-    DizajnerAktivnostiComponent,
-    AktivnostEditComponent,
+    ActivityDesignerComponent,
   ],
   imports: [
     BrowserModule,

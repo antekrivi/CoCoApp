@@ -1,12 +1,21 @@
-import { DocumentReference } from "firebase/firestore";
-
-export interface AktivnostiDTO {
+export class ActivityDTO {
 
     ID: string;
-    lekcija: string;
-    Vrijeme: Map<string, number>;
-    Razred: string;
-    BrojTableta: number;
-    BrojUcenika: number;
+
+    topic: string;
+    subTopic: string;
+    lessonRef: string;
+    subTopicRef: string;
+
+    numOfStudents: number[];
+    configToTablet: string[];
+    times: { correction: number | null; discussion: number | null; solving: number | null; } = {
+        correction: null,
+        discussion: null,
+        solving: null,
+      };
+      
+    questions: string[];
+    answers:{};
 
 }
