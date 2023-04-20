@@ -38,7 +38,7 @@ import { ActivityDesignerComponent } from './activity-designer/activity-designer
     BrowserAnimationsModule,
     MatDialogModule,
     AngularFireModule.initializeApp(firebaseConfig),
-    MatIconModule
+    MatIconModule,
     AngularFireAuthModule,
     AngularFirestoreModule,
   ],

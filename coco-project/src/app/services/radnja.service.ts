@@ -13,12 +13,8 @@ export class RadnjaService {
   selectedSubtheme: Object = {
     id: '',
     title: '',
-    class: 0
-  odabranaActivity: Object = {
-    id: '',
+    class: 1
   };
   type: string = '';
     naziv: ''
-  }
-  constructor() { }
 }
