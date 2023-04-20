@@ -1,0 +1,31 @@
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class RadnjaService {
+  action: string = '';
+  selectedTheme: Object = {
+    id: '',
+    theme: '',
+    subject: ''
+  };
+  selectedSubtheme: Object = {
+    id: '',
+<<<<<<< HEAD
+    naziv: '',
+    razred: 0
+  odabranaActivity: Object = {
+    id: '',
+  };
+  odgovorTip: string = '';
+    naziv: ''
+  }
+=======
+    title: '',
+    class: 0
+  };
+  type: string = '';
+>>>>>>> 28b153d (Napravljeno:)
+  constructor() { }
+}
