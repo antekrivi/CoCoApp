@@ -16,5 +16,4 @@ export class RadnjaService {
     class: 1
   };
   type: string = '';
-    naziv: ''
 }
