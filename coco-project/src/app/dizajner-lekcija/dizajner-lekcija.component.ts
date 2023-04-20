@@ -30,17 +30,45 @@ export class DizajnerLekcijaComponent {
   db = this.firebaseSevice.getDb();
   showTasks = false;
 
-
   themes$ = queryForDocuments(collection(this.db, '/lection')).then(res => res.sort((a, b) => a.theme.localeCompare(b.theme)));
-
+  subthemes = [];
   selectedTheme: string = "0";
   selectedSubtheme: string = "0";
   selectedSubject: string;
   selectedClass: number;
   selectedType: string;
-  subthemes;
   path: string;
   tasks;
+
+  async ngOnInit() {
+    this.subthemes = await this.getAllSubthemes();
+  }
+
+  async getAllSubthemes(){
+    document.body.style.cursor = "wait";
+
+    let themes = await queryForDocuments(collection(this.db, '/lection'));
+    let subthemes = [];
+
+    if(this.subjectFilter.length > 0){
+      themes = themes.filter(item => this.subjectFilter.includes(item.subject));
+    }
+
+    for (const theme of themes) {
+      let subthemes2 = await queryForDocuments(collection(this.db, `/lection/${theme.unique_id}/subtheme`));
+      subthemes2.forEach(subtheme => subthemes.push(subtheme));
+    }
+
+    if(this.classFilter.length > 0){
+      subthemes = subthemes.filter(item => this.classFilter.includes(item.class));
+    }
+
+    subthemes.sort((a, b) => a.title.localeCompare(b.title));
+    
+    document.body.style.cursor = "default";
+
+    return subthemes;
+  }
 
   //nova lekcija
   addLection(content: string) {
@@ -49,7 +77,7 @@ export class DizajnerLekcijaComponent {
   }
 
   //odabir teme
-  async onThemeSelected() {
+  async onThemeSelected(change: boolean) {
     const docRef = doc(this.db, "lection", this.selectedTheme);
     const docSnap = await getDoc(docRef);
 
@@ -57,10 +85,12 @@ export class DizajnerLekcijaComponent {
       this.selectedSubject = docSnap.data()['subject'];
     }
     
-    this.tasks = null;
-    this.selectedSubtheme = "0";
-    this.showTasks = false;
-    this.getSubthemeByTheme();
+    if (change) {
+      this.selectedSubtheme = "0"
+      this.showTasks = false;
+      this.tasks = null;
+      await this.getSubthemeByTheme();
+    };
   }
 
   //filter po predmetima
@@ -72,10 +102,10 @@ export class DizajnerLekcijaComponent {
     } else {
       this.subjectFilter = this.subjectFilter.filter(item => item !== event.target.id);
     }
-    this.resetThemes();
+    this.resetThemesSubthemes();
   }
 
-  resetThemes() {
+  async resetThemesSubthemes() {
     if(this.subjectFilter.length > 0){
       this.themes$ = queryForDocuments(collection(this.db, '/lection'))
       .then(res => res.filter(item => this.subjectFilter.includes(item.subject)))
@@ -86,7 +116,9 @@ export class DizajnerLekcijaComponent {
       .then(res => res.sort((a, b) => a.theme.localeCompare(b.theme)));
     }
     this.selectedTheme = "0";
-    this.subthemes = [];
+    this.selectedSubtheme = "0";
+    this.showTasks = false;
+    this.subthemes = await this.getAllSubthemes();
   }
 
   //filter po razredima
@@ -103,26 +135,56 @@ export class DizajnerLekcijaComponent {
 
   async resetSubthemes() {
     if(this.classFilter.length > 0){
-      this.subthemes = await queryForDocuments(collection(this.db, `/lection/${this.selectedTheme}/subtheme`))
-      .then(res => res.filter(item => this.classFilter.includes(item.class)))
-      .then(res => res.sort((a, b) => a.title.localeCompare(b.title)));
+      if(this.selectedTheme !== "0"){
+        await this.getSubthemeByTheme();
+      }
+      else {
+        this.subthemes = await this.getAllSubthemes();
+      }
     }
     else {
-      this.subthemes = await queryForDocuments(collection(this.db, `/lection/${this.selectedTheme}/subtheme`))
-      .then(res => res.sort((a, b) => a.title.localeCompare(b.title)));
+      if(this.selectedTheme !== "0"){
+        await this.getSubthemeByTheme();
+      }
+      else {
+        this.subthemes = await this.getAllSubthemes();
+      }
     }
+
     this.selectedSubtheme = "0";
+    this.showTasks = false;
   }
 
   //dohvaćanje podtema za odabranu temu
   async getSubthemeByTheme() {
     this.path = `/lection/${this.selectedTheme}/subtheme`;
     this.subthemes = await queryForDocuments(collection(this.db, this.path));
+    if(this.classFilter.length > 0){
+      this.subthemes = this.subthemes.filter(item => this.classFilter.includes(item.class));
+    }
     this.subthemes = this.subthemes.sort((a, b) => a.title.localeCompare(b.title));
   }
 
   //odabir podteme
   async onPodtemaSelected() {
+    //ako nije odabrana tema, nego prvo podtema
+    if(this.selectedTheme === "0" && this.selectedSubtheme !== "0"){
+      let themes = await queryForDocuments(collection(this.db, '/lection'));
+
+      for (const theme of themes) {
+        let subthemes2 = await queryForDocuments(collection(this.db, `/lection/${theme.unique_id}/subtheme`));
+        for (let i = 0; i < subthemes2.length; i++) {
+          const subtheme = subthemes2[i];
+          if (subtheme.unique_id === this.selectedSubtheme) {
+            this.selectedTheme = theme.unique_id;
+            break;
+          }
+        }
+      }
+      
+      await this.onThemeSelected(false);
+    }
+    
     const docRef = doc(this.db, 'lection', this.selectedTheme, 'subtheme', this.selectedSubtheme);
     const docSnap = await getDoc(docRef);
 
@@ -163,9 +225,9 @@ export class DizajnerLekcijaComponent {
 
       //brisanje slika
       for (const a of ans) {
-        if (a.image){
+        if (this.actionService.type === "image"){
           const storage = getStorage();
-          const imageRef = ref(storage, a.image);
+          const imageRef = ref(storage, a.text);
           deleteObject(imageRef).then(() => {
             // File deleted successfully
           }).catch((error) => {
@@ -270,7 +332,8 @@ export class DizajnerLekcijaComponent {
       data: {
         task: task,
         subtheme: this.selectedSubtheme,
-        theme: this.selectedTheme
+        theme: this.selectedTheme,
+        type: this.selectedType
       }
     });
   }

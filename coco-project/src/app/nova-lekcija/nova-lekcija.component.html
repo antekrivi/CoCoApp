@@ -11,9 +11,11 @@
     <label class="form-label" for="subject">Predmet</label>
     <select *ngIf="!isDisabled" class="form-select subject" formControlName="subject" [class.is-invalid]="lectionForm.get('subject').invalid && (lectionForm.get('subject').dirty || lectionForm.get('subject').touched)">
       <option value="0" disabled>Odaberite</option>
+      <option value="GK">Glazbena kultura</option>
       <option value="HJ">Hrvatski jezik</option>
       <option value="MAT">Matematika</option>
       <option value="PiD">Priroda i društvo</option>
+      <option value="SJ">Strani jezik</option>
     </select>
     <input *ngIf="isDisabled" class="form-control subject" type="text" formControlName="subject">
     <div *ngIf="lectionForm.get('subject').invalid && (lectionForm.get('subject').dirty || lectionForm.get('subject').touched)" class="invalid-feedback">
@@ -41,7 +43,7 @@
 
     <div formArrayName="tasks" class="taskAndAnswers">
       <div *ngFor="let task of tasks.controls; let i = index;">
-        <label class="form-label" for="t{{i}}">Vezija zadatka {{i + 1}}</label>
+        <label class="form-label" for="t{{i}}">Tekst zadatka {{i + 1}}</label>
         <div class="tasks">
           <input class="form-control" id="t{{i}}" type="text" [formControlName]="i" [class.is-invalid]="tasks.at(i).invalid && (tasks.at(i).dirty || tasks.at(i).touched)">
           <button class="btn btn-light remove" type="button" *ngIf="i > 1 || tasks.length > 2" (click)="removeTask(i)">

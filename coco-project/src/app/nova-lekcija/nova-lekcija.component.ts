@@ -244,17 +244,11 @@ export class NovaLekcijaComponent {
       let answers = await queryForDocuments(collection(this.db, `/lection/${this.actionService.selectedTheme['id']}/subtheme/${this.actionService.selectedSubtheme['id']}/task/${task.unique_id}/answer`));
       
       let answers2 = [];
-      //ako je tip odgovora tekst
-      if (this.actionService.type === "text") {
-        answers.forEach(answer => {
-          answers2.push(answer.text);
-        });
-      }
-      else if (this.actionService.type === "image") {
-        answers.forEach(answer => {
-          answers2.push(answer.image);
-        });
-      }
+      
+      answers.forEach(answer => {
+        answers2.push(answer.text);
+      });
+      
       listAnswers.push(answers2);
     }
  
@@ -378,9 +372,9 @@ export class NovaLekcijaComponent {
 
     //brisanje slika
     for (const a of ans) {
-      if (a.image){
+      if (this.actionService.type === "image"){
         const storage = getStorage();
-        const imageRef = ref(storage, a.image);
+        const imageRef = ref(storage, a.text);
         deleteObject(imageRef);
       }
     }
@@ -422,7 +416,7 @@ export class NovaLekcijaComponent {
           let answers = await queryForDocuments(collection(this.db, `/lection/${this.actionService.selectedTheme['id']}/subtheme/${this.actionService.selectedSubtheme['id']}/task/${task.unique_id}/answer`));
           
           for (const answer of answers){
-            if(answer.image.includes(path)){
+            if(answer.text.includes(path)){
               const docRef = doc(this.db, `/lection/${this.actionService.selectedTheme['id']}/subtheme/${this.actionService.selectedSubtheme['id']}/task/${task.unique_id}/answer/${answer.unique_id}`);
               await deleteDoc(docRef);
             }
@@ -516,7 +510,7 @@ export class NovaLekcijaComponent {
         uploadBytes(storageRef, file[0]).then((snapshot) => {
         });
       })
-      answersObjects = values.answers.map(row => row.map(answer => ({ image: ref(storage, `${values.theme}/${values.subtheme}/${answer}`).toString() }))); 
+      answersObjects = values.answers.map(row => row.map(answer => ({ text: ref(storage, `${values.theme}/${values.subtheme}/${answer}`).toString() }))); 
     }
     else {
       answersObjects = values.answers.map(row => row.map(answer => ({ text: answer })));
@@ -636,7 +630,7 @@ export class NovaLekcijaComponent {
               await Promise.all(uploadPromises);
 
               //dodavanje u bazu
-              let answersObjects = values.answers[i].map(answer => ({ image: ref(storage, `${values.theme}/${values.subtheme}/${name}`).toString() })); 
+              let answersObjects = values.answers[i].map(answer => ({ text: ref(storage, `${values.theme}/${values.subtheme}/${name}`).toString() })); 
 
               answersObjects.forEach(answer => {
                 const docRef = addDoc(collection(doc.ref, "answer"), answer);
@@ -811,6 +805,7 @@ export class NovaLekcijaComponent {
       Swal.fire({
         icon: 'success',
         title: 'Uspješno ste spremili u bazu!',
+        confirmButtonColor: '#3085d6',
         showConfirmButton: true
       });
       setTimeout(() => {

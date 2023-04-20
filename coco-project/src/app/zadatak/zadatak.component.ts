@@ -52,16 +52,16 @@ export class ZadatakComponent {
       let answers = await queryForDocuments(collection(this.db, this.path + `/${task.unique_id}/answer`));
       for (const answer of answers) {
         //ako su odgovori tekstualni
-        if(answer.text){
+        if(this.data.type === "text"){
           this.allAnswers.push({name: answer.text, marked: false});
           if (task.unique_id === this.data.task.unique_id){
             this.correctAnswers.push(answer.text);
           }
         }
         //ako su odgovori slike
-        else if (answer.image){
+        else if (this.data.type === "image"){
           const storage = getStorage();
-          const slikaRef = answer.image;
+          const slikaRef = answer.text;
           const url = await getDownloadURL(ref(storage, slikaRef));
           this.allAnswers.push({ url: url, marked: false });
           if (task.unique_id === this.data.task.unique_id){

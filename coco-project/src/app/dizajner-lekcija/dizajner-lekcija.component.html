@@ -1,18 +1,24 @@
 <h1>Moje lekcije</h1>
-<button id="addLection" class="btn btn-primary" (click)="addLection('nl')">Dodaj lekciju</button>
 <br/>
 <div class="container">
   <div class="row">
     <div class="col-9">
       <label>Odaberite temu:</label><br/>
-      <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedTheme" (change)="onThemeSelected()">
+      <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedTheme" (change)="onThemeSelected(true)">
           <option disabled value="0">Odaberite</option>
           <option *ngFor="let theme of themes$ | async" [value]="theme.unique_id">{{theme.theme}}</option>
       </select>
+      <button id="addLection" class="btn btn-primary float-end" (click)="addLection('nl')">Dodaj temu</button>
       <button id="deleteTheme" *ngIf="selectedTheme !== '0'" class="btn btn-primary float-end" (click)="deleteTheme()">Obriši temu</button>
     </div>
     <div class="col-3">
       <label>Filtriraj po predmetu:</label>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="GK" id="GK" (change)="onSubjectFilterChange($event)">
+        <label class="form-check-label" for="GK">
+          Glazbena kultura
+        </label>
+      </div>
       <div class="form-check">
         <input class="form-check-input" type="checkbox" value="HJ" id="HJ" (change)="onSubjectFilterChange($event)">
         <label class="form-check-label" for="HJ">
@@ -31,10 +37,16 @@
           Priroda i društvo
         </label>
       </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="SJ" id="SJ" (change)="onSubjectFilterChange($event)">
+        <label class="form-check-label" for="SJ">
+          Strani jezik
+        </label>
+      </div>
     </div>
   </div>
 </div>
-<div *ngIf="subthemes && subthemes.length > 0"  class="container">
+<div class="container">
   <div class="row">
     <div class="col-9">
       <div id="subtheme">
@@ -78,7 +90,11 @@
 </div>
 <div *ngIf="showTasks">
   <div class="list-group">
-    <a *ngFor="let task of tasks" href="javascript:void(0);" class="list-group-item list-group-item-action" (click)="openDialog(task)">{{task.textTask}}</a>
+    <a *ngFor="let task of tasks" href="javascript:void(0);" class="list-group-item list-group-item-action">
+      {{task.textTask}}
+      <button class="btn btn-primary float-end" (click)="openDialog(task)">Pregled zadatka</button>
+    </a>
+    
   </div>
 </div>
 <button id="editLection" *ngIf="selectedTheme !== '0' && selectedSubtheme !== '0'" class="btn btn-primary" (click)="editLection('nl')">Uredi lekciju</button>

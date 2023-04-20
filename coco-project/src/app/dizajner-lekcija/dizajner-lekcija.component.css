@@ -13,22 +13,16 @@ label:not(.form-check-label) {
     margin-top: 15px;
 }
 
-#addLection {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
 .list-group {
     margin-top: 3em;
     margin-bottom: 5em;
 }
 
-#addSubtheme, #deleteSubtheme, #deleteTheme {
+#addSubtheme, #deleteSubtheme, #deleteTheme, #addLection {
     margin-top: 10px;
 }
 
-#deleteSubtheme {
+#deleteSubtheme, #deleteTheme {
     margin-right: 5px;
 }
 
@@ -36,4 +30,8 @@ label:not(.form-check-label) {
     position: absolute;
     bottom: 10px;
     right: 10px;
+}
+
+.list-group-item {
+    cursor: default;
 }
