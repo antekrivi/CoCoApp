@@ -186,7 +186,6 @@ export class NovaLekcijaComponent {
   }
 
   //custom validator da ne postoje dva ista odgovora
-  //DODATI DA SE PROVJERAVA I DA NE POSTOJE VEĆ ISTE SLIKE U BAZI!!!!!!!!!!!
   duplicateAnswerValidator(form: FormGroup, control: AbstractControl){
     const answers = form.get('answers') as FormArray;
     const type = form.get('type').value;

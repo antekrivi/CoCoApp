@@ -13,7 +13,7 @@ export class RadnjaService {
   selectedSubtheme: Object = {
     id: '',
     title: '',
-    class: 1
+    class: 0
   };
   type: string = '';
 }
