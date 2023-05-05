@@ -12,7 +12,7 @@
         <label *ngIf="answer.name" class="form-check-label" for="flexCheckDefault" for="{{answer.name}}">
             {{answer.name}}
         </label>
-        <label class="image" for="{{answer.url}}"><img *ngIf="answer.url" [src]="answer.url"/></label>
+        <label *ngIf="answer.url" class="image" for="{{answer.url}}"><img *ngIf="answer.url" [src]="answer.url"/></label>
       </div>
       <button type="submit" class="btn btn-primary">Provjeri</button>
     </form>

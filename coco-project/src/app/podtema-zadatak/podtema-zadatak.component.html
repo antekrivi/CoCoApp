@@ -1,0 +1,29 @@
+<div class="row full">
+    <div class="col-4 answers">
+        <div *ngFor="let answer of answers">
+            <div *ngIf="answer.text" class="answer text">
+                {{answer.text}}
+            </div>
+            <div *ngIf="answer.url" class="answer"><img [src]="answer.url"/></div>
+          </div>
+    </div>
+    <div class="col-8">
+        <div class="row">
+            <div class="col-10">
+                <div class="white">
+                    <h1>{{theme}}</h1>
+                    <h2>{{subtheme}}</h2>
+                </div>
+            </div>
+            <div class="col-2 padd">
+                <div class="timer">5:00</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <p>{{task}}</p>
+            </div>
+        </div> 
+    </div>
+</div>
+<button class="btn btn-primary">PREDAJ</button>

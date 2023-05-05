@@ -1,12 +1,16 @@
 <h1>Moje lekcije</h1>
 <br/>
+<div id="search">
+  <button class="btn btn-primary float-end" (click)="filterThemes()">Pretraži</button>
+  <input class="form-control float-end" [(ngModel)]="searchTerm" type="text" placeholder="Pretraži teme i podteme">
+</div>
 <div class="container">
   <div class="row">
     <div class="col-9">
       <label>Odaberite temu:</label><br/>
-      <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedTheme" (change)="onThemeSelected(true)">
+      <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedTheme" (change)="onThemeSelected(true)" id="theme">
           <option disabled value="0">Odaberite</option>
-          <option *ngFor="let theme of themes$ | async" [value]="theme.unique_id">{{theme.theme}}</option>
+          <option *ngFor="let theme of themes" [value]="theme.unique_id">{{theme.theme}}</option>
       </select>
       <button id="addLection" class="btn btn-primary float-end" (click)="addLection('nl')">Dodaj temu</button>
       <button id="deleteTheme" *ngIf="selectedTheme !== '0'" class="btn btn-primary float-end" (click)="deleteTheme()">Obriši temu</button>
@@ -51,13 +55,14 @@
     <div class="col-9">
       <div id="subtheme">
         <label>Odaberite podtemu:</label><br/>
-        <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedSubtheme" (change)="onPodtemaSelected()">
+        <select class="form-select" aria-label="Default select example" [(ngModel)]="selectedSubtheme" (change)="onPodtemaSelected()" id="subtheme2">
           <option selected disabled value="0">Odaberite</option>
           <option *ngFor="let subtheme of subthemes" [value]="subtheme.unique_id">{{subtheme.title}}</option>
         </select>
       </div>
       <button id="addSubtheme" *ngIf="selectedTheme !== '0'" class="btn btn-primary float-end" (click)="addSubtheme('nl')">Dodaj podtemu</button>
       <button id="deleteSubtheme" *ngIf="selectedSubtheme !== '0'" class="btn btn-primary float-end" (click)="deleteSubtheme()">Obriši podtemu</button>
+      <button id="showSubtheme" *ngIf="selectedSubtheme !== '0' && showTasks" class="btn btn-primary float-end" (click)="showSubtheme()">Prikaži podtemu</button>
     </div>
     <div class="col-3">
       <label>Filtriraj po razredu:</label>
@@ -89,9 +94,8 @@
   </div>
 </div>
 <div *ngIf="showTasks">
-  <div class="list-group">
-    <a *ngFor="let task of tasks" href="javascript:void(0);" class="list-group-item list-group-item-action">
-      {{task.textTask}}
+  <div class="list-group" id="tasks">
+    <a *ngFor="let task of tasks" href="javascript:void(0);" class="list-group-item list-group-item-action">{{task.textTask}}
       <button class="btn btn-primary float-end" (click)="openDialog(task)">Pregled zadatka</button>
     </a>
     

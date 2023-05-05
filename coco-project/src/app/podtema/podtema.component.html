@@ -1,0 +1,63 @@
+<div *ngIf="!allAnswersLoaded">
+  <div class="loader"></div>
+  <div id="center">Učitavanje podteme...</div>
+</div>
+<div class="container" *ngIf="allAnswersLoaded">
+  <div class="row" *ngIf="data.studentNumber === '2'">
+    <div class="col-6">
+      <div class="rotate-90">
+        <app-podtema-zadatak [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[0]" [answers]="this.allAnswers"></app-podtema-zadatak>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="rotate-270">
+        <app-podtema-zadatak [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[1]" [answers]="this.allAnswers"></app-podtema-zadatak>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="data.studentNumber === '3'">
+    <div class="col-6">
+      <div class="rotate-180-center">
+        <app-podtema-zadatak [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[0]" [answers]="this.allAnswers"></app-podtema-zadatak>
+      </div>
+    </div>
+  </div>
+  <div class="row" *ngIf="data.studentNumber === '3'">
+    <div class="col-6">
+      <div class="normal">
+        <app-podtema-zadatak [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[1]" [answers]="this.allAnswers"></app-podtema-zadatak>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="normal left">
+        <app-podtema-zadatak [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[2]" [answers]="this.allAnswers"></app-podtema-zadatak>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="data.studentNumber === '4'">
+    <div class="col-6">
+      <div class="rotate-180">
+        <app-podtema-zadatak [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[0]" [answers]="this.allAnswers"></app-podtema-zadatak>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="rotate-180 left">
+        <app-podtema-zadatak [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[1]" [answers]="this.allAnswers"></app-podtema-zadatak>
+      </div>
+    </div>
+  </div>
+  <div class="row" *ngIf="data.studentNumber === '4'">
+    <div class="col-6">
+      <div class="normal">
+        <app-podtema-zadatak [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[2]" [answers]="this.allAnswers"></app-podtema-zadatak>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="normal left">
+        <app-podtema-zadatak [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[3]" [answers]="this.allAnswers"></app-podtema-zadatak>
+      </div>
+    </div>
+  </div>
+</div>

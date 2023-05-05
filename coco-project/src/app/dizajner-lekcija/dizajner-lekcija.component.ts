@@ -5,6 +5,7 @@ import { FirebaseService } from '../services/firebase-service.service';
 import { RadnjaService } from '../services/radnja.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ZadatakComponent } from '../zadatak/zadatak.component';
+import { PodtemaComponent } from '../podtema/podtema.component';
 import { getStorage, ref, deleteObject } from "firebase/storage";
 import Swal from 'sweetalert2';
 
@@ -30,7 +31,7 @@ export class DizajnerLekcijaComponent {
   db = this.firebaseSevice.getDb();
   showTasks = false;
 
-  themes$ = queryForDocuments(collection(this.db, '/lection')).then(res => res.sort((a, b) => a.theme.localeCompare(b.theme)));
+  themes = [];
   subthemes = [];
   selectedTheme: string = "0";
   selectedSubtheme: string = "0";
@@ -39,8 +40,10 @@ export class DizajnerLekcijaComponent {
   selectedType: string;
   path: string;
   tasks;
+  searchTerm: string;
 
   async ngOnInit() {
+    this.themes = await queryForDocuments(collection(this.db, '/lection')).then(res => res.sort((a, b) => a.theme.localeCompare(b.theme)));
     this.subthemes = await this.getAllSubthemes();
   }
 
@@ -68,6 +71,25 @@ export class DizajnerLekcijaComponent {
     document.body.style.cursor = "default";
 
     return subthemes;
+  }
+  
+  async filterThemes() {
+    document.body.style.cursor = "wait";
+    
+    this.searchTerm = this.searchTerm.trim();
+    this.selectedTheme = "0";
+    this.selectedSubtheme = "0";
+    this.showTasks = false;
+
+    this.themes = await queryForDocuments(collection(this.db, '/lection')).then(res => res.sort((a, b) => a.theme.localeCompare(b.theme)));
+    this.subthemes = await this.getAllSubthemes();
+    
+    if (this.searchTerm !== '') {
+      this.themes = this.themes.filter(item => item.theme.toLowerCase().includes(this.searchTerm.toLowerCase()));
+      this.subthemes = this.subthemes.filter(item => item.title.toLowerCase().includes(this.searchTerm.toLowerCase()));
+    }
+
+    document.body.style.cursor = "default";
   }
 
   //nova lekcija
@@ -107,12 +129,12 @@ export class DizajnerLekcijaComponent {
 
   async resetThemesSubthemes() {
     if(this.subjectFilter.length > 0){
-      this.themes$ = queryForDocuments(collection(this.db, '/lection'))
+      this.themes = await queryForDocuments(collection(this.db, '/lection'))
       .then(res => res.filter(item => this.subjectFilter.includes(item.subject)))
       .then(res => res.sort((a, b) => a.theme.localeCompare(b.theme)));
     }
     else {
-      this.themes$ = queryForDocuments(collection(this.db, '/lection'))
+      this.themes = await queryForDocuments(collection(this.db, '/lection'))
       .then(res => res.sort((a, b) => a.theme.localeCompare(b.theme)));
     }
     this.selectedTheme = "0";
@@ -157,12 +179,16 @@ export class DizajnerLekcijaComponent {
 
   //dohvaćanje podtema za odabranu temu
   async getSubthemeByTheme() {
+    document.body.style.cursor = "wait";
+
     this.path = `/lection/${this.selectedTheme}/subtheme`;
     this.subthemes = await queryForDocuments(collection(this.db, this.path));
     if(this.classFilter.length > 0){
       this.subthemes = this.subthemes.filter(item => this.classFilter.includes(item.class));
     }
     this.subthemes = this.subthemes.sort((a, b) => a.title.localeCompare(b.title));
+    
+    document.body.style.cursor = "default";
   }
 
   //odabir podteme
@@ -252,7 +278,7 @@ export class DizajnerLekcijaComponent {
     this.showTasks = false;
 
     if (theme){
-      this.themes$ = queryForDocuments(collection(this.db, '/lection')).then(res => res);
+      this.themes = await queryForDocuments(collection(this.db, '/lection')).then(res => res);
       this.selectedTheme = "0";
       this.subthemes = null;
     }
@@ -290,6 +316,23 @@ export class DizajnerLekcijaComponent {
       this.deleteSubthemeAndTasks(subthemeRef); 
       this.reset(false);
     } 
+  }
+
+  showSubtheme() {        
+    Swal.fire({
+      title: 'Za koliko učenika želite prikazati podtemu?',
+      input: 'select',
+      inputOptions: {
+        '2': '2',
+        '3': '3',
+        '4': '4'
+      },
+      inputPlaceholder: 'Odaberite broj'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.openDialogSubtheme(result.value);
+      }
+    });
   }
 
   async deleteTheme() {
@@ -334,6 +377,40 @@ export class DizajnerLekcijaComponent {
         subtheme: this.selectedSubtheme,
         theme: this.selectedTheme,
         type: this.selectedType
+      }
+    });
+  }
+
+  //pop up prozor za prikaz podteme
+  openDialogSubtheme(studentNumber): void {
+    const selectTheme = document.getElementById("theme");
+    const selectedTheme = (<HTMLSelectElement>selectTheme).options[(<HTMLSelectElement>selectTheme).selectedIndex].innerText;
+
+    const selectSubtheme = document.getElementById("subtheme2");
+    const selectedSubtheme = (<HTMLSelectElement>selectSubtheme).options[(<HTMLSelectElement>selectSubtheme).selectedIndex].innerText;
+
+    const tasksDiv = document.querySelector("#tasks");
+    const links = tasksDiv.querySelectorAll("a");
+    const tasks = [];
+
+    links.forEach(link => {
+      const str = link.text;
+      const index = str.indexOf("Pregled zadatka");
+      const result = str.substring(0, index);
+
+      tasks.push(result);
+    });
+    
+    const dialogRef = this.dialog.open(PodtemaComponent, {
+      width: '60em',
+      data: {
+        studentNumber: studentNumber,
+        subtheme: selectedSubtheme,
+        subthemeId: this.selectedSubtheme,
+        theme: selectedTheme,
+        themeId: this.selectedTheme,
+        type: this.selectedType,
+        tasks: tasks
       }
     });
   }

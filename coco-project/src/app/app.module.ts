@@ -18,6 +18,8 @@ import { AngularFireAuthModule } from "@angular/fire/compat/auth";
 import { AngularFirestoreModule } from "@angular/fire/compat/firestore";
 import { firebaseConfig } from "./firebase-config";
 import { ActivityDesignerComponent } from './activity-designer/activity-designer.component';
+import { PodtemaComponent } from './podtema/podtema.component';
+import { PodtemaZadatakComponent } from './podtema-zadatak/podtema-zadatak.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +31,8 @@ import { ActivityDesignerComponent } from './activity-designer/activity-designer
     NovaLekcijaComponent,
     ZadatakComponent,
     ActivityDesignerComponent,
+    PodtemaComponent,
+    PodtemaZadatakComponent,
   ],
   imports: [
     BrowserModule,

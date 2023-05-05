@@ -4,6 +4,19 @@ h1 {
     font-family: initial;
 }
 
+#search {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 50%;
+}
+
+#search .form-control {
+    display: inline;
+    margin-right: 0.5em;
+    width: auto;
+}
+
 .container {
     max-width: 100%;
 }
@@ -18,11 +31,11 @@ label:not(.form-check-label) {
     margin-bottom: 5em;
 }
 
-#addSubtheme, #deleteSubtheme, #deleteTheme, #addLection {
+#showSubtheme, #addSubtheme, #deleteSubtheme, #deleteTheme, #addLection {
     margin-top: 10px;
 }
 
-#deleteSubtheme, #deleteTheme {
+#showSubtheme, #deleteSubtheme, #deleteTheme {
     margin-right: 5px;
 }
 
