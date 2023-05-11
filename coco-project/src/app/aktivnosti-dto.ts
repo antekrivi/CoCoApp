@@ -9,11 +9,9 @@ export class ActivityDTO {
 
     numOfStudents: number[];
     configToTablet: string[];
-    times: { correction: number | null; discussion: number | null; solving: number | null; } = {
-        correction: null,
-        discussion: null,
-        solving: null,
-      };
+    solvingTime: number;
+    discussionTimes: number[];
+    correctionTimes: number[];
       
     questions: string[];
     answers:{};

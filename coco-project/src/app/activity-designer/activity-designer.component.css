@@ -313,4 +313,11 @@ svg {
     white-space: nowrap;
     border: 0;
   }
+
+  .side-by-side-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  
   

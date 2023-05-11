@@ -2,9 +2,8 @@
   <div class="fields-container">
     <div class="row">
       <!-- Add [ngClass]="{'invalid-input': invalidFields['selectedTopic'], 'shake': shakeFields['selectedTopic']}" (change)="validateField('selectedTopic', selectedTopic)" to the topic select -->
-      <div class="dropdown-select">       
-         <label for="Tema"
-        >Tema:</label>
+      <div class="dropdown-select">
+        <label for="Tema">Tema:</label>
         <select
           id="lesson"
           class="form-select"
@@ -25,8 +24,7 @@
 
       <!-- Add [ngClass]="{'invalid-input': invalidFields['selectedSubtopic'], 'shake': shakeFields['selectedSubtopic']}" (change)="validateField('selectedSubtopic', selectedSubtopic)" to the subtopic select -->
       <div class="dropdown-select">
-        <label for="Podtema"
-          >Podtema:</label>
+        <label for="Podtema">Podtema:</label>
         <select
           id="lesson"
           class="form-select"
@@ -64,39 +62,113 @@
             (change)="validateField('solving', times.solving)"
         /></label>
       </div>
+      <!-- Add the new "Broj ponavljanja" input field after the "VrijemeRjesavanja" input field -->
       <div class="number-input-container">
-        <label for="VrijemeDiskusije"
+        <label for="BrojPonavljanja"
+          >Broj ponavljanja:
+          <input
+            class="number-input"
+            type="number"
+            id="BrojPonavljanja"
+            name="BrojPonavljanja"
+            [(ngModel)]="numberOfRepetitions"
+            min="1"
+            (ngModelChange)="updateTimesDiscussionAndCorrection()"
+          />
+        </label>
+      </div>
+    </div>
+
+
+    <div class="row">
+      <label >1. ponavljanje</label>
+      <div class="number-input-container">
+        <label for="VrijemeDiskusije-{{ 0 }}"
           >Vrijeme diskusije:
           <input
             class="number-input"
             type="number"
-            id="VrijemeDiskusije"
-            name="VrijemeDiskusije"
-            [(ngModel)]="times.discussion"
+            id="VrijemeDiskusije-{{ 0 }}"
+            name="VrijemeDiskusije-{{ 0 }}"
+            [(ngModel)]="times.discussion[0]"
             [ngClass]="{
               'invalid-input': invalidFields['discussion'],
               shake: shakeFields['discussion']
             }"
-            (change)="validateField('discussion', times.discussion)"
-        /></label>
+            (change)="validateField('discussion', times.discussion[0])"
+          />
+        </label>
       </div>
       <div class="number-input-container">
-        <label for="VrijemeIspravljanja"
+        <label for="VrijemeIspravljanja-{{ 0 }}"
           >Vrijeme ispravljanja:
           <input
             class="number-input"
             type="number"
-            id="VrijemeIspravljanja"
-            name="VrijemeIspravljanja"
-            [(ngModel)]="times.correction"
+            id="VrijemeIspravljanja-{{ 0 }}"
+            name="VrijemeIspravljanja-{{ 0 }}"
+            [(ngModel)]="times.correction[0]"
             [ngClass]="{
               'invalid-input': invalidFields['correction'],
               shake: shakeFields['correction']
             }"
-            (change)="validateField('correction', times.correction)"
-        /></label>
+            (change)="validateField('correction', times.correction[0])"
+          />
+        </label>
       </div>
     </div>
+
+
+    <!-- Wrap the "Vrijeme diskusije" and "Vrijeme ispravljanja" input fields in a div and use *ngFor to loop based on numberOfRepetitions -->
+    <ng-container *ngIf="numberOfRepetitions > 1">
+      <ng-container
+        *ngFor="
+          let repetition of [].constructor(numberOfRepetitions-1);
+          let i = index
+        "
+      >
+        <div class="row">
+          <label >{{i+2}}. ponavljanje</label>
+          <div class="number-input-container">
+            <label for="VrijemeDiskusije-{{ i+1 }}"
+              >Vrijeme diskusije:
+              <input
+                class="number-input"
+                type="number"
+                pattern="[0-9]*"
+                id="VrijemeDiskusije-{{ i +1}}"
+                name="VrijemeDiskusije-{{ i+1 }}"
+                [(ngModel)]="times.discussion[i+1]"
+                [ngClass]="{
+                  'invalid-input': invalidFields['discussion'],
+                  shake: shakeFields['discussion']
+                }"
+                (change)="validateField('discussion', times.discussion[i+1])"
+              />
+            </label>
+          </div>
+          <div class="number-input-container">
+            <label for="VrijemeIspravljanja-{{ i+1 }}"
+              >Vrijeme ispravljanja:
+              <input
+                class="number-input"
+                type="number"
+                pattern="[0-9]*"
+                id="VrijemeIspravljanja-{{ i+1 }}"
+                name="VrijemeIspravljanja-{{ i+1 }}"
+                [(ngModel)]="times.correction[i+1]"
+                [ngClass]="{
+                  'invalid-input': invalidFields['correction'],
+                  shake: shakeFields['correction']
+                }"
+                (change)="validateField('correction', times.correction[i+1])"
+              />
+            </label>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+
     <div class="row">
       <div class="number-input-container">
         <label>
@@ -135,15 +207,17 @@
     </div>
 
     <button
-  class="custom-button"
-  [ngClass]="{'success-message': outcome === 'success', 'error-message': outcome === 'error'}"
-  (click)="handleClick()"
->
-  {{ buttonText }}
-  
-<span *ngIf="message" class="message">{{ message }}</span>
-</button>
+      class="custom-button"
+      [ngClass]="{
+        'success-message': outcome === 'success',
+        'error-message': outcome === 'error'
+      }"
+      (click)="handleClick()"
+    >
+      {{ buttonText }}
 
+      <span *ngIf="message" class="message">{{ message }}</span>
+    </button>
   </div>
 
   <div class="group-container">

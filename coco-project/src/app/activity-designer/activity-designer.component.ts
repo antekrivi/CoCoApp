@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { addDoc, collection, deleteDoc, doc, DocumentReference, getDoc, getDocs, query, updateDoc } from 'firebase/firestore';
 import { DizajnerPocetnoComponent } from '../dizajner-pocetno/dizajner-pocetno.component';
 import { FirebaseService } from '../services/firebase-service.service';
@@ -23,7 +23,7 @@ async function queryForDocuments(new_query) {
   templateUrl: './activity-designer.component.html',
   styleUrls: ['./activity-designer.component.css']
 })
-export class ActivityDesignerComponent {
+export class ActivityDesignerComponent implements OnInit  {
   db = this.firebaseService.getDb();
   constructor(private firebaseService :FirebaseService, private dizajner: DizajnerPocetnoComponent, private radnjaService: RadnjaService) {
     this.load();
@@ -32,6 +32,38 @@ export class ActivityDesignerComponent {
   numberOfChildren: number | null = null;
   groupings: number[][] = [];
   selectedGrouping: string | null = null;
+
+  ngOnInit() {
+    this.updateTimesDiscussionAndCorrection();
+  }
+  
+  updateTimesDiscussionAndCorrection() {
+    const newLength = this.numberOfRepetitions;
+  
+    this.times.discussion = [ ...this.times.discussion, ...Array(newLength - this.times.discussion.length).fill(null)];
+
+    this.times.correction = [ ...this.times.correction, ...Array(newLength - this.times.correction.length).fill(null)];
+    // // Update discussion array
+    // this.times.discussion = Array(newLength).fill(1);
+  
+    // // Update correction array
+    // this.times.correction = Array(newLength).fill(1);
+  }
+  
+  
+  
+  
+// Update the times object inside your component class
+times: any = {
+  solving: null,
+  discussion: Array(5).fill(1),
+  correction: Array(5).fill(1),
+};
+
+
+
+// Update any related functions that deal with times.discussion and times.correction
+
   
   lessons$ = queryForDocuments(collection(this.db, "lection")).then(res => res);
   activity$ = queryForDocuments(collection(this.db, "ActiveActivity")).then(res => res)
@@ -40,11 +72,7 @@ export class ActivityDesignerComponent {
   selectedSubtopic: string = "";
   activity: ActivityDTO;
   
-  times: { correction: number | null; discussion: number | null; solving: number | null; } = {
-    correction: null,
-    discussion: null,
-    solving: null,
-  };
+
 
   
 // Add these properties to the class
@@ -104,7 +132,9 @@ handleClick() {
     if((await this.activity$).length  > 0){
       
       this.selectedTopic = this.activity.lessonRef;
-      this.times = this.activity.times;
+      this.times.solving = this.activity.solvingTime;
+      this.times.discussion = this.activity.discussionTimes;
+      this.times.correction = this.activity.correctionTimes;
       this.numberOfChildren = this.activity.numOfStudents.reduce((acc, cur) => acc + cur, 0);
       this.numberOfTablets = this.activity.numOfStudents.length;
       this.updateGroupings();
@@ -113,6 +143,40 @@ handleClick() {
       this.selectedSubtopic = this.activity.subTopicRef;
     }
   }
+
+  private _numberOfRepetitions = 1;
+
+get numberOfRepetitions(): number {
+  return this._numberOfRepetitions;
+}
+
+set numberOfRepetitions(value: number) {
+  this._numberOfRepetitions = value;
+  this.updateDiscussionAndCorrectionArrays();
+}
+
+updateDiscussionAndCorrectionArrays(): void {
+  // Update the discussion array
+  if (this.times.discussion.length < this._numberOfRepetitions) {
+    const diff = this._numberOfRepetitions - this.times.discussion.length;
+    for (let i = 0; i < diff; i++) {
+      this.times.discussion.push(null);
+    }
+  } else if (this.times.discussion.length > this._numberOfRepetitions) {
+    this.times.discussion.splice(this._numberOfRepetitions);
+  }
+
+  // Update the correction array
+  if (this.times.correction.length < this._numberOfRepetitions) {
+    const diff = this._numberOfRepetitions - this.times.correction.length;
+    for (let i = 0; i < diff; i++) {
+      this.times.correction.push(null);
+    }
+  } else if (this.times.correction.length > this._numberOfRepetitions) {
+    this.times.correction.splice(this._numberOfRepetitions);
+  }
+}
+
 
 
   
@@ -134,7 +198,11 @@ handleClick() {
     DTO.configToTablet = Array(this.selectedGrouping.split(',').map(Number).length).fill(null);
 
 
-    DTO.times = this.times;
+    DTO.solvingTime = this.times.solving;
+    DTO.discussionTimes = this.times.discussion;
+    DTO.correctionTimes = this.times.correction;
+
+
     const questions = await queryForDocuments(collection(this.db, `/lection/${this.selectedTopic}/subtheme/${this.selectedSubtopic}/task`));
 
     for (const question of questions) {
@@ -163,7 +231,9 @@ handleClick() {
 
   public async insert(DTO : ActivityDTO){
       const result = await addDoc(collection(this.db, "ActiveActivity"), {
-        times:DTO.times,
+        solvingTime:DTO.solvingTime,
+        discussionTimes:DTO.discussionTimes,
+        correctionTimes:DTO.correctionTimes,
         answers: DTO.answers,
         configToTablet: DTO.configToTablet,
         lessonRef:DTO.lessonRef,
@@ -182,7 +252,9 @@ handleClick() {
   public async update(DTO : ActivityDTO){
     const docRef = doc(this.db, `/ActiveActivity/${this.activity.ID}`)
       await updateDoc(docRef, {
-        times:DTO.times,
+        solvingTime:DTO.solvingTime,
+        discussionTimes:DTO.discussionTimes,
+        correctionTimes:DTO.correctionTimes,
         answers: DTO.answers,
         configToTablet: DTO.configToTablet,
         lessonRef:DTO.lessonRef,
