@@ -92,10 +92,10 @@
             name="VrijemeDiskusije-{{ 0 }}"
             [(ngModel)]="times.discussion[0]"
             [ngClass]="{
-              'invalid-input': invalidFields['discussion'],
-              shake: shakeFields['discussion']
+              'invalid-input': invalidFields['discussion0'],
+              shake: shakeFields['discussion0']
             }"
-            (change)="validateField('discussion', times.discussion[0])"
+            (ngModelChange)="validateField('discussion0', times.discussion[0])"
           />
         </label>
       </div>
@@ -109,10 +109,10 @@
             name="VrijemeIspravljanja-{{ 0 }}"
             [(ngModel)]="times.correction[0]"
             [ngClass]="{
-              'invalid-input': invalidFields['correction'],
-              shake: shakeFields['correction']
+              'invalid-input': invalidFields['correction0'],
+              shake: shakeFields['correction0']
             }"
-            (change)="validateField('correction', times.correction[0])"
+            (ngModelChange)="validateField('correction0', times.correction[0])"
           />
         </label>
       </div>
@@ -140,10 +140,10 @@
                 name="VrijemeDiskusije-{{ i+1 }}"
                 [(ngModel)]="times.discussion[i+1]"
                 [ngClass]="{
-                  'invalid-input': invalidFields['discussion'],
-                  shake: shakeFields['discussion']
-                }"
-                (change)="validateField('discussion', times.discussion[i+1])"
+                  'invalid-input': invalidFields['discussion' + (i+1)],
+                  shake: shakeFields['discussion' + (i+1)]
+                }"                
+                (ngModelChange)="validateField('discussion' + (i+1), times.discussion[i+1])"
               />
             </label>
           </div>
@@ -158,10 +158,10 @@
                 name="VrijemeIspravljanja-{{ i+1 }}"
                 [(ngModel)]="times.correction[i+1]"
                 [ngClass]="{
-                  'invalid-input': invalidFields['correction'],
-                  shake: shakeFields['correction']
-                }"
-                (change)="validateField('correction', times.correction[i+1])"
+                  'invalid-input': invalidFields['correction' + (i+1)],
+                  shake: shakeFields['correction' + (i+1)]
+                }"                
+                (ngModelChange)="validateField('correction' + (i+1), times.correction[i+1])"
               />
             </label>
           </div>
@@ -221,6 +221,20 @@
   </div>
 
   <div class="group-container">
+    <button
+    class="custom-button"
+    [ngClass]="{
+      'sort-selected': sortBalance
+    }"
+    
+    (click)="balancedGroupingsFirst()"
+  >   Balansirane  </button>   <button
+  class="custom-button"
+  [ngClass]="{
+    'sort-selected': !sortBalance
+  }"
+  (click)="unbalancedGroupingsFirst()"
+>  nebalansirane  </button>
     <div
       *ngIf="
         numberOfTablets !== null &&

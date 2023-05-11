@@ -86,8 +86,6 @@ svg {
   text-align: center;
 }
 
-
-
 /* Add this to import the new font */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
 
@@ -128,7 +126,7 @@ svg {
 
 
 .shake {
-  animation: shake 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  animation: shake 1s ;
 }
 
 .invalid-input {
@@ -169,6 +167,29 @@ svg {
 }
 .custom-button:hover {
   background-color: #50a4fd;
+}
+
+
+.sort-selected {
+  background-color: #50a4fd;
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(10%);
+  }
+  20% {
+    transform: translateX(-10%);
+  }
+  60% {
+    transform: translateX(10%);
+  }
+  80% {
+    transform: translateX(-10%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
 }
 
 @keyframes success-animation {

@@ -4,7 +4,6 @@ import { DizajnerPocetnoComponent } from '../dizajner-pocetno/dizajner-pocetno.c
 import { FirebaseService } from '../services/firebase-service.service';
 import { RadnjaService } from '../services/radnja.service';
 import { ActivityDTO } from '../aktivnosti-dto';
-import { DEFAULT_DIALOG_CONFIG } from '@angular/cdk/dialog';
 
 
 //funkcija za čitanje više dokumenata
@@ -25,6 +24,7 @@ async function queryForDocuments(new_query) {
 })
 export class ActivityDesignerComponent implements OnInit  {
   db = this.firebaseService.getDb();
+  clearselectedGrouping = true;
   constructor(private firebaseService :FirebaseService, private dizajner: DizajnerPocetnoComponent, private radnjaService: RadnjaService) {
     this.load();
   }
@@ -39,9 +39,10 @@ export class ActivityDesignerComponent implements OnInit  {
   
   updateTimesDiscussionAndCorrection() {
     const newLength = this.numberOfRepetitions;
-  
+  if(this.times.discussion != null)
     this.times.discussion = [ ...this.times.discussion, ...Array(newLength - this.times.discussion.length).fill(null)];
 
+    if(this.times.correction != null)
     this.times.correction = [ ...this.times.correction, ...Array(newLength - this.times.correction.length).fill(null)];
     // // Update discussion array
     // this.times.discussion = Array(newLength).fill(1);
@@ -56,8 +57,8 @@ export class ActivityDesignerComponent implements OnInit  {
 // Update the times object inside your component class
 times: any = {
   solving: null,
-  discussion: Array(5).fill(1),
-  correction: Array(5).fill(1),
+  discussion: [],
+  correction: [],
 };
 
 
@@ -80,8 +81,8 @@ invalidFields: { [key: string]: boolean } = {
   selectedTopic: false,
   selectedSubtopic: false,
   solving: false,
-  discussion: false,
-  correction: false,
+  discussion0: false,
+  correction0: false,
   numberOfTablets: false,
   numberOfChildren: false,
 };
@@ -90,8 +91,8 @@ shakeFields: { [key: string]: boolean } = {
   selectedTopic: false,
   selectedSubtopic: false,
   solving: false,
-  discussion: false,
-  correction: false,
+  discussion0: false,
+  correction0: false,
   numberOfTablets: false,
   numberOfChildren: false,
 };
@@ -145,6 +146,7 @@ handleClick() {
   }
 
   private _numberOfRepetitions = 1;
+   sortBalance = true;
 
 get numberOfRepetitions(): number {
   return this._numberOfRepetitions;
@@ -161,9 +163,15 @@ updateDiscussionAndCorrectionArrays(): void {
     const diff = this._numberOfRepetitions - this.times.discussion.length;
     for (let i = 0; i < diff; i++) {
       this.times.discussion.push(null);
+      this.invalidFields[`discussion${i}`] = false;
+      this.shakeFields[`discussion${i}`] = false;
     }
   } else if (this.times.discussion.length > this._numberOfRepetitions) {
     this.times.discussion.splice(this._numberOfRepetitions);
+    for(let i = this.times.discussion.length; i > this._numberOfRepetitions; i--){
+      delete this.invalidFields[`discussion${i}`];
+      delete this.shakeFields[`discussion${i}`];
+    }
   }
 
   // Update the correction array
@@ -171,9 +179,15 @@ updateDiscussionAndCorrectionArrays(): void {
     const diff = this._numberOfRepetitions - this.times.correction.length;
     for (let i = 0; i < diff; i++) {
       this.times.correction.push(null);
+      this.invalidFields[`correction${i}`] = false;
+      this.shakeFields[`correction${i}`] = false;
     }
   } else if (this.times.correction.length > this._numberOfRepetitions) {
     this.times.correction.splice(this._numberOfRepetitions);
+    for(let i = this.times.correction.length; i > this._numberOfRepetitions; i--){
+      delete this.invalidFields[`correction${i}`];
+      delete this.shakeFields[`correction${i}`];
+    }
   }
 }
 
@@ -228,6 +242,30 @@ updateDiscussionAndCorrectionArrays(): void {
 
 }
 
+balancedGroupingsFirst(){
+this.sortBalance = true;
+this.clearselectedGrouping = false
+this.updateGroupings();
+this.clearselectedGrouping = true
+}
+unbalancedGroupingsFirst(){
+  this.sortBalance = false;
+  this.clearselectedGrouping = false
+  this.updateGroupings();
+  this.clearselectedGrouping = true
+
+}
+
+unbalancedGroupingsFirstSort(a, b) {
+  let countA = a.filter(val => val === 3).length;
+  let countB = b.filter(val => val === 3).length;
+  return countA - countB;}
+  
+  balancedGroupingsFirstSort(a, b) {
+  let countA = a.filter(val => val === 3).length;
+  let countB = b.filter(val => val === 3).length;
+  return countB - countA;}
+
 
   public async insert(DTO : ActivityDTO){
       const result = await addDoc(collection(this.db, "ActiveActivity"), {
@@ -273,6 +311,7 @@ updateDiscussionAndCorrectionArrays(): void {
 
   updateSubtopics(): void{
     this.subtopics$ = queryForDocuments(collection(this.db, `/lection/${this.selectedTopic}/subtheme`));
+
   }
 
   updateGroupings(): void {
@@ -314,11 +353,17 @@ updateDiscussionAndCorrectionArrays(): void {
     helper([], this.numberOfChildren);
 
     this.groupings = Array.from(results).map((grouping) => grouping.split(',').map(Number));
-    this.selectedGrouping = null;
+    this.selectedGrouping = this.clearselectedGrouping ? null : this.selectedGrouping;
+
+    this.groupings.sort(this.sortBalance ? this.balancedGroupingsFirstSort : this.unbalancedGroupingsFirstSort);
   }
 
 validateField(fieldName: string, value: any) {
+  if(fieldName != 'selectedTopic' && fieldName != 'selectedSubtopic' && fieldName != 'selectedGrouping'){
+      this.invalidFields[fieldName] = isNaN(value) || !value
+  }else{
   this.invalidFields[fieldName] = !value;
+}
 }
 
 validateForm(): boolean {
@@ -328,10 +373,13 @@ validateForm(): boolean {
     { fieldName: 'numberOfTablets', value: this.numberOfTablets },
     { fieldName: 'numberOfChildren', value: this.numberOfChildren },
     { fieldName: 'selectedGrouping', value: this.selectedGrouping },
-    { fieldName: 'correction', value: this.times.correction },
-    { fieldName: 'discussion', value: this.times.discussion },
     { fieldName: 'solving', value: this.times.solving },
   ];
+
+  for(let i = 0; i < this._numberOfRepetitions; i++){
+    fields.push({fieldName: 'discussion'+i, value: this.times.discussion[i]});
+    fields.push({fieldName: 'correction'+i, value: this.times.correction[i]});
+  }
 
 
   let valid = true;
@@ -355,7 +403,7 @@ resetShakeClass(fieldName: string) {
   if(this.shakeFields[fieldName] == true){
     setTimeout(() => {
       this.shakeFields[fieldName] = false;
-    }, 700);
+    }, 1000);
   }
 }
 
