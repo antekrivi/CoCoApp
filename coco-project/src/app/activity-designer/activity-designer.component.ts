@@ -85,6 +85,7 @@ invalidFields: { [key: string]: boolean } = {
   correction0: false,
   numberOfTablets: false,
   numberOfChildren: false,
+  repetition: false,
 };
 
 shakeFields: { [key: string]: boolean } = {
@@ -95,6 +96,7 @@ shakeFields: { [key: string]: boolean } = {
   correction0: false,
   numberOfTablets: false,
   numberOfChildren: false,
+  repetition: false,
 };
 
   
@@ -357,12 +359,16 @@ unbalancedGroupingsFirstSort(a, b) {
 
     this.groupings.sort(this.sortBalance ? this.balancedGroupingsFirstSort : this.unbalancedGroupingsFirstSort);
   }
+  validateField(fieldName: string, value: any){
+    this.invalidFields[fieldName] = this.validation(fieldName, value);
+  }
 
-validateField(fieldName: string, value: any) {
+
+validation(fieldName: string, value: any) {
   if(fieldName != 'selectedTopic' && fieldName != 'selectedSubtopic' && fieldName != 'selectedGrouping'){
-      this.invalidFields[fieldName] = isNaN(value) || !value
+      return isNaN(value) || !value || value < 0
   }else{
-  this.invalidFields[fieldName] = !value;
+   return !value;
 }
 }
 
@@ -374,6 +380,7 @@ validateForm(): boolean {
     { fieldName: 'numberOfChildren', value: this.numberOfChildren },
     { fieldName: 'selectedGrouping', value: this.selectedGrouping },
     { fieldName: 'solving', value: this.times.solving },
+    { fieldName: 'repetition', value: this._numberOfRepetitions },
   ];
 
   for(let i = 0; i < this._numberOfRepetitions; i++){
@@ -385,7 +392,7 @@ validateForm(): boolean {
   let valid = true;
 
   fields.forEach((field) => {
-    if (field.value == null || field.value == "") {
+    if (this.validation(field.fieldName, field.value)) {
       this.invalidFields[field.fieldName] = true;
       this.shakeFields[field.fieldName] = true;
       valid = false;

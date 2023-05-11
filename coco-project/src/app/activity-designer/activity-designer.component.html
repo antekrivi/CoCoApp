@@ -59,7 +59,7 @@
               'invalid-input': invalidFields['solving'],
               shake: shakeFields['solving']
             }"
-            (change)="validateField('solving', times.solving)"
+            (ngModelChange)="validateField('solving', times.solving)"
         /></label>
       </div>
       <!-- Add the new "Broj ponavljanja" input field after the "VrijemeRjesavanja" input field -->
@@ -73,7 +73,11 @@
             name="BrojPonavljanja"
             [(ngModel)]="numberOfRepetitions"
             min="1"
-            (ngModelChange)="updateTimesDiscussionAndCorrection()"
+            [ngClass]="{
+              'invalid-input': invalidFields['repetition'],
+              shake: shakeFields['repetition']
+            }"
+            (ngModelChange)="updateTimesDiscussionAndCorrection(); validateField('repetition', numberOfRepetitions)"
           />
         </label>
       </div>
