@@ -112,7 +112,13 @@ export class DizajnerLekcijaComponent {
       this.showTasks = false;
       this.tasks = null;
       await this.getSubthemeByTheme();
-    };
+    }
+    else {
+      let selectedSubthemeTemporary = this.selectedSubtheme;
+      this.selectedSubtheme = "0";
+      await this.getSubthemeByTheme();
+      this.selectedSubtheme = selectedSubthemeTemporary;
+    }
   }
 
   //filter po predmetima
@@ -251,14 +257,10 @@ export class DizajnerLekcijaComponent {
 
       //brisanje slika
       for (const a of ans) {
-        if (this.actionService.type === "image"){
+        if (this.selectedType === "image"){
           const storage = getStorage();
           const imageRef = ref(storage, a.text);
-          deleteObject(imageRef).then(() => {
-            // File deleted successfully
-          }).catch((error) => {
-            // Uh-oh, an error occurred!
-          });
+          deleteObject(imageRef);
         }
       }
       
@@ -327,7 +329,10 @@ export class DizajnerLekcijaComponent {
         '3': '3',
         '4': '4'
       },
-      inputPlaceholder: 'Odaberite broj'
+      inputPlaceholder: 'Odaberite broj',
+      inputAttributes: {
+        style: 'color: #212529; font-size: 1rem; font-weight: 400; line-height: 1.5; border: 1px solid #ced4da; border-radius: 0.375rem;'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         this.openDialogSubtheme(result.value);

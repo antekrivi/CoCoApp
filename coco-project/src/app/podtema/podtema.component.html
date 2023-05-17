@@ -51,12 +51,14 @@
   <div class="row" *ngIf="data.studentNumber === '4'">
     <div class="col-6">
       <div class="normal">
-        <app-podtema-zadatak [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[2]" [answers]="this.allAnswers"></app-podtema-zadatak>
+        <app-podtema-zadatak *ngIf="length === 2" [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[3]" [answers]="this.allAnswers"></app-podtema-zadatak>
+        <app-podtema-zadatak *ngIf="length !== 2" [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[2]" [answers]="this.allAnswers"></app-podtema-zadatak>
       </div>
     </div>
     <div class="col-6">
       <div class="normal left">
-        <app-podtema-zadatak [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[3]" [answers]="this.allAnswers"></app-podtema-zadatak>
+        <app-podtema-zadatak  *ngIf="length === 2" [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[2]" [answers]="this.allAnswers"></app-podtema-zadatak>
+        <app-podtema-zadatak  *ngIf="length !== 2" [theme]="this.data.theme" [subtheme]="this.data.subtheme" [task]="this.data.tasks[3]" [answers]="this.allAnswers"></app-podtema-zadatak>
       </div>
     </div>
   </div>

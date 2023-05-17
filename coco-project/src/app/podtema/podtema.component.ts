@@ -26,22 +26,22 @@ export class PodtemaComponent {
   async ngOnInit() {
     await this.getAnswers();
 
-    if(this.data.tasks.length === 2){
+    this.length = this.data.tasks.length;
+
+    if(this.length === 2){
       this.data.tasks.push(this.data.tasks[0])
       this.data.tasks.push(this.data.tasks[1]);
     }
-    else if(this.data.tasks.length === 3){
+    else if(this.length === 3){
       this.data.tasks.push(this.data.tasks[0]);
     }
-
-    console.log(this.data);
-    console.log(this.allAnswers);
   }
 
   db = this.firebaseSevice.getDb();
 
   path;
   tasks;
+  length;
   allAnswers = [];
   allAnswersLoaded = false;
 
