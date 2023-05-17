@@ -74,6 +74,20 @@ export class DizajnerLekcijaComponent {
   }
   
   async filterThemes() {
+    let result;
+    if (this.subjectFilter.length > 0 || this.classFilter.length > 0) {
+      result = await Swal.fire({
+        title: 'Želite li uključiti prethodno odabrane filtere u pretragu?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Da, želim!',
+        cancelButtonText: 'Ne, ne želim!'
+      });
+      
+    }
+    
     document.body.style.cursor = "wait";
     
     this.searchTerm = this.searchTerm.trim();
@@ -81,9 +95,34 @@ export class DizajnerLekcijaComponent {
     this.selectedSubtheme = "0";
     this.showTasks = false;
 
-    this.themes = await queryForDocuments(collection(this.db, '/lection')).then(res => res.sort((a, b) => a.theme.localeCompare(b.theme)));
-    this.subthemes = await this.getAllSubthemes();
-    
+    if (result){
+      if (result.isConfirmed) {
+        await this.resetThemesSubthemes(false);
+        await this.resetSubthemes(false);
+      } 
+      else {
+        this.themes = await queryForDocuments(collection(this.db, '/lection')).then(res => res.sort((a, b) => a.theme.localeCompare(b.theme)));
+        this.subthemes = await this.getAllSubthemes();
+        
+        if (this.subjectFilter.length > 0) {
+          this.subjectFilter.forEach(element => {
+          document.getElementById(element)['checked'] = false;
+        });
+        this.subjectFilter = [];
+        }
+        if (this.classFilter.length > 0) {
+          this.classFilter.forEach(element => {
+            document.getElementById(`${element}`)['checked'] = false;
+          });
+          this.classFilter = [];
+        }
+      }
+    }
+    else {
+      this.themes = await queryForDocuments(collection(this.db, '/lection')).then(res => res.sort((a, b) => a.theme.localeCompare(b.theme)));
+      this.subthemes = await this.getAllSubthemes();
+    }
+
     if (this.searchTerm !== '') {
       this.themes = this.themes.filter(item => item.theme.toLowerCase().includes(this.searchTerm.toLowerCase()));
       this.subthemes = this.subthemes.filter(item => item.title.toLowerCase().includes(this.searchTerm.toLowerCase()));
@@ -130,10 +169,10 @@ export class DizajnerLekcijaComponent {
     } else {
       this.subjectFilter = this.subjectFilter.filter(item => item !== event.target.id);
     }
-    this.resetThemesSubthemes();
+    this.resetThemesSubthemes(true);
   }
 
-  async resetThemesSubthemes() {
+  async resetThemesSubthemes(blank: boolean) {
     if(this.subjectFilter.length > 0){
       this.themes = await queryForDocuments(collection(this.db, '/lection'))
       .then(res => res.filter(item => this.subjectFilter.includes(item.subject)))
@@ -143,6 +182,11 @@ export class DizajnerLekcijaComponent {
       this.themes = await queryForDocuments(collection(this.db, '/lection'))
       .then(res => res.sort((a, b) => a.theme.localeCompare(b.theme)));
     }
+    
+    if(blank) {
+      this.searchTerm = '';
+    }
+
     this.selectedTheme = "0";
     this.selectedSubtheme = "0";
     this.showTasks = false;
@@ -158,10 +202,10 @@ export class DizajnerLekcijaComponent {
     } else {
       this.classFilter = this.classFilter.filter(item => item !== Number(event.target.id));
     }
-    this.resetSubthemes();
+    this.resetSubthemes(true);
   }
 
-  async resetSubthemes() {
+  async resetSubthemes(blank: boolean) {
     if(this.classFilter.length > 0){
       if(this.selectedTheme !== "0"){
         await this.getSubthemeByTheme();
@@ -179,6 +223,9 @@ export class DizajnerLekcijaComponent {
       }
     }
 
+    if(blank){
+      this.searchTerm = '';
+    }
     this.selectedSubtheme = "0";
     this.showTasks = false;
   }
