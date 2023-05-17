@@ -201,9 +201,9 @@ export class DizajnerLekcijaComponent {
   async onPodtemaSelected() {
     //ako nije odabrana tema, nego prvo podtema
     if(this.selectedTheme === "0" && this.selectedSubtheme !== "0"){
-      let themes = await queryForDocuments(collection(this.db, '/lection'));
+      this.themes = await queryForDocuments(collection(this.db, '/lection'));
 
-      for (const theme of themes) {
+      for (const theme of this.themes) {
         let subthemes2 = await queryForDocuments(collection(this.db, `/lection/${theme.unique_id}/subtheme`));
         for (let i = 0; i < subthemes2.length; i++) {
           const subtheme = subthemes2[i];
@@ -213,8 +213,19 @@ export class DizajnerLekcijaComponent {
           }
         }
       }
-      
       await this.onThemeSelected(false);
+      if (this.subjectFilter.length > 0) {
+        this.subjectFilter.forEach(element => {
+          document.getElementById(element)['checked'] = false;
+        });
+        this.subjectFilter = [];
+      }
+      if (this.classFilter.length > 0) {
+        this.classFilter.forEach(element => {
+          document.getElementById(`${element}`)['checked'] = false;
+        });
+        this.classFilter = [];
+      }
     }
     
     const docRef = doc(this.db, 'lection', this.selectedTheme, 'subtheme', this.selectedSubtheme);
