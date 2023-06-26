@@ -20,6 +20,9 @@ import { firebaseConfig } from "./firebase-config";
 import { ActivityDesignerComponent } from './activity-designer/activity-designer.component';
 import { PodtemaComponent } from './podtema/podtema.component';
 import { PodtemaZadatakComponent } from './podtema-zadatak/podtema-zadatak.component';
+import { StatisticsComponent } from './statistics/statistics.component';
+import { HighchartsChartModule } from 'highcharts-angular';
+import { ChartModule } from 'angular-highcharts';
 
 @NgModule({
   declarations: [
@@ -33,6 +36,7 @@ import { PodtemaZadatakComponent } from './podtema-zadatak/podtema-zadatak.compo
     ActivityDesignerComponent,
     PodtemaComponent,
     PodtemaZadatakComponent,
+    StatisticsComponent,
   ],
   imports: [
     BrowserModule,
@@ -45,6 +49,8 @@ import { PodtemaZadatakComponent } from './podtema-zadatak/podtema-zadatak.compo
     MatIconModule,
     AngularFireAuthModule,
     AngularFirestoreModule,
+    HighchartsChartModule,
+    ChartModule // Import the ChartModule here
   ],
   providers: [],
   bootstrap: [AppComponent]

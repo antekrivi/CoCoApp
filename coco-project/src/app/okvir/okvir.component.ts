@@ -7,6 +7,7 @@ import { Component } from '@angular/core';
       <app-activity-designer *ngSwitchCase="'da'"></app-activity-designer>
       <app-dizajner-lekcija *ngSwitchCase="'dl'"></app-dizajner-lekcija>
       <app-nova-lekcija *ngSwitchCase="'nl'"></app-nova-lekcija>
+      <app-statistics *ngSwitchCase="'s'"></app-statistics>
     </ng-container>
   `,
   styleUrls: ['./okvir.component.css']

@@ -13,6 +13,7 @@ export class ActivityDTO {
     discussionTimes: number[];
     correctionTimes: number[];
       
+    anwserTypeImage: boolean;
     questions: string[];
     answers:{};
 

@@ -1,0 +1,54 @@
+
+<div>
+  <select [(ngModel)]="selectedId" 
+  class="form-select" (change)="getData()">
+    <option *ngFor="let doc of dropdownItems" [value]="doc.id">{{doc.displayText}}</option>
+  </select>
+  <hr>
+ <div 
+ class="custom-button-background">
+    <button *ngFor="let group of groupOptions"
+    class="custom-button"
+      [ngClass]="{'sort-selected': selectedGroup === group}"
+      (click)="selectGroup(group)">{{group}}
+    </button>
+ </div>
+ <hr>
+ 
+ 
+  
+  
+
+</div>
+<div
+class="custom-button-background">
+  <button
+  class="custom-button" 
+    [ngClass]="{
+      'sort-selected': displayData == 'accuracy'
+    }"
+    (click)="updateChart(1)">Accuracy</button>
+  <button
+  class="custom-button" 
+    [ngClass]="{
+      'sort-selected': displayData == 'resolutionTime'
+    }" (click)="updateChart(2)">Initial Resolution Time</button>
+  <button
+  class="custom-button" 
+    [ngClass]="{
+      'sort-selected': displayData == 'discussionTime'
+    }" (click)="updateChart(3)">Discussion Time</button>
+</div>
+
+<hr>
+<div id="chartCont">
+  <highcharts-chart 
+  #myChart 
+  [callbackFunction]="chartCallback"
+  [Highcharts]="Highcharts" 
+  [options]="chartOptions" >
+  [(update)]="updateFlag"
+</highcharts-chart>
+
+
+</div>

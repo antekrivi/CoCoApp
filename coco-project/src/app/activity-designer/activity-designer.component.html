@@ -34,7 +34,7 @@
             'invalid-input': invalidFields['selectedSubtopic'],
             shake: shakeFields['selectedSubtopic']
           }"
-          (change)="validateField('selectedSubtopic', selectedSubtopic)"
+          (change)="validateField('selectedSubtopic', selectedSubtopic); setSubtopic()"
         >
           <option
             *ngFor="let subtopic of subtopics$ | async"

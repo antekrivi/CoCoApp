@@ -72,7 +72,7 @@ times: any = {
   selectedTopic: string = "";
   selectedSubtopic: string = "";
   activity: ActivityDTO;
-  
+  selectedSubtopicAnwserType: boolean;
 
 
   
@@ -144,6 +144,7 @@ handleClick() {
       this.selectedGrouping = this.activity.numOfStudents.toString();
       this.updateSubtopics();
       this.selectedSubtopic = this.activity.subTopicRef;
+      this.setSubtopic();
     }
   }
 
@@ -212,7 +213,7 @@ updateDiscussionAndCorrectionArrays(): void {
     DTO.lessonRef = this.selectedTopic;
     DTO.numOfStudents = this.selectedGrouping.split(',').map(Number);
     DTO.configToTablet = Array(this.selectedGrouping.split(',').map(Number).length).fill(null);
-
+    DTO.anwserTypeImage =
 
     DTO.solvingTime = this.times.solving;
     DTO.discussionTimes = this.times.discussion;
@@ -281,7 +282,8 @@ unbalancedGroupingsFirstSort(a, b) {
         questions: DTO.questions,
         subTopic:DTO.subTopic,
         subTopicRef:DTO.subTopicRef,
-        topic:DTO.topic
+        topic:DTO.topic,
+        anwserTypeImage: this.selectedSubtopicAnwserType
       });
       console.log(result.id)
       this.activity = new ActivityDTO();
@@ -291,19 +293,9 @@ unbalancedGroupingsFirstSort(a, b) {
   
   public async update(DTO : ActivityDTO){
     const docRef = doc(this.db, `/ActiveActivity/${this.activity.ID}`)
-      await updateDoc(docRef, {
-        solvingTime:DTO.solvingTime,
-        discussionTimes:DTO.discussionTimes,
-        correctionTimes:DTO.correctionTimes,
-        answers: DTO.answers,
-        configToTablet: DTO.configToTablet,
-        lessonRef:DTO.lessonRef,
-        numOfStudents: DTO.numOfStudents,
-        questions: DTO.questions,
-        subTopic:DTO.subTopic,
-        subTopicRef:DTO.subTopicRef,
-        topic:DTO.topic
-      });
+    await deleteDoc(docRef);
+    this.insert(DTO);
+    
   }
 
   public async delete(ActivRef :DocumentReference){
@@ -314,6 +306,9 @@ unbalancedGroupingsFirstSort(a, b) {
   updateSubtopics(): void{
     this.subtopics$ = queryForDocuments(collection(this.db, `/lection/${this.selectedTopic}/subtheme`));
 
+  }
+  async setSubtopic(): Promise<void>{
+    this.selectedSubtopicAnwserType = (await getDoc(doc(this.db, `/lection/${this.selectedTopic}/subtheme/${this.selectedSubtopic}`))).get('type') === 'image';
   }
 
   updateGroupings(): void {
