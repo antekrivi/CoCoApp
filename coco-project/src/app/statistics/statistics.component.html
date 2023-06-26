@@ -10,7 +10,7 @@
     <button *ngFor="let group of groupOptions"
     class="custom-button"
       [ngClass]="{'sort-selected': selectedGroup === group}"
-      (click)="selectGroup(group)">{{group}}
+      (click)="selectGroup(group)">{{group == 'sve' ? 'Sve grupe' : 'Grupa ' + group}}
     </button>
  </div>
  <hr>
@@ -27,17 +27,17 @@ class="custom-button-background">
     [ngClass]="{
       'sort-selected': displayData == 'accuracy'
     }"
-    (click)="updateChart(1)">Accuracy</button>
+    (click)="updateChart(1)">Točnost</button>
   <button
   class="custom-button" 
     [ngClass]="{
       'sort-selected': displayData == 'resolutionTime'
-    }" (click)="updateChart(2)">Initial Resolution Time</button>
+    }" (click)="updateChart(2)">Vremena rješavanja</button>
   <button
   class="custom-button" 
     [ngClass]="{
       'sort-selected': displayData == 'discussionTime'
-    }" (click)="updateChart(3)">Discussion Time</button>
+    }" (click)="updateChart(3)">Vremena rasprave</button>
 </div>
 
 <hr>

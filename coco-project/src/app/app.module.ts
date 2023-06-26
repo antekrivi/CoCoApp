@@ -50,7 +50,7 @@ import { ChartModule } from 'angular-highcharts';
     AngularFireAuthModule,
     AngularFirestoreModule,
     HighchartsChartModule,
-    ChartModule // Import the ChartModule here
+    ChartModule
   ],
   providers: [],
   bootstrap: [AppComponent]

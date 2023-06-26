@@ -24,7 +24,7 @@ chartOptions: Highcharts.Options = {
       //width: 2000
   },
     title: {
-        text: 'Statistika'
+        text: ''
     },
     tooltip: {
       shared: true,
@@ -41,7 +41,7 @@ displayData: string = 'accuracy';
 dropdownItems: { id: string, displayText: string, topic: string, subtopic: string, date: Date }[] = [];
 
   // ...
-  selectedGroup: string = 'all'; // new variable for the selected group
+  selectedGroup: string = 'sve'; // new variable for the selected group
   groupOptions: string[] = []; // new variable for the group options
   // ...
 constructor() {
@@ -158,10 +158,10 @@ async getData() {
   console.log(data);
 
   // Extract the unique group identifiers from the fetched data
-  this.groupOptions = ['all', ...Array.from(new Set(data.map(item => item['group']))).sort((a, b) => a - b)];
+  this.groupOptions = ['sve', ...Array.from(new Set(data.map(item => item['group']))).sort((a, b) => a - b)];
   if(this.groupOptions.length > 2){
     
-    this.selectedGroup = 'all';
+    this.selectedGroup = 'sve';
   }else{
     this.groupOptions = [];
     this.selectedGroup = '1';
@@ -212,7 +212,7 @@ updateChart(button?) {
 }
 
   // Handle 'all' option
-  if (this.selectedGroup === 'all') {
+  if (this.selectedGroup === 'sve') {
     for (let groupIndex in this.data) {
       let groupData = this.data[groupIndex].results;
 
@@ -279,7 +279,7 @@ if(this.displayData == 'discussionTime'){
     name: 'Grupa ' + (groupIndex+1),
     data: element['discussionTimes'],
     type: 'line',
-    color: this.selectedGroup === 'all' ? this.colors[groupIndex]: undefined 
+    color: this.selectedGroup === 'sve' ? this.colors[groupIndex]: undefined 
   });
 }else{
   
@@ -289,10 +289,23 @@ if(this.displayData == 'discussionTime'){
       y: value,
     })),
     type: 'line',
-    color: this.selectedGroup === 'all' ? this.colors[groupIndex]: undefined 
+    color: this.selectedGroup === 'sve' ? this.colors[groupIndex]: undefined 
   });
   
 }
+
+let yAxisTitle = this.displayData.includes('Time') ? 'min' : '%';
+
+  this.chartRef.yAxis[0].setTitle({
+    text: yAxisTitle
+  });
+  
+  this.chartRef.xAxis[0].setTitle({
+    text: 'Iteracija'
+  });
+
+
+
 }
 
 
