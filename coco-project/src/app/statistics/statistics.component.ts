@@ -12,38 +12,48 @@ import { Chart } from 'angular-highcharts';
 export class StatisticsComponent implements OnInit {
   
 @ViewChild('myChart') componentRef;
-colors = ['#751428', '#00CED1', '#8A2BE2', '#ADFF2F', '#FF1493', '#FF1493', '#9370DB', '#2b908f', '#f45b5b', '#91e8e1']; // Array of colors for different groups
-unsubscribeFromFirestore: () => void; // add this to your component's member variables
+colors = ['#751428', '#00CED1', '#8A2BE2', '#ADFF2F', '#FF1493', '#FF1493', '#9370DB', '#2b908f', '#f45b5b', '#91e8e1'];
+unsubscribeFromFirestore: () => void; 
 
 chartRef;
 updateFlag;
 Highcharts: typeof Highcharts = Highcharts;
-chartOptions: Highcharts.Options = {
+chartOptions: 
+Highcharts.Options = 
+{
   chart: {
-      height: 500, // height in pixels
-      //width: 2000
+      height: 500,
   },
     title: {
         text: ''
     },
     tooltip: {
-      shared: true,
   },
     xAxis: {
+      tickInterval: 1,
+    labels: {
+      formatter: function() {
+        if(typeof this.value == 'number'){
+        return this.value + 1 + ''
+      }else{
+        return this.value
+      }
+      }
+    }
     },
     series: []
 };
-documentIds: any[]; // add your document ids here
+
+
+documentIds: any[]; 
 data: any;
 selectedId: string = null;
 IRTflag: boolean = false;
 displayData: string = 'accuracy';
 dropdownItems: { id: string, displayText: string, topic: string, subtopic: string, date: Date }[] = [];
 
-  // ...
-  selectedGroup: string = 'sve'; // new variable for the selected group
-  groupOptions: string[] = []; // new variable for the group options
-  // ...
+  selectedGroup: string = 'sve'; 
+  groupOptions: string[] = []; 
 constructor() {
 }
 
@@ -56,6 +66,12 @@ selectGroup(group: string) {
 ngOnInit() {
   this.listenToDataChanges();
   this.fetchDropdownItems().then(() => this.getData());
+
+  
+  this.chartRef.xAxis[0].setTitle({
+    text: 'Iteracija'
+  });
+
 }
 
 ngOnDestroy() {
@@ -68,23 +84,18 @@ listenToDataChanges() {
   const db = getFirestore();
   const analyticsCollection = collection(db, 'Analytics');
 
-  // Here is where unsubscribeFromFirestore is assigned.
-  // It gets the return value of the onSnapshot function.
   this.unsubscribeFromFirestore = onSnapshot(analyticsCollection, (snapshot) => {
     snapshot.docChanges().forEach((change) => {
       if (change.type === 'added') {
         console.log('New data: ', change.doc.data());
-        // Your code to handle the new data
         this.fetchDropdownItems().then(() => this.getData());
       }
       if (change.type === 'modified') {
         console.log('Modified data: ', change.doc.data());
-        // Your code to handle the modified data
         this.fetchDropdownItems().then(() => this.getData());
       }
       if (change.type === 'removed') {
         console.log('Removed data: ', change.doc.data());
-        // Your code to handle the removed data
         this.fetchDropdownItems().then(() => this.getData());
       }
     });
@@ -104,7 +115,6 @@ async fetchDropdownItems() {
   const db = getFirestore();
   const querySnapshot = await getDocs(collection(db, 'Analytics'));
 
-  // Use a JavaScript Set to keep track of unique combinations
   const uniqueCombinations = new Set<string>();
 
   querySnapshot.docs.forEach(doc => {
@@ -112,14 +122,11 @@ async fetchDropdownItems() {
     const dateObject = data['date'].toDate();
     const formattedDate = format(dateObject, 'dd/MM/yyyy');
 
-    // Create a string that combines the three fields
     const combinedString = `${data['topic']} - ${data['subtopic']}- ${formattedDate}`;
 
    if (!this.dropdownItems.flatMap(v => v.id).includes(data['activityId'])) {
-      //If this combination hasn't been seen before, add it to the Set
       uniqueCombinations.add(combinedString);
 
-      // Also add it to the dropdown items, along with the Topic, Subtopic, and Date values
       this.dropdownItems.push({
         id: data['activityId'],
         displayText: combinedString,
@@ -134,7 +141,6 @@ async fetchDropdownItems() {
 async getData() {
   const db = getFirestore();
   
-  // Find the dropdown item with the selected id
   const selectedItem = this.dropdownItems.find(item => item.id === this.selectedId);
 
   if (!selectedItem) {
@@ -142,13 +148,10 @@ async getData() {
     return;
   }
 
-  // Create a compound query that matches the Topic, Subtopic, and Date
   const compoundQuery = query(
     collection(db, 'Analytics'),
     where('activityId', '==', selectedItem.id)
   );
-
-  // Fetch all documents that match the query
   const querySnapshot = await getDocs(compoundQuery);
 
   console.log(querySnapshot);
@@ -156,8 +159,6 @@ async getData() {
   let data = querySnapshot.docs.map(doc => doc.data());
   console.log('analitic data');
   console.log(data);
-
-  // Extract the unique group identifiers from the fetched data
   this.groupOptions = ['sve', ...Array.from(new Set(data.map(item => item['group']))).sort((a, b) => a - b)];
   if(this.groupOptions.length > 2){
     
@@ -167,14 +168,9 @@ async getData() {
     this.selectedGroup = '1';
   }
 
-  // Filter the data based on the selected group
   let filteredData;
   filteredData = data;
-  // if (this.selectedGroup === 'all') {
- 
-  // } else {
-  //   filteredData = data.filter(item => item['Group'] === this.selectedGroup);
-  // }
+
 
   
   console.log(this.data);
@@ -211,7 +207,6 @@ updateChart(button?) {
     }
 }
 
-  // Handle 'all' option
   if (this.selectedGroup === 'sve') {
     for (let groupIndex in this.data) {
       let groupData = this.data[groupIndex].results;
@@ -228,13 +223,9 @@ updateChart(button?) {
     console.log(this.data.filter(item => item['group'] === Number(this.selectedGroup))[0]);
     let filteredData = this.data.filter(item => item['group'] === Number(this.selectedGroup))[0];
     
+
     if(this.displayData == 'discussionTime'){
-      this.chartRef.addSeries({
-        name: 'Grupa ' + filteredData.group,
-        data: filteredData['discussionTimes'],
-        type: 'line',
-        //color: this.selectedGroup === 'all' ? this.colors[groupIndex]: undefined 
-      });
+      this.createSeries(filteredData, filteredData.group-1);
     }else{
       for(let element in filteredData.results){
       this.createSeries(filteredData.results[element]);
@@ -242,23 +233,6 @@ updateChart(button?) {
     }
   }
 
-  // update x-axis categories
-  // this.chartOptions.xAxis = {
-  //   categories: Array.from({length: this.count}, (_, i) => `Repetition ${i+1}`)
-  // };
-    
-  
-  // this.chartRef.update({
-  //   tooltip: {
-  //     formatter: function() {
-  //       // Display origData directly in the tooltip
-  //       return `${this.series.name}: ${this.point.options.origData}`;
-  //     }
-  //   }
-  // });
-  
-  
-  // this.chartRef.update(this.chartOptions);
 }
 
 createSeries(element, groupIndex?) {
@@ -267,7 +241,6 @@ createSeries(element, groupIndex?) {
 
   for(let i = 0; i < count; i++) {
     if (Array.isArray(element[this.displayData + i])) {
-      // Sum up the values in the array using the reduce() method
       let sum = element[this.displayData + i].reduce((total, value) => total + value, 0);
       listdata.push(sum);
     } else {
@@ -296,14 +269,82 @@ if(this.displayData == 'discussionTime'){
 
 let yAxisTitle = this.displayData.includes('Time') ? 'min' : '%';
 
+if(this.displayData.includes('Time')){
+  this.chartRef.zoomOut()
+  this.chartRef.yAxis[0].update({
+    labels: {
+      formatter: function() {
+          if (typeof this.value === 'number') {
+              var minutes = Math.floor(this.value);
+              var seconds = Math.floor((this.value - minutes) * 60);
+              return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+          } else {
+              return this.value;
+          }
+      }
+  },
+  plotLines: [{
+    color: 'red', 
+    width: 2, 
+    //value: element['discussionTimeMax']
+    label: {
+       // text: element['discussionTimeMax'] + '- Maksimalno moguće vrijeme: ',
+        align: 'right', 
+        y: 12
+    },
+    zIndex: 5 
+}],
+  });
+  this.chartRef.update({
+    tooltip: {
+    formatter: function() {
+        if (typeof this.y === 'number') {
+            var minutes = Math.floor(this.y);
+            var seconds = Math.floor((this.y - minutes) * 60);
+            return  this.series.name +': ' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        } else {
+            return this.y;
+        }
+    }
+},
+});
+
+}
+  else{
+  this.chartRef.yAxis[0].update({
+    labels: {
+        formatter: function () {
+         
+            return this.value + '%'; 
+        }
+    },
+    plotLines: [{
+      color: 'red', 
+      width: 2, 
+      value: 100, 
+      label: {
+          text: '100% - Maksimum', 
+          align: 'right', 
+          y: 12
+      },
+      zIndex: 5 
+  }],
+  });
+  this.chartRef.update({
+    tooltip: {
+      formatter: function () {
+        return this.series.name + ': ' + this.y + '%'; 
+    }
+  },
+});
+}
+
   this.chartRef.yAxis[0].setTitle({
     text: yAxisTitle
   });
-  
-  this.chartRef.xAxis[0].setTitle({
-    text: 'Iteracija'
-  });
 
+
+  
 
 
 }
