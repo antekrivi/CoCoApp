@@ -390,7 +390,8 @@ export class DizajnerLekcijaComponent {
       inputPlaceholder: 'Odaberite broj',
       inputAttributes: {
         style: 'color: #212529; font-size: 1rem; font-weight: 400; line-height: 1.5; border: 1px solid #ced4da; border-radius: 0.375rem;'
-      }
+      },
+      confirmButtonColor: '#3085d6'
     }).then((result) => {
       if (result.isConfirmed) {
         this.openDialogSubtheme(result.value);
