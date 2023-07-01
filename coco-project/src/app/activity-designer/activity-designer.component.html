@@ -1,4 +1,4 @@
-<div class="container">
+<div class="all-container">
   <div class="fields-container">
     <div class="row">
       <!-- Add [ngClass]="{'invalid-input': invalidFields['selectedTopic'], 'shake': shakeFields['selectedTopic']}" (change)="validateField('selectedTopic', selectedTopic)" to the topic select -->
@@ -48,7 +48,7 @@
     <div class="row">
       <div class="number-input-container">
         <label for="VrijemeRjesavanja"
-          >Vrijeme rješavanja:
+          >Vrijeme rješavanja:</label>
           <input
             class="number-input"
             type="number"
@@ -60,12 +60,12 @@
               shake: shakeFields['solving']
             }"
             (ngModelChange)="validateField('solving', times.solving)"
-        /></label>
+        />
       </div>
       <!-- Add the new "Broj ponavljanja" input field after the "VrijemeRjesavanja" input field -->
       <div class="number-input-container">
         <label for="BrojPonavljanja"
-          >Broj ponavljanja:
+          >Broj ponavljanja:</label>
           <input
             class="number-input"
             type="number"
@@ -79,7 +79,6 @@
             }"
             (ngModelChange)="updateTimesDiscussionAndCorrection(); validateField('repetition', numberOfRepetitions)"
           />
-        </label>
       </div>
     </div>
 
@@ -88,7 +87,7 @@
       <label >1. ponavljanje</label>
       <div class="number-input-container">
         <label for="VrijemeDiskusije-{{ 0 }}"
-          >Vrijeme diskusije:
+          >Vrijeme diskusije:</label>
           <input
             class="number-input"
             type="number"
@@ -101,11 +100,10 @@
             }"
             (ngModelChange)="validateField('discussion0', times.discussion[0])"
           />
-        </label>
       </div>
       <div class="number-input-container">
         <label for="VrijemeIspravljanja-{{ 0 }}"
-          >Vrijeme ispravljanja:
+          >Vrijeme ispravljanja:</label>
           <input
             class="number-input"
             type="number"
@@ -118,7 +116,6 @@
             }"
             (ngModelChange)="validateField('correction0', times.correction[0])"
           />
-        </label>
       </div>
     </div>
 
@@ -132,10 +129,11 @@
         "
       >
         <div class="row">
-          <label >{{i+2}}. ponavljanje</label>
+          <label>{{i+2}}. ponavljanje</label>
           <div class="number-input-container">
             <label for="VrijemeDiskusije-{{ i+1 }}"
               >Vrijeme diskusije:
+            </label>
               <input
                 class="number-input"
                 type="number"
@@ -149,7 +147,6 @@
                 }"                
                 (ngModelChange)="validateField('discussion' + (i+1), times.discussion[i+1])"
               />
-            </label>
           </div>
           <div class="number-input-container">
             <label for="VrijemeIspravljanja-{{ i+1 }}"
@@ -177,6 +174,7 @@
       <div class="number-input-container">
         <label>
           Broj tableta:
+        </label>
           <input
             class="number-input"
             [(ngModel)]="numberOfTablets"
@@ -189,11 +187,11 @@
             }"
             (change)="validateField('numberOfTablets', numberOfTablets)"
           />
-        </label>
       </div>
       <div class="number-input-container">
         <label>
           Broj učenika:
+        </label>
           <input
             class="number-input"
             [(ngModel)]="numberOfChildren"
@@ -206,7 +204,6 @@
             }"
             (change)="validateField('numberOfChildren', numberOfChildren)"
           />
-        </label>
       </div>
     </div>
 
@@ -232,13 +229,13 @@
     }"
     
     (click)="balancedGroupingsFirst()"
-  >   Balansirane  </button>   <button
+  >   Balansirana grupiranja  </button>   <button
   class="custom-button"
   [ngClass]="{
     'sort-selected': !sortBalance
   }"
   (click)="unbalancedGroupingsFirst()"
->  nebalansirane  </button>
+>  Nebalansirana grupiranja  </button>
     <div
       *ngIf="
         numberOfTablets !== null &&
@@ -257,7 +254,7 @@
     >
       <p>Nedovoljno tableta za ovu količinu učenika.</p>
     </div>
-    <div *ngIf="groupings.length > 0">
+    <div *ngIf="groupings.length > 0" class="grouping-segment">
       <h3>Grupiranja učenika po tabletima:</h3>
       <form>
         <div

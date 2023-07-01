@@ -4,7 +4,8 @@
   class="form-select" (change)="getData()">
     <option *ngFor="let doc of dropdownItems" [value]="doc.id">{{doc.displayText}}</option>
   </select>
-  <hr>
+  <hr *ngIf="groupOptions.length > 2">
+
  <div 
  class="custom-button-background">
     <button *ngFor="let group of groupOptions"

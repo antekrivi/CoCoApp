@@ -15,12 +15,12 @@
   transition: 0.5s;
 }
 .custom-button:hover {
-  background-color: #50a4fd;
+  background-color: #007bff;
   color: rgb(255, 255, 255);
 }
 
 .custom-button.sort-selected{
-  background-color: #50a4fd;
+  background-color: #007bff;
   color: rgb(255, 255, 255);
 }
 

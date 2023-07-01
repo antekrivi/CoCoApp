@@ -22,9 +22,19 @@ svg {
 #base {
 	cursor: pointer;
 }
+.grouping-segment{
+  margin-top: 30px;
+  overflow-y: auto;
+  height: 80vh;
+}
+.grouping-segment>h3{
+  
+  font-weight: 600;
+}
 
 
-.container {
+
+.all-container {
   display: flex;
   flex-wrap: wrap;
 }
@@ -46,7 +56,7 @@ svg {
     border-right: 1px solid #ccc;
   }
   .grouping-container{
-    min-width: 500px
+    width: 100%
   }
 }
 
@@ -76,6 +86,13 @@ svg {
   display: block;
   margin-bottom: 5px;
   font-size: 1.1em;
+}
+.row>label{
+  padding: 5px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: #000000;
+
 }
 
 .row > div {
@@ -152,26 +169,27 @@ svg {
 }
 
 .custom-button {
-  background-color: #007bff;
+  
+  background-color: #50a4fd;
   border: none;
   color: white;
-  padding: 15px 32px;
+  padding: 8px 15px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 2px;
+  margin: 4px 5px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 20px;
   transition: background-color 0.3s;
 }
 .custom-button:hover {
-  background-color: #50a4fd;
+  background-color: #007bff;
 }
 
 
 .sort-selected {
-  background-color: #50a4fd;
+  background-color: #007bff;
 }
 
 @keyframes shake {
@@ -236,6 +254,7 @@ svg {
   border-radius: 5px;
   border: 1px solid #ccc;
   padding-left: 15px;
+  padding-top: 5px;
   font-size: 16px;
   border-bottom-width: 2px;
   transition: all 0.3s ease;
@@ -263,8 +282,8 @@ svg {
 .grouping-container {
     display: inline-flex;
     flex-wrap: wrap;
-    margin: 15px;
     position: relative;
+    margin-top: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     padding: 15px;
@@ -274,13 +293,13 @@ svg {
   }
   
   .tablet-screen {
-    flex-basis: calc((100% - 30px )/ 3);
+
     display: inline-flex;
     flex-wrap: wrap;
     justify-content: space-evenly;
     align-items: center;
     width: 120px;
-    height: 120px;
+    height: 100px;
     background-color: #fff;
     border: 2px solid #333;
     border-radius: 8px;
@@ -303,12 +322,12 @@ svg {
   }
   
   .half {
-    flex-basis: calc((100% - 10px )/ 2);
-    height: calc(100% - 10px);
+    flex-basis: calc((100% - 20px )/ 2);
+    height: calc(100% - 20px);
   }
   
   .quarter {
-    flex-basis: calc((100% - 10px )/ 2);
+    flex-basis: calc((100% - 20px )/ 2);
     height: calc(50% - 10px);
   }
   
