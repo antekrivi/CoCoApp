@@ -1,55 +1,78 @@
-
 <div>
-  <select [(ngModel)]="selectedId" 
-  class="form-select" (change)="getData()">
-    <option *ngFor="let doc of dropdownItems" [value]="doc.id">{{doc.displayText}}</option>
+  <select [(ngModel)]="selectedId" class="form-select" (change)="getData()">
+    <option *ngFor="let doc of dropdownItems" [value]="doc.id">
+      {{ doc.displayText }}
+    </option>
   </select>
-  <hr *ngIf="groupOptions.length > 2">
+  <hr *ngIf="groupOptions.length > 2" />
 
- <div 
- class="custom-button-background">
-    <button *ngFor="let group of groupOptions"
-    class="custom-button"
-      [ngClass]="{'sort-selected': selectedGroup === group}"
-      (click)="selectGroup(group)">{{group == 'sve' ? 'Sve grupe' : 'Grupa ' + group}}
+  <div class="custom-button-background">
+    <button
+      *ngFor="let group of groupOptions"
+      class="custom-button"
+      [ngClass]="{ 'sort-selected': selectedGroup === group }"
+      (click)="selectGroup(group)"
+    >
+      {{ group == "sve" ? "Sve grupe" : "Grupa " + group }}
     </button>
- </div>
- <hr>
- 
- 
-  
-  
-
+  </div>
+  <hr />
 </div>
-<div
-class="custom-button-background">
+<div class="custom-button-background">
   <button
-  class="custom-button" 
+    class="custom-button"
     [ngClass]="{
       'sort-selected': displayData == 'accuracy'
     }"
-    (click)="updateChart(1)">Točnost</button>
+    (click)="updateChart(1)"
+  >
+    Točnost
+  </button>
   <button
-  class="custom-button" 
+    class="custom-button"
     [ngClass]="{
       'sort-selected': displayData == 'resolutionTime'
-    }" (click)="updateChart(2)">Vremena rješavanja</button>
+    }"
+    (click)="updateChart(2)"
+  >
+    Vremena rješavanja
+  </button>
   <button
-  class="custom-button" 
+    class="custom-button"
     [ngClass]="{
-      'sort-selected': displayData == 'discussionTime'
-    }" (click)="updateChart(3)">Vremena rasprave</button>
+      'sort-selected': displayData == 'discussionTimes'
+    }"
+    (click)="updateChart(3)"
+  >
+    Vremena rasprave
+  </button>
 </div>
 
-<hr>
-<div id="chartCont">
-  <highcharts-chart 
-  #myChart 
-  [callbackFunction]="chartCallback"
-  [Highcharts]="Highcharts" 
-  [options]="chartOptions" >
-  [(update)]="updateFlag"
-</highcharts-chart>
+<hr />
+<div class="data-display-container">
+  <div id="chartCont" class="left">
+    <highcharts-chart
+      #myChart
+      [callbackFunction]="chartCallback"
+      [Highcharts]="Highcharts"
+      [options]="chartOptions"
+    >
+      [(update)]="updateFlag"
+    </highcharts-chart>
+  </div>
 
-
+  <div class="right">
+    <div class="right-container" *ngIf="displayData == 'accuracy' && selectedGroup != 'sve'">
+      <div *ngFor="let person of sidebarData; let i = index" class="block" [ngStyle]="{ 'background-color': lighten(colors[i], 30),'border-color': lighten(colors[i], -70)}">
+        Person: {{person.name}}
+        <div *ngFor="let repetition of person.repetitions; let j = index">
+          {{j + 1}}.<br>
+          Točno označeni: {{repetition.markedCorrect}} / {{repetition.markedCorrect + repetition.unmarkedCorrect}}<br>
+          Netočni označeni: {{repetition.markedIncorrect}}<br>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
 </div>
