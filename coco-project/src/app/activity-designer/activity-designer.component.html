@@ -231,7 +231,8 @@
   </div>
 
   <div class="group-container">
-    <button
+    <div class="custom-button-background">
+      <button
       class="custom-button"
       [ngClass]="{
         'sort-selected': sortBalance
@@ -249,6 +250,7 @@
     >
       Nebalansirana grupiranja
     </button>
+    </div>
     <div
       *ngIf="
         numberOfTablets !== null &&

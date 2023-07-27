@@ -163,25 +163,35 @@ svg {
 }
 
 .custom-button {
-  background-color: #50a4fd;
+  background-color: rgb(240, 240, 240);
   border: none;
-  color: white;
-  padding: 8px 15px;
+  color: rgb(0, 0, 0);
+  padding: 7px 20px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 5px;
+  margin: 4px 2px;
   cursor: pointer;
   border-radius: 20px;
   transition: background-color 0.3s;
+  transition: 0.5s;
 }
 .custom-button:hover {
   background-color: #007bff;
+  color: rgb(255, 255, 255);
 }
 
-.sort-selected {
+.custom-button.sort-selected {
   background-color: #007bff;
+  color: rgb(255, 255, 255);
+}
+
+.custom-button-background {
+  padding: 0px 5px;
+  display: inline-block;
+  border-radius: 25px;
+  background-color: rgb(240, 240, 240);
 }
 
 @keyframes shake {
