@@ -322,9 +322,9 @@ export class ActivityDesignerComponent implements OnInit {
 
   public async insert(DTO: ActivityDTO) {
     const result = await addDoc(collection(this.db, 'ActiveActivity'), {
-      solvingTime:this.times.solving,
-      discussionTimes: this.times.discussion,
-      correctionTimes: this.times.correction,
+      solvingTime: Number(DTO.solvingTime),
+      discussionTimes: DTO.discussionTimes.map(Number),
+      correctionTimes: DTO.correctionTimes.map(Number),
       answers: DTO.answers,
       configToTablet: DTO.configToTablet,
       lessonRef: DTO.lessonRef,
