@@ -218,15 +218,10 @@
 
     <button
       class="custom-button"
-      [ngClass]="{
-        'success-message': outcome === 'success',
-        'error-message': outcome === 'error'
-      }"
       (click)="handleClick()"
     >
       {{ buttonText }}
 
-      <span *ngIf="message" class="message">{{ message }}</span>
     </button>
   </div>
 

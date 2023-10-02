@@ -14,6 +14,7 @@ import { DizajnerPocetnoComponent } from '../dizajner-pocetno/dizajner-pocetno.c
 import { FirebaseService } from '../services/firebase-service.service';
 import { RadnjaService } from '../services/radnja.service';
 import { ActivityDTO } from '../aktivnosti-dto';
+import Swal from 'sweetalert2';
 
 //funkcija za čitanje više dokumenata
 async function queryForDocuments(new_query) {
@@ -135,22 +136,14 @@ export class ActivityDesignerComponent implements OnInit {
   }
 
   handleClick() {
-    this.buttonText = 'Processing...';
+
+
+    this.buttonText = 'Procesiranje';
     this.outcome = null;
     this.message = null;
 
-    // Replace this with your actual function that determines the outcome
-    setTimeout(async () => {
-      const isSuccess = (await this.save()) == 0;
-      this.outcome = isSuccess ? 'success' : 'error';
-      this.buttonText = isSuccess ? 'Uspjeh: ' : 'Greška: ';
-      this.message = isSuccess
-        ? 'Podaci uspješno spremljeni.'
-        : 'Forma nije ispunjena.';
-      setTimeout(() => {
-        this.resetButton();
-      }, 4000);
-    }, 1000);
+    this.save();
+
   }
 
   async load() {
@@ -323,8 +316,8 @@ export class ActivityDesignerComponent implements OnInit {
   public async insert(DTO: ActivityDTO) {
     const result = await addDoc(collection(this.db, 'ActiveActivity'), {
       solvingTime: Number(DTO.solvingTime),
-      discussionTimes: DTO.discussionTimes.map(Number),
-      correctionTimes: DTO.correctionTimes.map(Number),
+      discussionTimes: this.times.discussion.map(Number),
+      correctionTimes: this.times.correction.map(Number),
       answers: DTO.answers,
       configToTablet: DTO.configToTablet,
       lessonRef: DTO.lessonRef,
@@ -337,6 +330,16 @@ export class ActivityDesignerComponent implements OnInit {
     });
     this.activity = new ActivityDTO();
     this.activity.ID = result.id;
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Uspješno ste spremili u bazu!',
+      confirmButtonColor: '#3085d6',
+      showConfirmButton: true
+    });
+    setTimeout(() => {
+      this.resetButton()
+    }, 10)
   }
 
   public async update(DTO: ActivityDTO) {

@@ -141,6 +141,7 @@ export class StatisticsComponent implements OnInit {
     const uniqueCombinations = new Set<string>();
 
     querySnapshot.docs.forEach((doc) => {
+      console.log(doc.id);
       const data = doc.data();
       const dateObject = data['date'].toDate();
       const formattedDate = format(dateObject, 'dd/MM/yyyy');
@@ -160,6 +161,12 @@ export class StatisticsComponent implements OnInit {
           date: dateObject,
         });
       }
+    });
+
+    this.dropdownItems.sort((a, b) => {
+      if (a.date > b.date) return -1;
+      if (a.date < b.date) return 1;
+      return 0;
     });
   }
 
@@ -461,7 +468,7 @@ export class StatisticsComponent implements OnInit {
       this.chartRef.update({
         tooltip: {
           formatter: function () {
-            return this.series.name + ': ' + this.y + '%';
+            return this.series.name + ': ' + this.y;
           },
         },
       });
