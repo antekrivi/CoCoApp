@@ -49,21 +49,9 @@
     </div>
     <div class="row">
       <div class="number-input-container">
-        <label for="VrijemeRjesavanja">Vrijeme rješavanja:(mm:ss)</label>
+        <label for="VrijemeRjesavanja">Vrijeme rješavanja:</label>
 
-        <select
-        class="form-select"
-          [(ngModel)]="times.solving"
-          [ngClass]="{
-            'invalid-input': invalidFields['solving'],
-            shake: shakeFields['solving']
-          }"
-          (ngModelChange)="validateField('solving', times.solving)"
-        >
-          <option *ngFor="let option of timeOptions" [value]="option.value">
-            {{ option.display }}
-          </option>
-        </select>
+        <input type="text" appTimeMask placeholder="--:--" class="number-input" [(ngModel)]="times.solving" [ngClass]="{'invalid-input': invalidFields['solving'], shake: shakeFields['solving']}" (ngModelChange)="validateField('solving', times.solving)">
       </div>
       <!-- Add the new "Broj ponavljanja" input field after the "VrijemeRjesavanja" input field -->
       <div class="number-input-container">
@@ -87,101 +75,38 @@
       </div>
     </div>
 
-    <div class="row">
-      <label>1. ponavljanje</label>
-      <div class="number-input-container">
-        <label for="VrijemeDiskusije-{{ 0 }}">Vrijeme diskusije:(mm:ss)</label>
+    <ng-container *ngFor="let repetition of [].constructor(numberOfRepetitions); let i = index">
+      <div class="row">
+        <label>{{ i + 1 }}. ponavljanje</label>
+        <div class="number-input-container">
+          <label for="VrijemeDiskusije-{{ i }}">Vrijeme diskusije:</label>
 
-        <select
-        class="form-select"
-          [(ngModel)]="times.discussion[0]"
-          [ngClass]="{
-            'invalid-input': invalidFields['discussion0'],
-            shake: shakeFields['discussion0']
-          }"
-          (ngModelChange)="validateField('discussion0', times.discussion[0])"
-        >
-          <option *ngFor="let option of timeOptions" [value]="option.value">
-            {{ option.display }}
-          </option>
-        </select>
-      </div>
-      <div class="number-input-container">
-        <label for="VrijemeIspravljanja-{{ 0 }}"
-          >Vrijeme ispravljanja:(mm:ss)</label
-        >
-
-        <select
-        class="form-select"
-          [(ngModel)]="times.correction[0]"
-          [ngClass]="{
-            'invalid-input': invalidFields['correction0'],
-            shake: shakeFields['correction0']
-          }"
-          (ngModelChange)="validateField('correction0', times.correction[0])"
-        >
-          <option *ngFor="let option of timeOptions" [value]="option.value">
-            {{ option.display }}
-          </option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Wrap the "Vrijeme diskusije" and "Vrijeme ispravljanja" input fields in a div and use *ngFor to loop based on numberOfRepetitions -->
-    <ng-container *ngIf="numberOfRepetitions > 1">
-      <ng-container
-        *ngFor="
-          let repetition of [].constructor(numberOfRepetitions - 1);
-          let i = index
-        "
-      >
-        <div class="row">
-          <label>{{ i + 2 }}. ponavljanje</label>
-          <div class="number-input-container">
-            <label for="VrijemeDiskusije-{{ i + 1 }}"
-              >Vrijeme diskusije:(mm:ss)
-            </label>
-
-            <select
-            class="form-select"
-              [(ngModel)]="times.discussion[i + 1]"
-              [ngClass]="{
-                'invalid-input': invalidFields['discussion' + (i + 1)],
-                shake: shakeFields['discussion' + (i + 1)]
-              }"
-              (ngModelChange)="
-                validateField('discussion' + (i + 1), times.discussion[i + 1])
-              "
-            >
-              <option *ngFor="let option of timeOptions" [value]="option.value">
-                {{ option.display }}
-              </option>
-            </select>
-          </div>
-          <div class="number-input-container">
-            <label for="VrijemeIspravljanja-{{ i + 1 }}"
-              >Vrijeme ispravljanja:(mm:ss)
-            </label>
-
-            <select
-            class="form-select"
-              [(ngModel)]="times.correction[i + 1]"
-              [ngClass]="{
-                'invalid-input': invalidFields['correction' + (i + 1)],
-                shake: shakeFields['correction' + (i + 1)]
-              }"
-              (ngModelChange)="
-                validateField('correction' + (i + 1), times.correction[i + 1])
-              "
-            >
-              <option *ngFor="let option of timeOptions" [value]="option.value">
-                {{ option.display }}
-              </option>
-            </select>
-          </div>
+          <input type="text" appTimeMask placeholder="--:--" class="number-input" 
+            [(ngModel)]="times.discussion[i]"
+            [ngClass]="{
+              'invalid-input': invalidFields['discussion' + i],
+              shake: shakeFields['discussion' + i]
+            }"
+            (ngModelChange)="validateField('discussion' + i, times.discussion[i])"
+          >
         </div>
-      </ng-container>
+        <div class="number-input-container">
+          <label for="VrijemeIspravljanja-{{ i }}">Vrijeme ispravljanja:</label>
+    
+
+          <input type="text" appTimeMask placeholder="--:--" class="number-input" 
+            [(ngModel)]="times.correction[i]"
+            [ngClass]="{
+              'invalid-input': invalidFields['correction' + i],
+              shake: shakeFields['correction' + i]
+            }"
+            (ngModelChange)="validateField('correction' + i, times.correction[i])"
+          >
+
+        </div>
+      </div>
     </ng-container>
+    
 
     <div class="row">
       <div class="number-input-container">
@@ -215,6 +140,8 @@
         />
       </div>
     </div>
+
+
 
     <button
       class="custom-button"
@@ -311,3 +238,5 @@
     </div>
   </div>
 </div>
+
+

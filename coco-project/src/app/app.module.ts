@@ -23,6 +23,7 @@ import { PodtemaZadatakComponent } from './podtema-zadatak/podtema-zadatak.compo
 import { StatisticsComponent } from './statistics/statistics.component';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { ChartModule } from 'angular-highcharts';
+import { TimeMaskDirective } from './activity-designer/TimeMaskDirective';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,7 @@ import { ChartModule } from 'angular-highcharts';
     PodtemaComponent,
     PodtemaZadatakComponent,
     StatisticsComponent,
+    TimeMaskDirective,
   ],
   imports: [
     BrowserModule,

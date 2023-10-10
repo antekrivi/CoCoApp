@@ -48,6 +48,32 @@ export class ActivityDesignerComponent implements OnInit {
   groupings: number[][] = [];
   selectedGrouping: string | null = null;
 
+
+//sandbox
+rawTimeValue: string = '';
+
+get formattedTime(): string {
+  let val = this.rawTimeValue.replace(/[^0-9]/g, '');
+
+  if (val.length === 0) return '--:--';
+  if (val.length === 1) return val + '-:--';
+  if (val.length === 2) return val + ':--';
+  if (val.length === 3) return val.substring(0, 2) + ':' + val.charAt(2) + '-';
+  if (val.length === 4) return val.substring(0, 2) + ':' + val.substring(2);
+
+  return '--:--';  // default
+}
+
+onTimeInput(event: any): void {
+  let val = event.target.value.replace(/[^0-9]/g, '');
+  if (val.length > 4) {
+    val = val.substring(0, 4);
+  }
+  this.rawTimeValue = val;
+}
+//sendbox
+
+
   ngOnInit() {
     this.updateTimesDiscussionAndCorrection();
   }
@@ -135,6 +161,8 @@ export class ActivityDesignerComponent implements OnInit {
     this.message = null;
   }
 
+
+
   handleClick() {
 
 
@@ -153,10 +181,10 @@ export class ActivityDesignerComponent implements OnInit {
     this.activity = (await this.activity$).at(0);
     if ((await this.activity$).length > 0) {
       this.selectedTopic = this.activity.lessonRef;
-      this.times.solving = this.activity.solvingTime
-      this.times.discussion = this.activity.discussionTimes
-      this.times.correction = this.activity.correctionTimes
-      console.log(this.times)
+      this._numberOfRepetitions = this.activity.correctionTimes.length;
+      this.times.solving = this.formatSecondsToMinutes(this.activity.solvingTime)
+      this.times.discussion = this.activity.discussionTimes.map(this.formatSecondsToMinutes)
+      this.times.correction = this.activity.correctionTimes.map(this.formatSecondsToMinutes)
       this.numberOfChildren = this.activity.numOfStudents.reduce(
         (acc, cur) => acc + cur,
         0
@@ -170,7 +198,7 @@ export class ActivityDesignerComponent implements OnInit {
     }
   }
 
-  private _numberOfRepetitions = 1;
+  private _numberOfRepetitions = 0;
   sortBalance = true;
 
   get numberOfRepetitions(): number {
@@ -181,6 +209,14 @@ export class ActivityDesignerComponent implements OnInit {
     this._numberOfRepetitions = value;
     this.updateDiscussionAndCorrectionArrays();
   }
+
+
+  formatSecondsToMinutes(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+
+    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+}
 
   updateDiscussionAndCorrectionArrays(): void {
     // Update the discussion array
@@ -224,6 +260,12 @@ export class ActivityDesignerComponent implements OnInit {
     }
   }
 
+  convertToSeconds(timeString: string): number {
+    const [minutes, seconds] = timeString.split(':').map(Number);
+    return minutes * 60 + seconds;
+}
+
+
   public async save() {
     // Validate the form before saving
     if (!this.validateForm()) {
@@ -250,10 +292,10 @@ export class ActivityDesignerComponent implements OnInit {
     DTO.configToTablet = Array(
       this.selectedGrouping.split(',').map(Number).length
     ).fill(null);
-    DTO.anwserTypeImage = DTO.solvingTime = this.times.solving;
-    DTO.discussionTimes = this.times.discussion;
-    DTO.correctionTimes = this.times.correction;
-
+    DTO.solvingTime = this.convertToSeconds(this.times.solving);
+    
+    DTO.discussionTimes = this.times.discussion.map(this.convertToSeconds);
+    DTO.correctionTimes = this.times.correction.map(this.convertToSeconds);
     const questions = await queryForDocuments(
       collection(
         this.db,
@@ -314,10 +356,12 @@ export class ActivityDesignerComponent implements OnInit {
   }
 
   public async insert(DTO: ActivityDTO) {
+
+
     const result = await addDoc(collection(this.db, 'ActiveActivity'), {
       solvingTime: Number(DTO.solvingTime),
-      discussionTimes: this.times.discussion.map(Number),
-      correctionTimes: this.times.correction.map(Number),
+      discussionTimes: this.times.discussion.map(this.convertToSeconds),
+      correctionTimes: this.times.correction.map(this.convertToSeconds),
       answers: DTO.answers,
       configToTablet: DTO.configToTablet,
       lessonRef: DTO.lessonRef,
@@ -432,14 +476,32 @@ export class ActivityDesignerComponent implements OnInit {
   }
 
   validation(fieldName: string, value: any) {
+    if(fieldName .includes('solving') ||
+    fieldName.includes('discussion') ||
+    fieldName.includes('correction')){
+      if (!value) {
+        return false;
+      }
+    
+      const [minutes, seconds] = value.split(':');
+    
+      if (!minutes || !seconds) {
+        return false;
+      }
+    
+      const mins = parseInt(minutes, 10);
+      const secs = parseInt(seconds, 10);
+    
+      return !(mins >= 0 && mins <= 59 && secs >= 0 && secs <= 59);
+    }
     if (
       fieldName != 'selectedTopic' &&
       fieldName != 'selectedSubtopic' &&
-      fieldName != 'selectedGrouping' &&
-      fieldName != 'solving' &&
-      !fieldName.includes('discussion') &&
-      !fieldName.includes('correction')
+      fieldName != 'selectedGrouping'
     ) {
+        if(fieldName == 'repetition'){
+          return isNaN(value) || value < 0;
+        }
       return isNaN(value) || !value || value < 0;
     } else {
       return !value;
@@ -447,6 +509,9 @@ export class ActivityDesignerComponent implements OnInit {
   }
 
   validateForm(): boolean {
+
+
+
     const fields = [
       { fieldName: 'selectedTopic', value: this.selectedTopic },
       { fieldName: 'selectedSubtopic', value: this.selectedSubtopic },
@@ -481,7 +546,10 @@ export class ActivityDesignerComponent implements OnInit {
       }
       this.resetShakeClass(field.fieldName);
     });
-
+ 
+    if(!valid){
+      this.resetButton();
+    }
     return valid;
   }
 
