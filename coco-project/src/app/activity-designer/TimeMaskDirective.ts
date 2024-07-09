@@ -9,7 +9,7 @@ export class TimeMaskDirective {
 
   constructor(private el: ElementRef) {}
 
-  @HostListener('keydown', ['$event']) 
+  @HostListener('keydown', ['$event'])
   onKeydown(event: KeyboardEvent): void {
     const initialValue = this.el.nativeElement.value;
     let currentPosition = this.el.nativeElement.selectionStart;
@@ -76,13 +76,19 @@ export class TimeMaskDirective {
 
     this.el.nativeElement.value = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     this.el.nativeElement.setSelectionRange(position, position);
+    this.emitChangeEvent();
   }
 
-  @HostListener('focus') 
+  @HostListener('click')
+  onClick(): void {
+    if (this.el.nativeElement.value === '--:--') {
+      this.el.nativeElement.setSelectionRange(0, 0);  // set cursor at the start
+    }
+  }
+
+  @HostListener('focus')
   onFocus(): void {
-    if (this.previousValue === '--:--') {
-      this.el.nativeElement.value = '--:--';
-      this.emitChangeEvent();
+    if (this.el.nativeElement.value === '--:--') {
       this.el.nativeElement.setSelectionRange(0, 0);  // set cursor at the start
     } else {
       // set cursor right after the last digit
@@ -92,15 +98,6 @@ export class TimeMaskDirective {
     }
   }
 
-  @HostListener('blur') 
-  onBlur(): void {
-      const currentValue = this.el.nativeElement.value;
-      this.previousValue = currentValue;
-      if (currentValue === '--:--') {
-        this.el.nativeElement.value = '';
-      }
-  }
-  
   private emitChangeEvent(): void {
     const event = new Event('input', {
         'bubbles': true,

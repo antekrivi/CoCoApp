@@ -109,7 +109,7 @@ onTimeInput(event: any): void {
 
   // Update the times object inside your component class
   times: any = {
-    solving: null,
+    solving: '--:--',
     discussion: [],
     correction: [],
   };
@@ -223,7 +223,7 @@ onTimeInput(event: any): void {
     if (this.times.discussion.length < this._numberOfRepetitions) {
       const diff = this._numberOfRepetitions - this.times.discussion.length;
       for (let i = 0; i < diff; i++) {
-        this.times.discussion.push(null);
+        this.times.discussion.push('--:--');
         this.invalidFields[`discussion${i}`] = false;
         this.shakeFields[`discussion${i}`] = false;
       }
@@ -243,7 +243,7 @@ onTimeInput(event: any): void {
     if (this.times.correction.length < this._numberOfRepetitions) {
       const diff = this._numberOfRepetitions - this.times.correction.length;
       for (let i = 0; i < diff; i++) {
-        this.times.correction.push(null);
+        this.times.correction.push('--:--');
         this.invalidFields[`correction${i}`] = false;
         this.shakeFields[`correction${i}`] = false;
       }
@@ -293,7 +293,7 @@ onTimeInput(event: any): void {
       this.selectedGrouping.split(',').map(Number).length
     ).fill(null);
     DTO.solvingTime = this.convertToSeconds(this.times.solving);
-    
+
     DTO.discussionTimes = this.times.discussion.map(this.convertToSeconds);
     DTO.correctionTimes = this.times.correction.map(this.convertToSeconds);
     const questions = await queryForDocuments(
@@ -482,16 +482,16 @@ onTimeInput(event: any): void {
       if (!value) {
         return false;
       }
-    
+
       const [minutes, seconds] = value.split(':');
-    
+
       if (!minutes || !seconds) {
         return false;
       }
-    
+
       const mins = parseInt(minutes, 10);
       const secs = parseInt(seconds, 10);
-    
+
       return !(mins >= 0 && mins <= 59 && secs >= 0 && secs <= 59);
     }
     if (
@@ -546,7 +546,7 @@ onTimeInput(event: any): void {
       }
       this.resetShakeClass(field.fieldName);
     });
- 
+
     if(!valid){
       this.resetButton();
     }

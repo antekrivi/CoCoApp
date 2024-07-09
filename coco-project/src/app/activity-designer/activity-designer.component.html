@@ -51,7 +51,7 @@
       <div class="number-input-container">
         <label for="VrijemeRjesavanja">Vrijeme rješavanja:</label>
 
-        <input type="text" appTimeMask placeholder="--:--" class="number-input" [(ngModel)]="times.solving" [ngClass]="{'invalid-input': invalidFields['solving'], shake: shakeFields['solving']}" (ngModelChange)="validateField('solving', times.solving)">
+        <input type="text" appTimeMask class="number-input" [(ngModel)]="times.solving" [ngClass]="{'invalid-input': invalidFields['solving'], shake: shakeFields['solving']}" (ngModelChange)="validateField('solving', times.solving)">
       </div>
       <!-- Add the new "Broj ponavljanja" input field after the "VrijemeRjesavanja" input field -->
       <div class="number-input-container">
@@ -81,7 +81,7 @@
         <div class="number-input-container">
           <label for="VrijemeDiskusije-{{ i }}">Vrijeme diskusije:</label>
 
-          <input type="text" appTimeMask placeholder="--:--" class="number-input" 
+          <input type="text" appTimeMask class="number-input"
             [(ngModel)]="times.discussion[i]"
             [ngClass]="{
               'invalid-input': invalidFields['discussion' + i],
@@ -92,9 +92,9 @@
         </div>
         <div class="number-input-container">
           <label for="VrijemeIspravljanja-{{ i }}">Vrijeme ispravljanja:</label>
-    
 
-          <input type="text" appTimeMask placeholder="--:--" class="number-input" 
+
+          <input type="text" appTimeMask class="number-input"
             [(ngModel)]="times.correction[i]"
             [ngClass]="{
               'invalid-input': invalidFields['correction' + i],
@@ -106,7 +106,7 @@
         </div>
       </div>
     </ng-container>
-    
+
 
     <div class="row">
       <div class="number-input-container">
