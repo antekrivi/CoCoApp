@@ -1,0 +1,67 @@
+.custom-button {
+  background-color: rgb(240, 240, 240);
+  border: none;
+  color: rgb(0, 0, 0);
+  padding: 7px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: background-color 0.3s;
+  transition: 0.5s;
+}
+.custom-button:hover {
+  background-color: #007bff;
+  color: rgb(255, 255, 255);
+}
+
+.custom-button.sort-selected {
+  background-color: #007bff;
+  color: rgb(255, 255, 255);
+}
+
+.custom-button-background {
+  padding: 0px 5px;
+  display: inline-block;
+  border-radius: 25px;
+  background-color: rgb(240, 240, 240);
+}
+
+.sort-selected {
+  background-color: lightblue;
+}
+
+.data-display-container {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: auto;
+}
+.left{
+  border-right: 1px solid #ccc;
+}
+.left,
+.right {
+  flex: 1 0 100%;
+}
+
+@media (min-width: 1440px) {
+  .left,
+  .right {
+    flex: 1;
+  }
+}
+
+.right-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  margin:  auto;
+}
+
+.iteration-column {
+  text-align: center;
+  border-left: 1px groove currentColor;
+}

@@ -8,6 +8,7 @@ import { Component } from '@angular/core';
       <app-dizajner-lekcija *ngSwitchCase="'dl'"></app-dizajner-lekcija>
       <app-nova-lekcija *ngSwitchCase="'nl'"></app-nova-lekcija>
       <app-statistics *ngSwitchCase="'s'"></app-statistics>
+      <app-results *ngSwitchCase="'r'"></app-results>
     </ng-container>
   `,
   styleUrls: ['./okvir.component.css']
@@ -15,7 +16,7 @@ import { Component } from '@angular/core';
 
 export class OkvirComponent {
   contentToShow = 'dl';
-  
+
   showContent(content: string) {
     this.contentToShow = content;
   }

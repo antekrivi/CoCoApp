@@ -1,0 +1,35 @@
+<div>
+  <select [(ngModel)]="selectedId" class="form-select" (change)="getData()">
+    <option *ngFor="let doc of dropdownItems" [value]="doc.id">
+      {{ doc.displayText }}
+    </option>
+  </select>
+</div>
+<hr />
+<div class="data-display-container">
+  <div id="tableCont" class="left">
+    <table mat-table #table [dataSource]="data">
+      <ng-container matColumnDef="header-row-empty">
+        <th mat-header-cell *matHeaderCellDef [attr.colspan]="4"></th>
+      </ng-container>
+      <ng-container [matColumnDef]="iter" *ngFor="let iter of iterationColumns">
+        <th mat-header-cell *matHeaderCellDef [attr.colspan]="2" class="iteration-column" > {{iter}} </th>
+      </ng-container>
+      <ng-container matColumnDef="group-id" sticky>
+        <th mat-header-cell *matHeaderCellDef> ID grupe </th>
+        <td mat-cell *matCellDef="let element"> {{element.group}} </td>
+      </ng-container>
+      <ng-container matColumnDef="name" sticky>
+        <th mat-header-cell *matHeaderCellDef> Ime učenika </th>
+        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+      </ng-container>
+      <ng-container [matColumnDef]="column" *ngFor="let column of resultColumns">
+        <th mat-header-cell *matHeaderCellDef [class.iteration-column]="column[0] === 'T'"> {{column[0]}} </th>
+        <td mat-cell *matCellDef="let element" [class.iteration-column]="column[0] === 'T'"> {{element[column]}} </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef='groupColumns'></tr>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+</div>

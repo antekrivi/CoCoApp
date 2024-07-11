@@ -22,8 +22,10 @@ import { PodtemaComponent } from './podtema/podtema.component';
 import { PodtemaZadatakComponent } from './podtema-zadatak/podtema-zadatak.component';
 import { StatisticsComponent } from './statistics/statistics.component';
 import { HighchartsChartModule } from 'highcharts-angular';
+import { ResultsComponent } from './results/results.component';
 import { ChartModule } from 'angular-highcharts';
 import { TimeMaskDirective } from './activity-designer/TimeMaskDirective';
+import { MatTableModule } from "@angular/material/table";
 
 @NgModule({
   declarations: [
@@ -38,6 +40,7 @@ import { TimeMaskDirective } from './activity-designer/TimeMaskDirective';
     PodtemaComponent,
     PodtemaZadatakComponent,
     StatisticsComponent,
+    ResultsComponent,
     TimeMaskDirective,
   ],
   imports: [
@@ -52,9 +55,10 @@ import { TimeMaskDirective } from './activity-designer/TimeMaskDirective';
     AngularFireAuthModule,
     AngularFirestoreModule,
     HighchartsChartModule,
-    ChartModule
+    ChartModule,
+    MatTableModule
   ],
-  
+
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [],
   bootstrap: [AppComponent]
