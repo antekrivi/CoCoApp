@@ -198,7 +198,7 @@ onTimeInput(event: any): void {
     }
   }
 
-  private _numberOfRepetitions = 0;
+  private _numberOfRepetitions = 1;
   sortBalance = true;
 
   get numberOfRepetitions(): number {
@@ -500,7 +500,7 @@ onTimeInput(event: any): void {
       fieldName != 'selectedGrouping'
     ) {
         if(fieldName == 'repetition'){
-          return isNaN(value) || value < 0;
+          return isNaN(value) || value < 1;
         }
       return isNaN(value) || !value || value < 0;
     } else {
