@@ -158,13 +158,10 @@ export class ResultsComponent implements OnInit {
   }
 
   addColumns(data) {
-    console.log(data)
     for (let i = 0; i < data[0].resolutionTimesMax.length; i++) {
       this.displayedColumns.push('T' + i, 'N' + i);
       this.resultColumns.push('T' + i, 'N' + i);
-    }
-    for (let i = 1; i < data[0].resolutionTimesMax.length; i++) {
-      this.iterationColumns.push(String(i))
+      this.iterationColumns.push(String(i+1));
     }
     this.groupColumns.push(...this.iterationColumns)
   }

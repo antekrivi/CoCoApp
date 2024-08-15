@@ -10,7 +10,7 @@
   <div id="tableCont" class="left">
     <table mat-table #table [dataSource]="data">
       <ng-container matColumnDef="header-row-empty">
-        <th mat-header-cell *matHeaderCellDef [attr.colspan]="4"></th>
+        <th mat-header-cell *matHeaderCellDef [attr.colspan]="2"></th>
       </ng-container>
       <ng-container [matColumnDef]="iter" *ngFor="let iter of iterationColumns">
         <th mat-header-cell *matHeaderCellDef [attr.colspan]="2" class="iteration-column" > {{iter}} </th>
