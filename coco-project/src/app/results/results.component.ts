@@ -128,16 +128,22 @@ export class ResultsComponent implements OnInit {
     const querySnapshot = await getDocs(compoundQuery);
 
     let data = querySnapshot.docs.map((doc) => doc.data());
-    console.log(data);
+    data.sort((a, b) => {
+      if (a['group'] < b['group']) return -1;
+      if (a['group'] > b['group']) return 1;
+      return 0;
+    });
 
     let tableData = [];
+    let groupId = 0;
     for(let entry of data){
       for(let res of entry['results']) {
         tableData.push({
-          group: entry['group'],
+          group: (entry['group'] != groupId) ? entry['group'] : '',
           name: res.name,
           ...this.addResults(entry, res)
         })
+        groupId = entry['group'];
       }
     }
 
