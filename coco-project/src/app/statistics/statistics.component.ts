@@ -141,7 +141,6 @@ export class StatisticsComponent implements OnInit {
     const uniqueCombinations = new Set<string>();
 
     querySnapshot.docs.forEach((doc) => {
-      console.log(doc.id);
       const data = doc.data();
       const dateObject = data['date'].toDate();
       const formattedDate = format(dateObject, 'dd/MM/yyyy');
@@ -336,12 +335,14 @@ export class StatisticsComponent implements OnInit {
       ).length;
       let accuracyData = [];
       for (let i = 0; i < count; i++) {
+        let possibleAnswers = this.data[groupIndex].numberOfPossibleAnswers
         let markedCorrect = element['markedCorrect' + i] || 0;
         let unmarkedCorrect = element['unmarkedCorrect' + i] || 0;
         let markedIncorrect = element['markedIncorrect' + i] || 0;
+        let unmarkedIncorrect = possibleAnswers - markedCorrect - unmarkedCorrect - markedIncorrect || 0;
 
-        let total = markedCorrect + unmarkedCorrect + markedIncorrect;
-        let accuracy = markedCorrect ? (markedCorrect / total) * 100 : 0;
+        let total = possibleAnswers || markedCorrect + unmarkedCorrect + markedIncorrect; //written this way to support legacy analytics data that does not contain numberOfPossibleAnswers
+        let accuracy = markedCorrect ? ((markedCorrect + unmarkedIncorrect) / total) * 100 : 0;
         accuracyData.push(accuracy);
       }
 
