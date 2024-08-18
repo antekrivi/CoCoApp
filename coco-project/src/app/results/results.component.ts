@@ -156,10 +156,11 @@ export class ResultsComponent implements OnInit {
   addResults(entry, element) : any[] {
     let repetitions = [];
     for (let i = 0; i < entry.resolutionTimesMax.length; i++) {
-      repetitions['T' + i] = element['markedCorrect' + i] + "/" + (element['markedCorrect' + i] + element['unmarkedCorrect' + i]);
-      repetitions['N' + i] = element['markedIncorrect' + i] || 0;
+      if (element['markedCorrect' + i] !== undefined) {
+        repetitions['T' + i] = element['markedCorrect' + i] + "/" + (element['markedCorrect' + i] + element['unmarkedCorrect' + i]);
+        repetitions['N' + i] = element['markedIncorrect' + i] || 0;
+      }
     }
-    console.log(repetitions);
     return repetitions
   }
 
