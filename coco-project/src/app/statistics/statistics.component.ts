@@ -160,6 +160,7 @@ export class StatisticsComponent implements OnInit {
           date: dateObject,
         });
       }
+      this.selectedId = this.dropdownItems[0].id;
     });
 
     this.dropdownItems.sort((a, b) => {
