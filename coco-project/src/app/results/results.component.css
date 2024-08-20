@@ -1,3 +1,39 @@
+.custom-button {
+  background-color: rgb(240, 240, 240);
+  border: none;
+  color: rgb(0, 0, 0);
+  padding: 7px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: background-color 0.3s;
+  transition: 0.5s;
+}
+.custom-button:hover {
+  background-color: #007bff;
+  color: rgb(255, 255, 255);
+}
+
+.custom-button.sort-selected {
+  background-color: #007bff;
+  color: rgb(255, 255, 255);
+}
+
+.custom-button-background {
+  padding: 0px 5px;
+  display: inline-block;
+  border-radius: 25px;
+  background-color: rgb(240, 240, 240);
+}
+
+.sort-selected {
+  background-color: lightblue;
+}
+
 .data-display-container {
   display: flex;
   flex-wrap: wrap;
@@ -36,10 +72,10 @@
 
 .mat-column-group-id {
   width: 6rem;
+  text-align: center;
 }
 
 .group-id {
-  text-align: center;
   vertical-align: bottom;
   font-weight: bold;
   border-bottom: none;
@@ -48,4 +84,13 @@
 .mat-header-row {
   font-weight: bold;
   border-bottom: 1px groove currentColor;
+}
+
+.mat-column-rank {
+  width: 4rem;
+}
+
+.rank {
+  text-align: center;
+  font-weight: bold;
 }

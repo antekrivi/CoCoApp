@@ -24,9 +24,9 @@ export class ResultsComponent implements OnInit {
 
   data: any;
   selectedId: string = null;
-  groupColumns: string[] = ["header-row-empty"];
+  groupColumns: string[];
   iterationColumns: string[] = [];
-  displayedColumns: string[] = ['group-id', 'name'];
+  displayedColumns: string[] = [];
   resultColumns: string[] = [];
   dropdownItems: {
     id: string;
@@ -36,7 +36,15 @@ export class ResultsComponent implements OnInit {
     date: Date;
   }[] = [];
 
+  selectedOption: string = 'Pregled rezultata';
+  options: string[] = ['Pregled rezultata', 'Rang-lista'];
+
   constructor() {}
+
+  selectOption(option: string) {
+    this.selectedOption = option;
+    this.getData();
+  }
 
   ngOnInit() {
     this.listenToDataChanges();
@@ -128,6 +136,15 @@ export class ResultsComponent implements OnInit {
     const querySnapshot = await getDocs(compoundQuery);
 
     let data = querySnapshot.docs.map((doc) => doc.data());
+
+    if (this.selectedOption === 'Pregled rezultata') this.getResults(data)
+    else if (this.selectedOption === 'Rang-lista') this.getRankings(data)
+
+    this.resetColumns();
+    this.addColumns(data);
+  }
+
+  getResults(data) {
     data.sort((a, b) => {
       if (a['group'] < b['group']) return -1;
       if (a['group'] > b['group']) return 1;
@@ -148,9 +165,31 @@ export class ResultsComponent implements OnInit {
     }
 
     this.data = tableData;
+  }
 
-    this.resetColumns();
-    this.addColumns(data);
+  getRankings(data) {
+    let tableData = [];
+    for(let entry of data){
+      for(let res of entry['results']) {
+        tableData.push({
+          group: entry['group'],
+          name: res.name,
+          accuracy: this.addAccuracyOfLastIteration(entry, res)
+        })
+      }
+    }
+
+    tableData.sort((a, b) => {
+      if (a['accuracy'] > b['accuracy']) return -1;
+      if (a['accuracy'] < b['accuracy']) return 1;
+      return 0;
+    });
+
+    for (let i = 0; i < tableData.length; i++) {
+      tableData[i].rank = tableData[i].accuracy == tableData[i-1]?.accuracy ? tableData[i-1].rank : i+1
+    }
+
+    this.data = tableData
   }
 
   addResults(entry, element) : any[] {
@@ -164,19 +203,40 @@ export class ResultsComponent implements OnInit {
     return repetitions
   }
 
+  addAccuracyOfLastIteration(entry, element) : number {
+    let lastIteration = entry.resolutionTimesMax.length - 1
+
+    let possibleAnswers = entry.numberOfPossibleAnswers
+    let markedCorrect = element['markedCorrect' + lastIteration] || 0;
+    let unmarkedCorrect = element['unmarkedCorrect' + lastIteration] || 0;
+    let markedIncorrect = element['markedIncorrect' + lastIteration] || 0;
+    let unmarkedIncorrect = possibleAnswers - markedCorrect - unmarkedCorrect - markedIncorrect || 0;
+
+    let total = possibleAnswers || markedCorrect + unmarkedCorrect + markedIncorrect; //written this way to support legacy analytics data that does not contain numberOfPossibleAnswers
+    let accuracy = markedCorrect ? ((markedCorrect + unmarkedIncorrect) / total) * 100 : 0;
+
+    return Number(accuracy.toFixed(2))
+  }
+
   addColumns(data) {
-    for (let i = 0; i < data[0].resolutionTimesMax.length; i++) {
-      this.displayedColumns.push('T' + i, 'N' + i);
-      this.resultColumns.push('T' + i, 'N' + i);
-      this.iterationColumns.push(String(i+1));
+    if (this.selectedOption === 'Pregled rezultata') {
+      this.displayedColumns = ['group-id', 'name'];
+      for (let i = 0; i < data[0].resolutionTimesMax.length; i++) {
+        this.displayedColumns.push('T' + i, 'N' + i);
+        this.resultColumns.push('T' + i, 'N' + i);
+        this.iterationColumns.push(String(i + 1));
+      }
+      this.groupColumns.push("header-row-empty", ...this.iterationColumns)
     }
-    this.groupColumns.push(...this.iterationColumns)
+    else if (this.selectedOption === 'Rang-lista') {
+        this.displayedColumns = ['rank', 'name', 'group-id', 'accuracy']
+      }
   }
 
   resetColumns() {
-    this.displayedColumns = ['group-id', 'name'];
+    this.displayedColumns = [];
     this.resultColumns = [];
-    this.groupColumns = ["header-row-empty"];
+    this.groupColumns = [];
     this.iterationColumns = [];
   }
 }
