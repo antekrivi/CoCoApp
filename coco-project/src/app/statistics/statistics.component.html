@@ -18,34 +18,57 @@
   </div>
   <hr />
 </div>
-<div class="custom-button-background">
-  <button
-    class="custom-button"
-    [ngClass]="{
-      'sort-selected': displayData == 'accuracy'
-    }"
-    (click)="updateChart(1)"
-  >
-    Točnost
-  </button>
-  <button
-    class="custom-button"
-    [ngClass]="{
-      'sort-selected': displayData == 'resolutionTime'
-    }"
-    (click)="updateChart(2)"
-  >
-    Vremena rješavanja
-  </button>
-  <button
-    class="custom-button"
-    [ngClass]="{
-      'sort-selected': displayData == 'discussionTimes'
-    }"
-    (click)="updateChart(3)"
-  >
-    Vremena rasprave
-  </button>
+<div style="display: flex; justify-content: space-between;">
+  <div class="custom-button-background">
+    <button
+      class="custom-button"
+      [ngClass]="{
+        'sort-selected': displayData == 'accuracy'
+      }"
+      (click)="updateChart(1)"
+    >
+      Točnost
+    </button>
+    <button
+      class="custom-button"
+      [ngClass]="{
+        'sort-selected': displayData == 'resolutionTime'
+      }"
+      (click)="updateChart(2)"
+    >
+      Vremena rješavanja
+    </button>
+    <button
+      class="custom-button"
+      [ngClass]="{
+        'sort-selected': displayData == 'discussionTimes'
+      }"
+      (click)="updateChart(3)"
+    >
+      Vremena rasprave
+    </button>
+  </div>
+
+  <div class="custom-button-background" *ngIf="selectedGroup == 'sve' && displayData != 'discussionTimes'">
+    <button
+      class="custom-button"
+      [ngClass]="{
+        'sort-selected': averageOption == false
+      }"
+      (click)="updateChart(4)"
+    >
+      Po učeniku
+    </button>
+    <button
+      class="custom-button"
+      [ngClass]="{
+        'sort-selected': averageOption == true
+      }"
+      (click)="updateChart(5)"
+    >
+      Po prosjeku grupe
+    </button>
+  </div>
 </div>
 
 <hr />
@@ -73,6 +96,4 @@
       </div>
     </div>
   </div>
-  
-  
 </div>

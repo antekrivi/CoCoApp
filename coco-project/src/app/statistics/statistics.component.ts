@@ -88,6 +88,7 @@ export class StatisticsComponent implements OnInit {
 
   selectedGroup: string = 'sve';
   groupOptions: string[] = [];
+  averageOption: boolean = false;
   sidebarData: any = [];
 
   constructor(private analyticsService: AnalyticsService) {}
@@ -234,6 +235,10 @@ export class StatisticsComponent implements OnInit {
         this.displayData = 'resolutionTime';
       } else if (button === 3) {
         this.displayData = 'discussionTimes';
+      } else if (button === 4) {
+        this.averageOption = false;
+      } else if (button === 5) {
+        this.averageOption = true;
       }
     }
 
@@ -244,8 +249,12 @@ export class StatisticsComponent implements OnInit {
         if (this.displayData == 'discussionTimes') {
           this.createSeries(this.data[groupIndex], Number(groupIndex));
         } else {
-          for (let element of groupData) {
-            this.createSeries(element, Number(groupIndex));
+          if (this.averageOption) {
+            this.createSeries(this.data[groupIndex], Number(groupIndex));
+          } else {
+            for (let element of groupData) {
+              this.createSeries(element, Number(groupIndex));
+            }
           }
         }
       }
@@ -332,16 +341,32 @@ export class StatisticsComponent implements OnInit {
         });
       }
     } else if (this.displayData == 'accuracy') {
-      let count = Object.keys(element).filter((key) =>
-        key.includes('resolutionTime')
-      ).length;
       let accuracyData = [];
-      for (let i = 0; i < count; i++) {
-        accuracyData.push(this.analyticsService.calculateAccuracy(element, i, this.data[groupIndex].numberOfPossibleAnswers));
+      let seriesName = ''
+
+      if (this.averageOption && this.selectedGroup === 'sve') {
+        seriesName = 'Grupa ' + (groupIndex + 1);
+        let count = element['resolutionTimesMax'].length;
+        let results = element['results'];
+
+        for (let i = 0; i < count; i++) {
+          let averageGroupAccuracy = results.reduce((sum: number, student: any) =>
+            sum + this.analyticsService.calculateAccuracy(student, i, element['numberOfPossibleAnswers']), 0) / results.length;
+          accuracyData.push(averageGroupAccuracy);
+        }
+      } else {
+        seriesName = element.name;
+        let count = Object.keys(element).filter((key) =>
+          key.includes('resolutionTime')
+        ).length;
+
+        for (let i = 0; i < count; i++) {
+          accuracyData.push(this.analyticsService.calculateAccuracy(element, i, this.data[groupIndex].numberOfPossibleAnswers));
+        }
       }
 
       this.chartRef.addSeries({
-        name: element.name,
+        name: seriesName,
         data: accuracyData,
         type: 'line',
         lineWidth: 3,
@@ -353,20 +378,45 @@ export class StatisticsComponent implements OnInit {
 
     } else if (this.displayData == 'resolutionTime') {
       let resolutionTimesData = [];
-      for (let i = 0; i < count; i++) {
-        if (Array.isArray(element['resolutionTime' + i])) {
-          let sum = element['resolutionTime' + i].reduce(
-            (total, value) => total + value,
-            0
-          );
-          resolutionTimesData.push(sum);
-        } else {
-          resolutionTimesData.push(element['resolutionTime' + i] || 0);
+      let seriesName = ''
+
+      if (this.averageOption && this.selectedGroup === 'sve') {
+        seriesName = 'Grupa ' + (groupIndex + 1);
+        let count = element['resolutionTimesMax'].length;
+        let results = element['results'];
+        for (let i = 0; i < count; i++) {
+          let groupSum = 0;
+
+          for (let j = 0; j < results.length; j++) {
+            if (Array.isArray(results[j]['resolutionTime' + i])) {
+              let sum = results[j]['resolutionTime' + i].reduce(
+                (total, value) => total + value,
+                0
+              );
+              groupSum += sum;
+            } else {
+              groupSum += results[j]['resolutionTime' + i] || 0;
+            }
+          }
+          resolutionTimesData.push(groupSum / results.length);
+        }
+      } else {
+        seriesName = element.name;
+        for (let i = 0; i < count; i++) {
+          if (Array.isArray(element['resolutionTime' + i])) {
+            let sum = element['resolutionTime' + i].reduce(
+              (total, value) => total + value,
+              0
+            );
+            resolutionTimesData.push(sum);
+          } else {
+            resolutionTimesData.push(element['resolutionTime' + i] || 0);
+          }
         }
       }
 
       this.chartRef.addSeries({
-        name: element.name,
+        name: seriesName,
         data: resolutionTimesData,
         type: 'line',
         color: this.selectedGroup == 'sve' ? this.colors[groupIndex] : null,
