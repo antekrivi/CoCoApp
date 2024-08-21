@@ -31,7 +31,7 @@ export class StatisticsComponent implements OnInit {
     '#2ee0ca',
     '#fa4b42',
     '#feb56a',
-    '#91e8e12',
+    '#91e8e1',
   ];
   unsubscribeFromFirestore: () => void;
 
@@ -267,6 +267,7 @@ export class StatisticsComponent implements OnInit {
       }
     }
   }
+
   fillSideBar(element) {
     let count = Object.keys(element).filter((key) =>
       key.includes('resolutionTime')
@@ -351,8 +352,13 @@ export class StatisticsComponent implements OnInit {
         name: element.name,
         data: accuracyData,
         type: 'line',
+        lineWidth: 3,
+        zIndex: 1,
         color: this.selectedGroup == 'sve' ? this.colors[groupIndex] : null,
       });
+
+      this.highlightDownwardTrend(accuracyData);
+
     } else if (this.displayData == 'resolutionTime') {
       let resolutionTimesData = [];
       for (let i = 0; i < count; i++) {
@@ -458,6 +464,7 @@ export class StatisticsComponent implements OnInit {
             color: 'red',
             width: 2,
             value: 100,
+            dashStyle: 'Dash',
             label: {
               text: '100% - Maksimum',
               align: 'right',
@@ -477,6 +484,34 @@ export class StatisticsComponent implements OnInit {
     }
     this.chartRef.xAxis[0].setTitle({ text: 'Iteracija' });
   }
+
+  highlightDownwardTrend(data) {
+    let downwardTrend = [];
+    data.forEach((value, i) => {
+      if (value < data[i - 1]) {
+        downwardTrend.push(data[i - 1], value);
+      }
+    });
+
+    this.chartRef.addSeries({
+      data: downwardTrend,
+      type: 'line',
+      lineWidth: 4,
+      zIndex: 0,
+      color: 'red',
+      enableMouseTracking: false,
+      showInLegend: false,
+      marker: {
+        enabled: false
+      },
+      shadow: {
+        enabled: true,
+        color: 'red',
+        width: 10
+      }
+    });
+  };
+
   lighten(color, percent) {
     var num = parseInt(color.replace('#', ''), 16),
       amt = Math.round(2.55 * percent),
