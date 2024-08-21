@@ -11,6 +11,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { format } from 'date-fns';
+import {AnalyticsService} from "../services/analytics.service";
 
 @Component({
   selector: 'app-results',
@@ -39,7 +40,7 @@ export class ResultsComponent implements OnInit {
   selectedOption: string = 'Pregled rezultata';
   options: string[] = ['Pregled rezultata', 'Rang-lista'];
 
-  constructor() {}
+  constructor(private analyticsService: AnalyticsService) {}
 
   selectOption(option: string) {
     this.selectedOption = option;
@@ -206,17 +207,8 @@ export class ResultsComponent implements OnInit {
 
   addAccuracyOfLastIteration(entry, element) : number {
     let lastIteration = entry.resolutionTimesMax.length - 1
-
-    let possibleAnswers = entry.numberOfPossibleAnswers
-    let markedCorrect = element['markedCorrect' + lastIteration] || 0;
-    let unmarkedCorrect = element['unmarkedCorrect' + lastIteration] || 0;
-    let markedIncorrect = element['markedIncorrect' + lastIteration] || 0;
-    let unmarkedIncorrect = possibleAnswers - markedCorrect - unmarkedCorrect - markedIncorrect || 0;
-
-    let total = possibleAnswers || markedCorrect + unmarkedCorrect + markedIncorrect; //written this way to support legacy analytics data that does not contain numberOfPossibleAnswers
-    let accuracy = markedCorrect ? ((markedCorrect + unmarkedIncorrect) / total) * 100 : 0;
-
-    return Number(accuracy.toFixed(2))
+    
+    return this.analyticsService.calculateAccuracy(element, lastIteration, entry.numberOfPossibleAnswers);
   }
 
   addColumns(data) {

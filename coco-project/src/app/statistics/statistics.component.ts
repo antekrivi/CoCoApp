@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import * as Highcharts from 'highcharts';
 import { format } from 'date-fns';
-import { Chart } from 'angular-highcharts';
+import {AnalyticsService} from "../services/analytics.service";
 
 @Component({
   selector: 'app-statistics',
@@ -90,7 +90,7 @@ export class StatisticsComponent implements OnInit {
   groupOptions: string[] = [];
   sidebarData: any = [];
 
-  constructor() {}
+  constructor(private analyticsService: AnalyticsService) {}
 
   selectGroup(group: string) {
     this.selectedGroup = group;
@@ -337,15 +337,7 @@ export class StatisticsComponent implements OnInit {
       ).length;
       let accuracyData = [];
       for (let i = 0; i < count; i++) {
-        let possibleAnswers = this.data[groupIndex].numberOfPossibleAnswers
-        let markedCorrect = element['markedCorrect' + i] || 0;
-        let unmarkedCorrect = element['unmarkedCorrect' + i] || 0;
-        let markedIncorrect = element['markedIncorrect' + i] || 0;
-        let unmarkedIncorrect = possibleAnswers - markedCorrect - unmarkedCorrect - markedIncorrect || 0;
-
-        let total = possibleAnswers || markedCorrect + unmarkedCorrect + markedIncorrect; //written this way to support legacy analytics data that does not contain numberOfPossibleAnswers
-        let accuracy = markedCorrect ? ((markedCorrect + unmarkedIncorrect) / total) * 100 : 0;
-        accuracyData.push(accuracy);
+        accuracyData.push(this.analyticsService.calculateAccuracy(element, i, this.data[groupIndex].numberOfPossibleAnswers));
       }
 
       this.chartRef.addSeries({
