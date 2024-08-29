@@ -161,7 +161,6 @@ export class StatisticsComponent implements OnInit {
           date: dateObject,
         });
       }
-      this.selectedId = this.dropdownItems[0].id;
     });
 
     this.dropdownItems.sort((a, b) => {
@@ -528,13 +527,17 @@ export class StatisticsComponent implements OnInit {
   }
 
   highlightDownwardTrend(data) {
-    let downwardTrend = [];
     data.forEach((value, i) => {
+      let downwardTrend = [];
       if (value < data[i - 1]) {
+        for(let j = 1; j < i; j ++) downwardTrend.push(null);
         downwardTrend.push(data[i - 1], value);
+        this.addHighlightSeries(downwardTrend)
       }
     });
+  }
 
+  addHighlightSeries(downwardTrend) {
     this.chartRef.addSeries({
       data: downwardTrend,
       type: 'line',
@@ -551,8 +554,8 @@ export class StatisticsComponent implements OnInit {
         color: 'red',
         width: 10
       }
-    });
-  };
+    })
+  }
 
   lighten(color, percent) {
     var num = parseInt(color.replace('#', ''), 16),
