@@ -1,10 +1,9 @@
 export const firebaseConfig = {
-  apiKey: "AIzaSyBJsoNmLzItMwt5hvOkFNgfkhAxm4xhXms",
-  authDomain: "coco-be1e5.firebaseapp.com",
-  projectId: "coco-be1e5",
-  storageBucket: "coco-be1e5.appspot.com",
-  messagingSenderId: "59832380661",
-  appId: "1:59832380661:web:551933e71c9e93ba4869bc",
-  measurementId: "G-DS6GRSWVR7"
+  apiKey: "AIzaSyAOYowA6Kjw1-Ss2e0otw--B9Rwa8w6XlI",
+  authDomain: "coco-2024.firebaseapp.com",
+  projectId: "coco-2024",
+  storageBucket: "coco-2024.appspot.com",
+  messagingSenderId: "614050471182",
+  appId: "1:614050471182:web:759cf6910659c25e260b5f",
+  measurementId: "G-V602CC9FVQ"
 };
-  
