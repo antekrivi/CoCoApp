@@ -6,12 +6,40 @@
 }
 
 .row {
+    display: flex;
+    flex-wrap: wrap;
     height: 90vh;
 }
 
-#right {
-    position: relative;
+#left, #right {
+    padding: 1em;
     border: 1px solid rgba(0, 0, 0, 0.125);
     border-radius: 5px;
-    padding: 1em;
+}
+
+#left {
+    flex: 0 0 20%;
+    max-width: 20%;
+}
+
+#right {
+    flex: 1;
+    max-width: 80%;
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .row {
+        flex-direction: column;
+        height: auto;
+    }
+
+    #left, #right {
+        flex: 1 0 auto;
+        max-width: 100%;
+        margin-bottom: 20px;
+    }
+    #left{
+        text-align: center;
+    }
 }

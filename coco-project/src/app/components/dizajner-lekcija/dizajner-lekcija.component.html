@@ -1,8 +1,8 @@
 <h1>Moje lekcije</h1>
 <br/>
 <div id="search">
-  <button class="btn btn-primary float-end" (click)="filterThemes()">Pretraži</button>
   <input class="form-control float-end" [(ngModel)]="searchTerm" type="text" placeholder="Pretraži teme i podteme">
+  <button class="btn btn-primary float-end" (click)="filterThemes()">Pretraži</button>
 </div>
 <div class="container">
   <div class="row">
@@ -98,7 +98,6 @@
     <a *ngFor="let task of tasks" href="javascript:void(0);" class="list-group-item list-group-item-action">{{task.textTask}}
       <button class="btn btn-primary float-end" (click)="openDialog(task)">Pregled zadatka</button>
     </a>
-    
   </div>
 </div>
 <button id="editLection" *ngIf="selectedTheme !== '0' && selectedSubtheme !== '0'" class="btn btn-primary" (click)="editLection('nl')">Uredi lekciju</button>
