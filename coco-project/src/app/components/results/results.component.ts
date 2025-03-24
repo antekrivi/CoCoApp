@@ -11,7 +11,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { format } from 'date-fns';
-import {AnalyticsService} from "../services/analytics.service";
+import {AnalyticsService} from "../../services/analytics.service";
 
 @Component({
   selector: 'app-results',

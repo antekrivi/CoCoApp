@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import * as Highcharts from 'highcharts';
 import { format } from 'date-fns';
-import {AnalyticsService} from "../services/analytics.service";
+import {AnalyticsService} from "../../services/analytics.service";
 
 @Component({
   selector: 'app-statistics',

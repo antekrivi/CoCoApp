@@ -3,13 +3,13 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { DizajnerPocetnoComponent } from './dizajner-pocetno/dizajner-pocetno.component';
-import { IzbornikComponent } from './izbornik/izbornik.component';
-import { OkvirComponent } from './okvir/okvir.component';
-import { DizajnerLekcijaComponent } from './dizajner-lekcija/dizajner-lekcija.component';
+import { DizajnerPocetnoComponent } from './components/dizajner-pocetno/dizajner-pocetno.component';
+import { IzbornikComponent } from './components/izbornik/izbornik.component';
+import { OkvirComponent } from './components/okvir/okvir.component';
+import { DizajnerLekcijaComponent } from './components/dizajner-lekcija/dizajner-lekcija.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NovaLekcijaComponent } from './nova-lekcija/nova-lekcija.component';
-import { ZadatakComponent } from './zadatak/zadatak.component';
+import { NovaLekcijaComponent } from './components/nova-lekcija/nova-lekcija.component';
+import { ZadatakComponent } from './components/zadatak/zadatak.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
 import { AngularFireModule } from "@angular/fire/compat";
@@ -17,15 +17,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { AngularFireAuthModule } from "@angular/fire/compat/auth";
 import { AngularFirestoreModule } from "@angular/fire/compat/firestore";
 import { firebaseConfig } from "./firebase-config";
-import { ActivityDesignerComponent } from './activity-designer/activity-designer.component';
-import { PodtemaComponent } from './podtema/podtema.component';
-import { PodtemaZadatakComponent } from './podtema-zadatak/podtema-zadatak.component';
-import { StatisticsComponent } from './statistics/statistics.component';
+import { ActivityDesignerComponent } from './components/activity-designer/activity-designer.component';
+import { PodtemaComponent } from './components/podtema/podtema.component';
+import { PodtemaZadatakComponent } from './components/podtema-zadatak/podtema-zadatak.component';
+import { StatisticsComponent } from './components/statistics/statistics.component';
 import { HighchartsChartModule } from 'highcharts-angular';
-import { ResultsComponent } from './results/results.component';
+import { ResultsComponent } from './components/results/results.component';
 import { ChartModule } from 'angular-highcharts';
-import { TimeMaskDirective } from './activity-designer/TimeMaskDirective';
+import { TimeMaskDirective } from './components/activity-designer/TimeMaskDirective';
 import { MatTableModule } from "@angular/material/table";
+import { UserRegisterComponent } from './components/user-register/user-register.component';
+import { UserLoginComponent } from './components/user-login/user-login.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +44,8 @@ import { MatTableModule } from "@angular/material/table";
     StatisticsComponent,
     ResultsComponent,
     TimeMaskDirective,
+    UserRegisterComponent,
+    UserLoginComponent,
   ],
   imports: [
     BrowserModule,

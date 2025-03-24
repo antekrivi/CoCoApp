@@ -3,4 +3,13 @@
     <li (click)="showContent('da')" class="list-group-item" [ngStyle]="{'cursor': this.actionService.action === 'edit' ? 'default' : 'pointer', 'color': this.actionService.action === 'edit' ? 'rgba(0, 0, 0, 0.125)' : 'black'}">Dizajner aktivnosti</li>
     <li (click)="showContent('s')" class="list-group-item" [ngStyle]="{'cursor': this.actionService.action === 'edit' ? 'default' : 'pointer', 'color': this.actionService.action === 'edit' ? 'rgba(0, 0, 0, 0.125)' : 'black'}">Statistika</li>
     <li (click)="showContent('r')" class="list-group-item" [ngStyle]="{'cursor': this.actionService.action === 'edit' ? 'default' : 'pointer', 'color': this.actionService.action === 'edit' ? 'rgba(0, 0, 0, 0.125)' : 'black'}">Rezultati</li>
+    
+    <li (click)="showContent('feedback')" class="list-group-item" [ngStyle]="{'cursor': this.actionService.action === 'edit' ? 'default' : 'pointer', 'color': 
+        this.actionService.action === 'edit' ? 'rgba(0, 0, 0, 0.125)' : 'black'}">
+        Novi modul
+        </li>
+    
+    <li (click)="logout()" class="list-group-item" [ngStyle]="{'cursor': this.actionService.action === 'edit' ? 'default' : 'pointer', 'color': this.actionService.action === 'edit' ? 'rgba(0, 0, 0, 0.125)' : 'black'}">
+            Logout
+     </li>
 </ul>

@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { getDocs, query, collection, where, doc, deleteDoc, getDoc } from "firebase/firestore";
 import { DizajnerPocetnoComponent } from '../dizajner-pocetno/dizajner-pocetno.component';
-import { FirebaseService } from '../services/firebase-service.service';
-import { RadnjaService } from '../services/radnja.service';
+import { FirebaseService } from '../../services/firebase-service.service';
+import { RadnjaService } from '../../services/radnja.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ZadatakComponent } from '../zadatak/zadatak.component';
 import { PodtemaComponent } from '../podtema/podtema.component';

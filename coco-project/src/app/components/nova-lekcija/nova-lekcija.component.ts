@@ -1,9 +1,9 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { FirebaseService } from '../services/firebase-service.service';
+import { FirebaseService } from '../../services/firebase-service.service';
 import { collection, addDoc, writeBatch, doc, getDocs, getDoc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
 import { FormGroup, FormArray, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { DizajnerPocetnoComponent } from '../dizajner-pocetno/dizajner-pocetno.component';
-import { RadnjaService } from '../services/radnja.service';
+import { RadnjaService } from '../../services/radnja.service';
 import { getStorage, ref, uploadBytes, deleteObject, getDownloadURL } from "firebase/storage";
 import Swal from 'sweetalert2';
 

@@ -1,0 +1,9 @@
+<div class="register-form">
+    <input type="text" [(ngModel)]="fullName" placeholder="Puno ime">
+    <input type="email" [(ngModel)]="email" placeholder="Email">
+    <input type="password" [(ngModel)]="password" placeholder="Lozinka">
+    <input type="password" [(ngModel)]="confirmPassword" placeholder="Potvrdi lozinku">
+    <input type="text" [(ngModel)]="school" placeholder="Škola">
+    <button (click)="register()">Registracija</button>
+    <p>Već imate račun? <a routerLink="/login">Prijavite se</a></p>
+  </div>

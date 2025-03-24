@@ -11,9 +11,9 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { DizajnerPocetnoComponent } from '../dizajner-pocetno/dizajner-pocetno.component';
-import { FirebaseService } from '../services/firebase-service.service';
-import { RadnjaService } from '../services/radnja.service';
-import { ActivityDTO } from '../aktivnosti-dto';
+import { FirebaseService } from '../../services/firebase-service.service';
+import { RadnjaService } from '../../services/radnja.service';
+import { ActivityDTO } from '../../aktivnosti-dto';
 import Swal from 'sweetalert2';
 
 //funkcija za čitanje više dokumenata
