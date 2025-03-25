@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap");
+
 body {
   margin: 0;
   height: 100vh;
@@ -22,11 +23,13 @@ svg {
 #base {
   cursor: pointer;
 }
+
 .grouping-segment {
   margin-top: 30px;
   overflow-y: auto;
   height: 80vh;
 }
+
 .grouping-segment > h3 {
   font-weight: 600;
 }
@@ -154,6 +157,10 @@ svg {
 }
 @media only screen and (max-width: 600px) {
   .group-container .fields-container {
+    width: 100%;
+  }
+
+  .row > div {
     width: 100%;
   }
 }

@@ -1,7 +1,6 @@
 <div class="all-container">
   <div class="fields-container">
     <div class="row">
-      <!-- Add [ngClass]="{'invalid-input': invalidFields['selectedTopic'], 'shake': shakeFields['selectedTopic']}" (change)="validateField('selectedTopic', selectedTopic)" to the topic select -->
       <div class="dropdown-select">
         <label for="Tema">Tema:</label>
         <select
@@ -22,7 +21,6 @@
         </select>
       </div>
 
-      <!-- Add [ngClass]="{'invalid-input': invalidFields['selectedSubtopic'], 'shake': shakeFields['selectedSubtopic']}" (change)="validateField('selectedSubtopic', selectedSubtopic)" to the subtopic select -->
       <div class="dropdown-select">
         <label for="Podtema">Podtema:</label>
         <select
@@ -50,10 +48,18 @@
     <div class="row">
       <div class="number-input-container">
         <label for="VrijemeRjesavanja">Vrijeme rješavanja:</label>
-
-        <input type="text" appTimeMask class="number-input" [(ngModel)]="times.solving" [ngClass]="{'invalid-input': invalidFields['solving'], shake: shakeFields['solving']}" (ngModelChange)="validateField('solving', times.solving)">
+        <input
+          type="text"
+          appTimeMask
+          class="number-input"
+          [(ngModel)]="times.solving"
+          [ngClass]="{
+            'invalid-input': invalidFields['solving'],
+            shake: shakeFields['solving']
+          }"
+          (ngModelChange)="validateField('solving', times.solving)"
+        />
       </div>
-      <!-- Add the new "Broj ponavljanja" input field after the "VrijemeRjesavanja" input field -->
       <div class="number-input-container">
         <label for="BrojPonavljanja">Broj ponavljanja:</label>
         <input
@@ -80,37 +86,38 @@
         <label>{{ i + 1 }}. ponavljanje</label>
         <div class="number-input-container">
           <label for="VrijemeDiskusije-{{ i }}">Vrijeme diskusije:</label>
-
-          <input type="text" appTimeMask class="number-input"
+          <input
+            type="text"
+            appTimeMask
+            class="number-input"
             [(ngModel)]="times.discussion[i]"
             [ngClass]="{
               'invalid-input': invalidFields['discussion' + i],
               shake: shakeFields['discussion' + i]
             }"
             (ngModelChange)="validateField('discussion' + i, times.discussion[i])"
-          >
+          />
         </div>
         <div class="number-input-container">
           <label for="VrijemeIspravljanja-{{ i }}">Vrijeme ispravljanja:</label>
-
-
-          <input type="text" appTimeMask class="number-input"
+          <input
+            type="text"
+            appTimeMask
+            class="number-input"
             [(ngModel)]="times.correction[i]"
             [ngClass]="{
               'invalid-input': invalidFields['correction' + i],
               shake: shakeFields['correction' + i]
             }"
             (ngModelChange)="validateField('correction' + i, times.correction[i])"
-          >
-
+          />
         </div>
       </div>
     </ng-container>
 
-
     <div class="row">
       <div class="number-input-container">
-        <label> Broj tableta: </label>
+        <label>Broj tableta:</label>
         <input
           class="number-input"
           [(ngModel)]="numberOfTablets"
@@ -125,7 +132,7 @@
         />
       </div>
       <div class="number-input-container">
-        <label> Broj učenika: </label>
+        <label>Broj učenika:</label>
         <input
           class="number-input"
           [(ngModel)]="numberOfChildren"
@@ -141,37 +148,31 @@
       </div>
     </div>
 
-
-
-    <button
-      class="custom-button"
-      (click)="handleClick()"
-    >
+    <button class="custom-button" (click)="handleClick()">
       {{ buttonText }}
-
     </button>
   </div>
 
   <div class="group-container">
     <div class="custom-button-background">
       <button
-      class="custom-button"
-      [ngClass]="{
-        'sort-selected': sortBalance
-      }"
-      (click)="balancedGroupingsFirst()"
-    >
-      Balansirana grupiranja
-    </button>
-    <button
-      class="custom-button"
-      [ngClass]="{
-        'sort-selected': !sortBalance
-      }"
-      (click)="unbalancedGroupingsFirst()"
-    >
-      Nebalansirana grupiranja
-    </button>
+        class="custom-button"
+        [ngClass]="{
+          'sort-selected': sortBalance
+        }"
+        (click)="balancedGroupingsFirst()"
+      >
+        Balansirana grupiranja
+      </button>
+      <button
+        class="custom-button"
+        [ngClass]="{
+          'sort-selected': !sortBalance
+        }"
+        (click)="unbalancedGroupingsFirst()"
+      >
+        Nebalansirana grupiranja
+      </button>
     </div>
     <div
       *ngIf="
@@ -238,5 +239,3 @@
     </div>
   </div>
 </div>
-
-
